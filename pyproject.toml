@@ -54,5 +54,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/onepostly"]
 
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -68,6 +68,8 @@ jobs:
             -p packageVersion=${{ steps.version.outputs.next }},packageName=onepostly,projectName=onepostly
           rm -rf src/onepostly
           cp -r /tmp/gen/onepostly src/onepostly
+          test -f src/onepostly/api/posts_api.py \
+            || { echo "::error::Generated package missing from src/ after copy."; exit 1; }
 
       - name: Write version into pyproject.toml
         run: |

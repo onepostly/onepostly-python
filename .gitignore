@@ -12,4 +12,4 @@ venv/
 
 # OpenAPI Generator emits a flat-layout package copy at the repo root in
 # addition to src/onepostly; the stray copy breaks pytest collection.
-onepostly/
+/onepostly/
