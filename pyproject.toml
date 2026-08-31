@@ -1,0 +1,58 @@
+[project]
+name = "onepostly"
+version = "0.2.1"
+description = "The official Python SDK for the Onepostly API"
+license = "Apache-2.0"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Onepostly", email = "support@onepostly.com" }]
+keywords = [
+  "onepostly",
+  "social-media",
+  "api",
+  "sdk",
+  "x",
+  "twitter",
+  "instagram",
+  "linkedin",
+  "tiktok",
+  "youtube",
+  "facebook",
+  "threads",
+  "pinterest",
+  "bluesky",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+dependencies = [
+  "python-dateutil>=2.8.2",
+  "httpx>=0.28.1",
+  "pydantic>=2.11",
+  "typing-extensions>=4.7.1",
+]
+
+[project.urls]
+Homepage = "https://onepostly.com"
+Repository = "https://github.com/onepostly/onepostly-python"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/onepostly"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
