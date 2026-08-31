@@ -146,6 +146,7 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.next }}
           name: v${{ steps.version.outputs.next }}
+          draft: false
           generate_release_notes: true
           body: |
             ## Auto-generated SDK update
