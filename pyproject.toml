@@ -1,6 +1,6 @@
 [project]
 name = "onepostly"
-version = "0.2.2"
+version = "0.2.3"
 description = "The official Python SDK for the Onepostly API"
 license = "Apache-2.0"
 readme = "README.md"
