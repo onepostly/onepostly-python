@@ -53,12 +53,21 @@ jobs:
           echo "next=$NEXT" >> "$GITHUB_OUTPUT"
           echo "Version: $CURRENT -> $NEXT"
 
+      # Generate into a scratch dir, then copy ONLY the package into src/.
+      # The python generator emits a flat project (pyproject.toml, setup.py,
+      # tests/, docs/, onepostly/) regardless of -o, so generating in-place
+      # either overwrites maintained files or (with .openapi-generator-ignore
+      # entries) silently writes nothing. -o tmp isolates the emission; the
+      # package subdir is the only part we keep.
       - name: Regenerate from the live production spec
         run: |
+          rm -rf /tmp/gen
           openapi-generator-cli generate \
             -i https://api.onepostly.com/openapi.json \
-            -g python --library httpx -o . \
+            -g python --library httpx -o /tmp/gen \
             -p packageVersion=${{ steps.version.outputs.next }},packageName=onepostly,projectName=onepostly
+          rm -rf src/onepostly
+          cp -r /tmp/gen/onepostly src/onepostly
 
       - name: Write version into pyproject.toml
         run: |
