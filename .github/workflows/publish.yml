@@ -34,7 +34,7 @@ jobs:
         run: |
           git diff --exit-code -- src/ \
             || { echo "::error::Production spec drifted from the committed generated SDK. Regenerate, review, and re-tag."; exit 1; }
-      - run: pip install -e ".[dev]" pytest-asyncio
+      - run: pip install -e ".[dev]" pytest-asyncio build
       - run: python -m build
       - run: pytest
       - name: Publish to PyPI
