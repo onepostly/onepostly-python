@@ -59,7 +59,41 @@ jobs:
       # either overwrites maintained files or (with .openapi-generator-ignore
       # entries) silently writes nothing. -o tmp isolates the emission; the
       # package subdir is the only part we keep.
+      #
+      # This pass bakes the CURRENT version into the generated files
+      # (__version__, user agent, debug report), so the change gate below sees
+      # a diff that is purely spec-driven — the embedded version strings match
+      # HEAD's release exactly and can never fake a "change".
       - name: Regenerate from the live production spec
+        run: |
+          rm -rf /tmp/gen
+          openapi-generator-cli generate \
+            -i https://api.onepostly.com/openapi.json \
+            -g python --library httpx -o /tmp/gen \
+            -p packageVersion=${{ steps.version.outputs.current }},packageName=onepostly,projectName=onepostly
+          rm -rf src/onepostly
+          cp -r /tmp/gen/onepostly src/onepostly
+          test -f src/onepostly/api/posts_api.py \
+            || { echo "::error::Generated package missing from src/ after copy."; exit 1; }
+
+      # Idempotency gate: a deploy with no API change produces an empty diff
+      # and the run exits here without committing or publishing anything.
+      # Only src/ counts — pyproject.toml is not bumped until after this gate.
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -z "$(git status --porcelain -- src/)" ]; then
+            echo "No generated-code changes; SDK already matches the live spec."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            git diff --stat
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The gate copy embeds the CURRENT version; a shipping release must carry
+      # the NEXT one. Re-generate once the gate confirmed a real spec change.
+      - name: Regenerate with the release version
+        if: steps.changes.outputs.has_changes == 'true'
         run: |
           rm -rf /tmp/gen
           openapi-generator-cli generate \
@@ -72,22 +106,10 @@ jobs:
             || { echo "::error::Generated package missing from src/ after copy."; exit 1; }
 
       - name: Write version into pyproject.toml
+        if: steps.changes.outputs.has_changes == 'true'
         run: |
           sed -i "s/^version = \".*\"/version = \"${{ steps.version.outputs.next }}\"/" pyproject.toml
           grep '^version' pyproject.toml
-
-      # Idempotency gate: a deploy with no API change produces an empty diff
-      # and the run exits here without committing or publishing anything.
-      - name: Check for changes
-        id: changes
-        run: |
-          if [ -z "$(git status --porcelain -- src/ pyproject.toml)" ]; then
-            echo "No generated-code changes; SDK already matches the live spec."
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          else
-            git diff --stat
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Install dev dependencies
         if: steps.changes.outputs.has_changes == 'true'
