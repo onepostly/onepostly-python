@@ -331,7 +331,7 @@ class PostsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> PostResponse:
-        """Create post
+        """Create post.
 
         Creates a post for one or more destinations. Returns `202` for immediate publish, or `201` when scheduled. X billable actions debit the workspace wallet.
 
@@ -405,7 +405,7 @@ class PostsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[PostResponse]:
-        """Create post
+        """Create post.
 
         Creates a post for one or more destinations. Returns `202` for immediate publish, or `201` when scheduled. X billable actions debit the workspace wallet.
 
@@ -479,7 +479,7 @@ class PostsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create post
+        """Create post.
 
         Creates a post for one or more destinations. Returns `202` for immediate publish, or `201` when scheduled. X billable actions debit the workspace wallet.
 

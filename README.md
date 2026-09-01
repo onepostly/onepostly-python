@@ -155,7 +155,7 @@ All methods take named keyword arguments.
 | Method | Description |
 | --- | --- |
 | `posts.list_posts()` | List posts |
-| `posts.create_post()` | Create post |
+| `posts.create_post()` | Create post. |
 | `posts.get_post()` | Get post |
 | `posts.cancel_post()` | Cancel post |
 | `posts.delete_post_destination()` | Remote-delete destination |
