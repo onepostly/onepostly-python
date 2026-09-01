@@ -112,7 +112,6 @@ AuthSettings = TypedDict(
     {
         "ApiKeyHeader": APIKeyAuthSetting,
         "ApiKeyBearer": BearerFormatAuthSetting,
-        "SessionCookie": APIKeyAuthSetting,
     },
     total=False,
 )
@@ -552,15 +551,6 @@ conf = onepostly.Configuration(
                 'key': 'Authorization',
                 'value': 'Bearer ' + self.access_token
             }
-        if 'SessionCookie' in self.api_key:
-            auth['SessionCookie'] = {
-                'type': 'api_key',
-                'in': 'cookie',
-                'key': 'better-auth.session_token',
-                'value': self.get_api_key_with_prefix(
-                    'SessionCookie',
-                ),
-            }
         return auth
 
     def to_debug_report(self) -> str:
@@ -572,7 +562,7 @@ conf = onepostly.Configuration(
                "OS: {env}\n"\
                "Python Version: {pyversion}\n"\
                "Version of the API: 1.0.0\n"\
-               "SDK Package Version: 0.2.8".\
+               "SDK Package Version: 0.2.9".\
                format(env=sys.platform, pyversion=sys.version)
 
     def get_host_settings(self) -> List[HostSetting]:
