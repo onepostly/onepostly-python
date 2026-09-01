@@ -105,6 +105,17 @@ jobs:
           test -f src/onepostly/api/posts_api.py \
             || { echo "::error::Generated package missing from src/ after copy."; exit 1; }
 
+      # Keep the README method tables and the endpoint-existence tests in sync
+      # with the spec that was just consumed, so every bot commit ships correct
+      # docs and coverage alongside the code.
+      - name: Regenerate README API reference
+        if: steps.changes.outputs.has_changes == 'true'
+        run: python scripts/generate_api_reference.py
+
+      - name: Regenerate endpoint tests
+        if: steps.changes.outputs.has_changes == 'true'
+        run: python scripts/generate_endpoint_tests.py
+
       - name: Write version into pyproject.toml
         if: steps.changes.outputs.has_changes == 'true'
         run: |
@@ -126,7 +137,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add src/ pyproject.toml
+          git add src/ pyproject.toml README.md tests/
           git commit -m "chore: regenerate from OpenAPI spec
 
           - Auto-generated SDK updates

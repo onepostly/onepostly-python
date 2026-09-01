@@ -1,8 +1,22 @@
-# onepostly
+<p align="center">
+  <a href="https://onepostly.com">
+    <img src="https://cdn.onepostly.com/banner.png" alt="Onepostly — One API for all social media" width="640">
+  </a>
+</p>
 
-Official Python SDK for the [Onepostly API](https://onepostly.com/docs) — publish, schedule, and read results across all supported social platforms with one request shape. See the [docs](https://onepostly.com/docs) for the current platform list.
+<p align="center">
+  <a href="https://pypi.org/project/onepostly/"><img src="https://img.shields.io/pypi/v/onepostly.svg" alt="PyPI version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"></a>
+</p>
 
-Python 3.10+.
+<p align="center">
+  Official Python SDK for the <a href="https://onepostly.com">Onepostly API</a> — publish, schedule, and read results<br>
+  across all supported social platforms with one request shape. See the <a href="https://onepostly.com/docs">docs</a> for the current platform list.
+</p>
+
+<p align="center">
+  Python 3.10+.
+</p>
 
 ## Installation
 
@@ -111,15 +125,83 @@ except ApiException as error:
 
 All methods take named keyword arguments.
 
-| API class | Methods |
+<!-- BEGIN GENERATED API REFERENCE -->
+
+### ConnectionsApi
+
+| Method | Description |
 | --- | --- |
-| `PostsApi` | `create_post` `list_posts` `get_post` `cancel_post` `delete_post_destination` |
-| `MediaApi` | `upload_media` `list_media` `delete_media` |
-| `ConnectionsApi` | `list_connections` `get_connection_stats` `list_connection_media` `get_tik_tok_creator_info` `list_pinterest_boards` `create_pinterest_board` `connect_bluesky` `start_o_auth` `list_facebook_pages` `select_facebook_page` |
-| `InsightsApi` | `get_post_insights` `get_post_insights_timeline` |
-| `CommentsApi` | `list_comments` `create_comment` `delete_comment` |
-| `EngagementApi` | `list_retweeters` `retweet` `undo_retweet` `like` `unlike` `bookmark` `remove_bookmark` `quote` |
-| `WebhooksApi` | `list_webhook_event_types` `list_webhooks` `create_webhook` `get_webhook` `update_webhook` `delete_webhook` `rotate_webhook_secret` `list_webhook_deliveries` `test_webhook` |
+| `connections.list_connections()` | List connections |
+| `connections.get_connection_stats()` | Get connection account stats |
+| `connections.list_connection_media()` | List creator media |
+| `connections.get_tik_tok_creator_info()` | Get TikTok creator info |
+| `connections.list_pinterest_boards()` | List Pinterest boards |
+| `connections.create_pinterest_board()` | Create Pinterest board |
+| `connections.connect_bluesky()` | Connect Bluesky via App Password |
+| `connections.start_o_auth()` | Start OAuth connect |
+| `connections.list_facebook_pages()` | List Facebook Pages for pending connect |
+| `connections.select_facebook_page()` | Select Facebook Page and finish connect |
+
+### MediaApi
+
+| Method | Description |
+| --- | --- |
+| `media.list_media()` | List media |
+| `media.upload_media()` | Upload media |
+| `media.delete_media()` | Delete media |
+
+### PostsApi
+
+| Method | Description |
+| --- | --- |
+| `posts.list_posts()` | List posts |
+| `posts.create_post()` | Create post |
+| `posts.get_post()` | Get post |
+| `posts.cancel_post()` | Cancel post |
+| `posts.delete_post_destination()` | Remote-delete destination |
+
+### InsightsApi
+
+| Method | Description |
+| --- | --- |
+| `insights.get_post_insights()` | Get insights |
+| `insights.get_post_insights_timeline()` | Get daily insights timeline |
+
+### CommentsApi
+
+| Method | Description |
+| --- | --- |
+| `comments.list_comments()` | List comments |
+| `comments.create_comment()` | Create reply |
+| `comments.delete_comment()` | Delete own comment |
+
+### EngagementApi
+
+| Method | Description |
+| --- | --- |
+| `engagement.list_retweeters()` | List retweeters |
+| `engagement.retweet()` | Retweet |
+| `engagement.undo_retweet()` | Undo retweet |
+| `engagement.like()` | Like |
+| `engagement.unlike()` | Unlike |
+| `engagement.bookmark()` | Bookmark |
+| `engagement.remove_bookmark()` | Remove bookmark |
+| `engagement.quote()` | Quote tweet |
+
+### WebhooksApi
+
+| Method | Description |
+| --- | --- |
+| `webhooks.list_webhook_event_types()` | List webhook event types |
+| `webhooks.list_webhooks()` | List webhooks |
+| `webhooks.create_webhook()` | Create webhook |
+| `webhooks.get_webhook()` | Get webhook |
+| `webhooks.delete_webhook()` | Delete webhook |
+| `webhooks.update_webhook()` | Update webhook |
+| `webhooks.rotate_webhook_secret()` | Rotate webhook secret |
+| `webhooks.list_webhook_deliveries()` | List webhook deliveries |
+| `webhooks.test_webhook()` | Send test event |
+<!-- END GENERATED API REFERENCE -->
 
 Representative signatures:
 
@@ -150,4 +232,12 @@ await webhooks.rotate_webhook_secret(id=…)
 await webhooks.test_webhook(id=…)
 ```
 
-Full request/response reference: [onepostly.com/openapi.json](https://onepostly.com/openapi.json)
+## Links
+
+- [Documentation](https://onepostly.com/docs)
+- [Dashboard](https://app.onepostly.com)
+- [OpenAPI spec](https://onepostly.com/openapi.json)
+
+## License
+
+Apache-2.0
