@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from uuid import UUID
 from typing import Optional, Set
@@ -31,14 +31,16 @@ class Connection(BaseModel):
     """ # noqa: E501
     id: UUID
     platform: StrictStr
-    display_name: Optional[StrictStr] = Field(default=None, alias="displayName")
-    handle: Optional[StrictStr] = None
-    avatar_url: Optional[StrictStr] = Field(default=None, alias="avatarUrl")
+    display_name: StrictStr = Field(alias="displayName")
+    handle: StrictStr
+    avatar_url: Optional[StrictStr] = Field(alias="avatarUrl")
     status: StrictStr
+    token_expires_at: Optional[datetime] = Field(alias="tokenExpiresAt")
+    can_auto_renew: StrictBool = Field(alias="canAutoRenew")
     auth_health: StrictStr = Field(alias="authHealth")
-    created_at: Optional[datetime] = Field(default=None, alias="createdAt")
-    updated_at: Optional[datetime] = Field(default=None, alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["id", "platform", "displayName", "handle", "avatarUrl", "status", "authHealth", "createdAt", "updatedAt"]
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
+    __properties: ClassVar[List[str]] = ["id", "platform", "displayName", "handle", "avatarUrl", "status", "tokenExpiresAt", "canAutoRenew", "authHealth", "createdAt", "updatedAt"]
 
     @field_validator('auth_health')
     def auth_health_validate_enum(cls, value):
@@ -91,6 +93,11 @@ class Connection(BaseModel):
         if self.avatar_url is None and "avatar_url" in self.model_fields_set:
             _dict['avatarUrl'] = None
 
+        # set to None if token_expires_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.token_expires_at is None and "token_expires_at" in self.model_fields_set:
+            _dict['tokenExpiresAt'] = None
+
         return _dict
 
     @classmethod
@@ -109,6 +116,8 @@ class Connection(BaseModel):
             "handle": obj.get("handle"),
             "avatarUrl": obj.get("avatarUrl"),
             "status": obj.get("status"),
+            "tokenExpiresAt": obj.get("tokenExpiresAt"),
+            "canAutoRenew": obj.get("canAutoRenew"),
             "authHealth": obj.get("authHealth"),
             "createdAt": obj.get("createdAt"),
             "updatedAt": obj.get("updatedAt")
