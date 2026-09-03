@@ -17,19 +17,26 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class DestinationIdBody(BaseModel):
+class ExternalPost(BaseModel):
     """
-    DestinationIdBody
+    ExternalPost
     """ # noqa: E501
-    destination_id: Annotated[str, Field(min_length=1, strict=True)] = Field(alias="destinationId")
-    __properties: ClassVar[List[str]] = ["destinationId"]
+    id: StrictStr
+    account_id: StrictStr = Field(alias="accountId")
+    platform: StrictStr
+    external_post_id: StrictStr = Field(alias="externalPostId")
+    external_url: Optional[StrictStr] = Field(alias="externalUrl")
+    media_kind: StrictStr = Field(alias="mediaKind")
+    published_at: Optional[StrictStr] = Field(alias="publishedAt")
+    synced_at: StrictStr = Field(alias="syncedAt")
+    analytics_status: StrictStr = Field(alias="analyticsStatus")
+    __properties: ClassVar[List[str]] = ["id", "accountId", "platform", "externalPostId", "externalUrl", "mediaKind", "publishedAt", "syncedAt", "analyticsStatus"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +56,7 @@ class DestinationIdBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of DestinationIdBody from a JSON string"""
+        """Create an instance of ExternalPost from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,11 +77,21 @@ class DestinationIdBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if external_url (nullable) is None
+        # and model_fields_set contains the field
+        if self.external_url is None and "external_url" in self.model_fields_set:
+            _dict['externalUrl'] = None
+
+        # set to None if published_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.published_at is None and "published_at" in self.model_fields_set:
+            _dict['publishedAt'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of DestinationIdBody from a dict"""
+        """Create an instance of ExternalPost from a dict"""
         if obj is None:
             return None
 
@@ -82,7 +99,15 @@ class DestinationIdBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destinationId": obj.get("destinationId")
+            "id": obj.get("id"),
+            "accountId": obj.get("accountId"),
+            "platform": obj.get("platform"),
+            "externalPostId": obj.get("externalPostId"),
+            "externalUrl": obj.get("externalUrl"),
+            "mediaKind": obj.get("mediaKind"),
+            "publishedAt": obj.get("publishedAt"),
+            "syncedAt": obj.get("syncedAt"),
+            "analyticsStatus": obj.get("analyticsStatus")
         })
         return _obj
 

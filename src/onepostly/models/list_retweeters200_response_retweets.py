@@ -17,9 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from onepostly.models.list_retweeters200_response_retweets_destinations_inner import ListRetweeters200ResponseRetweetsDestinationsInner
+from onepostly.models.list_retweeters200_response_retweets_subjects_inner import ListRetweeters200ResponseRetweetsSubjectsInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,9 +28,9 @@ class ListRetweeters200ResponseRetweets(BaseModel):
     """
     ListRetweeters200ResponseRetweets
     """ # noqa: E501
-    post_id: Optional[StrictStr] = Field(default=None, alias="postId")
-    destinations: Optional[List[ListRetweeters200ResponseRetweetsDestinationsInner]] = None
-    __properties: ClassVar[List[str]] = ["postId", "destinations"]
+    post: StrictStr
+    subjects: Optional[List[ListRetweeters200ResponseRetweetsSubjectsInner]] = None
+    __properties: ClassVar[List[str]] = ["post", "subjects"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -71,12 +71,12 @@ class ListRetweeters200ResponseRetweets(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in destinations (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in subjects (list)
         _items = []
-        if self.destinations:
-            for _item_destinations in self.destinations:
-                _items.append(_item_destinations.to_dict() if _item_destinations is not None else None)
-            _dict['destinations'] = _items
+        if self.subjects:
+            for _item_subjects in self.subjects:
+                _items.append(_item_subjects.to_dict() if _item_subjects is not None else None)
+            _dict['subjects'] = _items
         return _dict
 
     @classmethod
@@ -89,8 +89,8 @@ class ListRetweeters200ResponseRetweets(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "postId": obj.get("postId"),
-            "destinations": [ListRetweeters200ResponseRetweetsDestinationsInner.from_dict(_item) for _item in obj["destinations"]] if obj.get("destinations") is not None else None
+            "post": obj.get("post"),
+            "subjects": [ListRetweeters200ResponseRetweetsSubjectsInner.from_dict(_item) for _item in obj["subjects"]] if obj.get("subjects") is not None else None
         })
         return _obj
 

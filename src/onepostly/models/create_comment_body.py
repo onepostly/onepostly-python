@@ -28,10 +28,12 @@ class CreateCommentBody(BaseModel):
     """
     CreateCommentBody
     """ # noqa: E501
-    destination_id: Annotated[str, Field(min_length=1, strict=True)] = Field(alias="destinationId")
+    post: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Internal post id or platform-native post id. Native ids require accountId.")
+    account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="accountId")
+    destination_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="destinationId")
     text: Annotated[str, Field(min_length=1, strict=True, max_length=2000)]
     parent_comment_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="parentCommentId")
-    __properties: ClassVar[List[str]] = ["destinationId", "text", "parentCommentId"]
+    __properties: ClassVar[List[str]] = ["post", "accountId", "destinationId", "text", "parentCommentId"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -84,6 +86,8 @@ class CreateCommentBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "post": obj.get("post"),
+            "accountId": obj.get("accountId"),
             "destinationId": obj.get("destinationId"),
             "text": obj.get("text"),
             "parentCommentId": obj.get("parentCommentId")

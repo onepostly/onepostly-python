@@ -17,21 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from onepostly.models.normalized_metrics import NormalizedMetrics
+from pydantic import BaseModel, ConfigDict
+from typing import Any, ClassVar, Dict, List
+from onepostly.models.get_analytics_timeline200_response_timeline import GetAnalyticsTimeline200ResponseTimeline
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner(BaseModel):
+class GetAnalyticsTimeline200Response(BaseModel):
     """
-    GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner
+    GetAnalyticsTimeline200Response
     """ # noqa: E501
-    day: StrictStr
-    metrics: Optional[NormalizedMetrics] = None
-    delta: Optional[NormalizedMetrics] = None
-    __properties: ClassVar[List[str]] = ["day", "metrics", "delta"]
+    timeline: GetAnalyticsTimeline200ResponseTimeline
+    __properties: ClassVar[List[str]] = ["timeline"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,7 +49,7 @@ class GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner(Bas
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner from a JSON string"""
+        """Create an instance of GetAnalyticsTimeline200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,17 +70,14 @@ class GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner(Bas
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of metrics
-        if self.metrics:
-            _dict['metrics'] = self.metrics.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of delta
-        if self.delta:
-            _dict['delta'] = self.delta.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of timeline
+        if self.timeline:
+            _dict['timeline'] = self.timeline.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner from a dict"""
+        """Create an instance of GetAnalyticsTimeline200Response from a dict"""
         if obj is None:
             return None
 
@@ -90,9 +85,7 @@ class GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner(Bas
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "day": obj.get("day"),
-            "metrics": NormalizedMetrics.from_dict(obj["metrics"]) if obj.get("metrics") is not None else None,
-            "delta": NormalizedMetrics.from_dict(obj["delta"]) if obj.get("delta") is not None else None
+            "timeline": GetAnalyticsTimeline200ResponseTimeline.from_dict(obj["timeline"]) if obj.get("timeline") is not None else None
         })
         return _obj
 

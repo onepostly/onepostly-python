@@ -14,14 +14,14 @@
 """  # noqa: E501
 
 
-__version__ = "0.2.11"
+__version__ = "0.2.12"
 
 # Define package exports
 __all__ = [
+    "AnalyticsApi",
     "CommentsApi",
     "ConnectionsApi",
     "EngagementApi",
-    "InsightsApi",
     "MediaApi",
     "PostsApi",
     "WebhooksApi",
@@ -49,22 +49,25 @@ __all__ = [
     "CreateWebhook201Response",
     "CreateWebhookBody",
     "DeleteComment200Response",
-    "DestinationIdBody",
     "DestinationStatus",
+    "EngagementTargetBody",
     "Error",
     "ErrorError",
+    "ExternalPost",
+    "GetAnalytics200Response",
+    "GetAnalytics200ResponseAnalytics",
+    "GetAnalytics200ResponseAnalyticsSubjectsInner",
+    "GetAnalytics200ResponseAnalyticsSubjectsInnerError",
+    "GetAnalyticsTimeline200Response",
+    "GetAnalyticsTimeline200ResponseTimeline",
+    "GetAnalyticsTimeline200ResponseTimelineSubjectsInner",
+    "GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner",
     "GetConnectionStats200Response",
-    "GetPostInsights200Response",
-    "GetPostInsights200ResponseInsights",
-    "GetPostInsights200ResponseInsightsDestinationsInner",
-    "GetPostInsightsTimeline200Response",
-    "GetPostInsightsTimeline200ResponseTimeline",
-    "GetPostInsightsTimeline200ResponseTimelineDestinationsInner",
-    "GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner",
     "GetTikTokCreatorInfo200Response",
     "GetTikTokCreatorInfo200ResponseCreatorInfo",
     "Like201Response",
     "ListComments200Response",
+    "ListComments200ResponseComments",
     "ListConnectionMedia200Response",
     "ListConnections200Response",
     "ListFacebookPages200Response",
@@ -75,7 +78,7 @@ __all__ = [
     "ListPosts200Response",
     "ListRetweeters200Response",
     "ListRetweeters200ResponseRetweets",
-    "ListRetweeters200ResponseRetweetsDestinationsInner",
+    "ListRetweeters200ResponseRetweetsSubjectsInner",
     "ListWebhookDeliveries200Response",
     "ListWebhookEventTypes200Response",
     "ListWebhooks200Response",
@@ -92,6 +95,9 @@ __all__ = [
     "SelectFacebookPage200Response",
     "SelectFacebookPageRequest",
     "StartOAuth200Response",
+    "SyncExternal200Response",
+    "SyncExternal200ResponseSynced",
+    "SyncExternalBody",
     "TestWebhook200Response",
     "UpdateWebhookBody",
     "UploadMedia201Response",
@@ -99,10 +105,10 @@ __all__ = [
 ]
 
 # import apis into sdk package
+from onepostly.api.analytics_api import AnalyticsApi as AnalyticsApi
 from onepostly.api.comments_api import CommentsApi as CommentsApi
 from onepostly.api.connections_api import ConnectionsApi as ConnectionsApi
 from onepostly.api.engagement_api import EngagementApi as EngagementApi
-from onepostly.api.insights_api import InsightsApi as InsightsApi
 from onepostly.api.media_api import MediaApi as MediaApi
 from onepostly.api.posts_api import PostsApi as PostsApi
 from onepostly.api.webhooks_api import WebhooksApi as WebhooksApi
@@ -134,22 +140,25 @@ from onepostly.models.create_post_body_destinations_inner import CreatePostBodyD
 from onepostly.models.create_webhook201_response import CreateWebhook201Response as CreateWebhook201Response
 from onepostly.models.create_webhook_body import CreateWebhookBody as CreateWebhookBody
 from onepostly.models.delete_comment200_response import DeleteComment200Response as DeleteComment200Response
-from onepostly.models.destination_id_body import DestinationIdBody as DestinationIdBody
 from onepostly.models.destination_status import DestinationStatus as DestinationStatus
+from onepostly.models.engagement_target_body import EngagementTargetBody as EngagementTargetBody
 from onepostly.models.error import Error as Error
 from onepostly.models.error_error import ErrorError as ErrorError
+from onepostly.models.external_post import ExternalPost as ExternalPost
+from onepostly.models.get_analytics200_response import GetAnalytics200Response as GetAnalytics200Response
+from onepostly.models.get_analytics200_response_analytics import GetAnalytics200ResponseAnalytics as GetAnalytics200ResponseAnalytics
+from onepostly.models.get_analytics200_response_analytics_subjects_inner import GetAnalytics200ResponseAnalyticsSubjectsInner as GetAnalytics200ResponseAnalyticsSubjectsInner
+from onepostly.models.get_analytics200_response_analytics_subjects_inner_error import GetAnalytics200ResponseAnalyticsSubjectsInnerError as GetAnalytics200ResponseAnalyticsSubjectsInnerError
+from onepostly.models.get_analytics_timeline200_response import GetAnalyticsTimeline200Response as GetAnalyticsTimeline200Response
+from onepostly.models.get_analytics_timeline200_response_timeline import GetAnalyticsTimeline200ResponseTimeline as GetAnalyticsTimeline200ResponseTimeline
+from onepostly.models.get_analytics_timeline200_response_timeline_subjects_inner import GetAnalyticsTimeline200ResponseTimelineSubjectsInner as GetAnalyticsTimeline200ResponseTimelineSubjectsInner
+from onepostly.models.get_analytics_timeline200_response_timeline_subjects_inner_points_inner import GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner as GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner
 from onepostly.models.get_connection_stats200_response import GetConnectionStats200Response as GetConnectionStats200Response
-from onepostly.models.get_post_insights200_response import GetPostInsights200Response as GetPostInsights200Response
-from onepostly.models.get_post_insights200_response_insights import GetPostInsights200ResponseInsights as GetPostInsights200ResponseInsights
-from onepostly.models.get_post_insights200_response_insights_destinations_inner import GetPostInsights200ResponseInsightsDestinationsInner as GetPostInsights200ResponseInsightsDestinationsInner
-from onepostly.models.get_post_insights_timeline200_response import GetPostInsightsTimeline200Response as GetPostInsightsTimeline200Response
-from onepostly.models.get_post_insights_timeline200_response_timeline import GetPostInsightsTimeline200ResponseTimeline as GetPostInsightsTimeline200ResponseTimeline
-from onepostly.models.get_post_insights_timeline200_response_timeline_destinations_inner import GetPostInsightsTimeline200ResponseTimelineDestinationsInner as GetPostInsightsTimeline200ResponseTimelineDestinationsInner
-from onepostly.models.get_post_insights_timeline200_response_timeline_destinations_inner_points_inner import GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner as GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner
 from onepostly.models.get_tik_tok_creator_info200_response import GetTikTokCreatorInfo200Response as GetTikTokCreatorInfo200Response
 from onepostly.models.get_tik_tok_creator_info200_response_creator_info import GetTikTokCreatorInfo200ResponseCreatorInfo as GetTikTokCreatorInfo200ResponseCreatorInfo
 from onepostly.models.like201_response import Like201Response as Like201Response
 from onepostly.models.list_comments200_response import ListComments200Response as ListComments200Response
+from onepostly.models.list_comments200_response_comments import ListComments200ResponseComments as ListComments200ResponseComments
 from onepostly.models.list_connection_media200_response import ListConnectionMedia200Response as ListConnectionMedia200Response
 from onepostly.models.list_connections200_response import ListConnections200Response as ListConnections200Response
 from onepostly.models.list_facebook_pages200_response import ListFacebookPages200Response as ListFacebookPages200Response
@@ -160,7 +169,7 @@ from onepostly.models.list_pinterest_boards200_response_boards_inner import List
 from onepostly.models.list_posts200_response import ListPosts200Response as ListPosts200Response
 from onepostly.models.list_retweeters200_response import ListRetweeters200Response as ListRetweeters200Response
 from onepostly.models.list_retweeters200_response_retweets import ListRetweeters200ResponseRetweets as ListRetweeters200ResponseRetweets
-from onepostly.models.list_retweeters200_response_retweets_destinations_inner import ListRetweeters200ResponseRetweetsDestinationsInner as ListRetweeters200ResponseRetweetsDestinationsInner
+from onepostly.models.list_retweeters200_response_retweets_subjects_inner import ListRetweeters200ResponseRetweetsSubjectsInner as ListRetweeters200ResponseRetweetsSubjectsInner
 from onepostly.models.list_webhook_deliveries200_response import ListWebhookDeliveries200Response as ListWebhookDeliveries200Response
 from onepostly.models.list_webhook_event_types200_response import ListWebhookEventTypes200Response as ListWebhookEventTypes200Response
 from onepostly.models.list_webhooks200_response import ListWebhooks200Response as ListWebhooks200Response
@@ -177,6 +186,9 @@ from onepostly.models.retweet201_response import Retweet201Response as Retweet20
 from onepostly.models.select_facebook_page200_response import SelectFacebookPage200Response as SelectFacebookPage200Response
 from onepostly.models.select_facebook_page_request import SelectFacebookPageRequest as SelectFacebookPageRequest
 from onepostly.models.start_o_auth200_response import StartOAuth200Response as StartOAuth200Response
+from onepostly.models.sync_external200_response import SyncExternal200Response as SyncExternal200Response
+from onepostly.models.sync_external200_response_synced import SyncExternal200ResponseSynced as SyncExternal200ResponseSynced
+from onepostly.models.sync_external_body import SyncExternalBody as SyncExternalBody
 from onepostly.models.test_webhook200_response import TestWebhook200Response as TestWebhook200Response
 from onepostly.models.update_webhook_body import UpdateWebhookBody as UpdateWebhookBody
 from onepostly.models.upload_media201_response import UploadMedia201Response as UploadMedia201Response

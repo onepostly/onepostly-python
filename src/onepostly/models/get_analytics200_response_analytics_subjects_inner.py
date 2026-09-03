@@ -17,29 +17,36 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from uuid import UUID
-from onepostly.models.destination_status import DestinationStatus
+from onepostly.models.get_analytics200_response_analytics_subjects_inner_error import GetAnalytics200ResponseAnalyticsSubjectsInnerError
+from onepostly.models.normalized_metrics import NormalizedMetrics
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class PostDestination(BaseModel):
+class GetAnalytics200ResponseAnalyticsSubjectsInner(BaseModel):
     """
-    PostDestination
+    GetAnalytics200ResponseAnalyticsSubjectsInner
     """ # noqa: E501
-    id: UUID
-    account_id: UUID = Field(alias="accountId")
+    scope: StrictStr
+    subject_id: StrictStr = Field(alias="subjectId")
+    account_id: StrictStr = Field(alias="accountId")
     platform: StrictStr
-    status: DestinationStatus
     external_post_id: Optional[StrictStr] = Field(alias="externalPostId")
-    external_url: Optional[StrictStr] = Field(alias="externalUrl")
-    error_code: Optional[StrictStr] = Field(alias="errorCode")
-    error_message: Optional[StrictStr] = Field(alias="errorMessage")
-    published_at: Optional[datetime] = Field(alias="publishedAt")
-    __properties: ClassVar[List[str]] = ["id", "accountId", "platform", "status", "externalPostId", "externalUrl", "errorCode", "errorMessage", "publishedAt"]
+    status: StrictStr
+    metrics: Optional[NormalizedMetrics] = None
+    fetched_at: Optional[StrictStr] = Field(default=None, alias="fetchedAt")
+    expires_at: Optional[StrictStr] = Field(default=None, alias="expiresAt")
+    error: Optional[GetAnalytics200ResponseAnalyticsSubjectsInnerError]
+    __properties: ClassVar[List[str]] = ["scope", "subjectId", "accountId", "platform", "externalPostId", "status", "metrics", "fetchedAt", "expiresAt", "error"]
+
+    @field_validator('scope')
+    def scope_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['destination', 'external']):
+            raise ValueError("must be one of enum values ('destination', 'external')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -59,7 +66,7 @@ class PostDestination(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PostDestination from a JSON string"""
+        """Create an instance of GetAnalytics200ResponseAnalyticsSubjectsInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -80,36 +87,37 @@ class PostDestination(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of metrics
+        if self.metrics:
+            _dict['metrics'] = self.metrics.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of error
+        if self.error:
+            _dict['error'] = self.error.to_dict()
         # set to None if external_post_id (nullable) is None
         # and model_fields_set contains the field
         if self.external_post_id is None and "external_post_id" in self.model_fields_set:
             _dict['externalPostId'] = None
 
-        # set to None if external_url (nullable) is None
+        # set to None if fetched_at (nullable) is None
         # and model_fields_set contains the field
-        if self.external_url is None and "external_url" in self.model_fields_set:
-            _dict['externalUrl'] = None
+        if self.fetched_at is None and "fetched_at" in self.model_fields_set:
+            _dict['fetchedAt'] = None
 
-        # set to None if error_code (nullable) is None
+        # set to None if expires_at (nullable) is None
         # and model_fields_set contains the field
-        if self.error_code is None and "error_code" in self.model_fields_set:
-            _dict['errorCode'] = None
+        if self.expires_at is None and "expires_at" in self.model_fields_set:
+            _dict['expiresAt'] = None
 
-        # set to None if error_message (nullable) is None
+        # set to None if error (nullable) is None
         # and model_fields_set contains the field
-        if self.error_message is None and "error_message" in self.model_fields_set:
-            _dict['errorMessage'] = None
-
-        # set to None if published_at (nullable) is None
-        # and model_fields_set contains the field
-        if self.published_at is None and "published_at" in self.model_fields_set:
-            _dict['publishedAt'] = None
+        if self.error is None and "error" in self.model_fields_set:
+            _dict['error'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PostDestination from a dict"""
+        """Create an instance of GetAnalytics200ResponseAnalyticsSubjectsInner from a dict"""
         if obj is None:
             return None
 
@@ -117,15 +125,16 @@ class PostDestination(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "id": obj.get("id"),
+            "scope": obj.get("scope"),
+            "subjectId": obj.get("subjectId"),
             "accountId": obj.get("accountId"),
             "platform": obj.get("platform"),
-            "status": obj.get("status"),
             "externalPostId": obj.get("externalPostId"),
-            "externalUrl": obj.get("externalUrl"),
-            "errorCode": obj.get("errorCode"),
-            "errorMessage": obj.get("errorMessage"),
-            "publishedAt": obj.get("publishedAt")
+            "status": obj.get("status"),
+            "metrics": NormalizedMetrics.from_dict(obj["metrics"]) if obj.get("metrics") is not None else None,
+            "fetchedAt": obj.get("fetchedAt"),
+            "expiresAt": obj.get("expiresAt"),
+            "error": GetAnalytics200ResponseAnalyticsSubjectsInnerError.from_dict(obj["error"]) if obj.get("error") is not None else None
         })
         return _obj
 

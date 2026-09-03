@@ -17,21 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ListConnectionMedia200Response(BaseModel):
+class EngagementTargetBody(BaseModel):
     """
-    ListConnectionMedia200Response
+    EngagementTargetBody
     """ # noqa: E501
-    account_id: StrictStr = Field(alias="accountId")
-    platform: StrictStr
-    items: List[Dict[str, Any]]
-    next_cursor: Optional[StrictStr] = Field(alias="nextCursor")
-    __properties: ClassVar[List[str]] = ["accountId", "platform", "items", "nextCursor"]
+    post: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Internal post id or platform-native post id. Native ids require accountId.")
+    account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="accountId")
+    destination_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="destinationId")
+    __properties: ClassVar[List[str]] = ["post", "accountId", "destinationId"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,7 +51,7 @@ class ListConnectionMedia200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ListConnectionMedia200Response from a JSON string"""
+        """Create an instance of EngagementTargetBody from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,16 +72,11 @@ class ListConnectionMedia200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if next_cursor (nullable) is None
-        # and model_fields_set contains the field
-        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
-            _dict['nextCursor'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ListConnectionMedia200Response from a dict"""
+        """Create an instance of EngagementTargetBody from a dict"""
         if obj is None:
             return None
 
@@ -89,10 +84,9 @@ class ListConnectionMedia200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "post": obj.get("post"),
             "accountId": obj.get("accountId"),
-            "platform": obj.get("platform"),
-            "items": obj.get("items"),
-            "nextCursor": obj.get("nextCursor")
+            "destinationId": obj.get("destinationId")
         })
         return _obj
 

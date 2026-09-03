@@ -18,7 +18,8 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
+from onepostly.models.list_comments200_response_comments import ListComments200ResponseComments
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,7 +28,7 @@ class ListComments200Response(BaseModel):
     """
     ListComments200Response
     """ # noqa: E501
-    comments: Optional[Any] = None
+    comments: ListComments200ResponseComments
     __properties: ClassVar[List[str]] = ["comments"]
 
     model_config = ConfigDict(
@@ -69,11 +70,9 @@ class ListComments200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if comments (nullable) is None
-        # and model_fields_set contains the field
-        if self.comments is None and "comments" in self.model_fields_set:
-            _dict['comments'] = None
-
+        # override the default output from pydantic by calling `to_dict()` of comments
+        if self.comments:
+            _dict['comments'] = self.comments.to_dict()
         return _dict
 
     @classmethod
@@ -86,7 +85,7 @@ class ListComments200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "comments": obj.get("comments")
+            "comments": ListComments200ResponseComments.from_dict(obj["comments"]) if obj.get("comments") is not None else None
         })
         return _obj
 

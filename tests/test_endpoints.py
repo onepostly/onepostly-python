@@ -9,7 +9,7 @@ import pytest
 from onepostly.api.connections_api import ConnectionsApi
 from onepostly.api.media_api import MediaApi
 from onepostly.api.posts_api import PostsApi
-from onepostly.api.insights_api import InsightsApi
+from onepostly.api.analytics_api import AnalyticsApi
 from onepostly.api.comments_api import CommentsApi
 from onepostly.api.engagement_api import EngagementApi
 from onepostly.api.webhooks_api import WebhooksApi
@@ -36,8 +36,9 @@ from onepostly.api.webhooks_api import WebhooksApi
         (PostsApi, "delete_post_destination"),
         (PostsApi, "get_post"),
         (PostsApi, "list_posts"),
-        (InsightsApi, "get_post_insights"),
-        (InsightsApi, "get_post_insights_timeline"),
+        (PostsApi, "sync_external"),
+        (AnalyticsApi, "get_analytics"),
+        (AnalyticsApi, "get_analytics_timeline"),
         (CommentsApi, "create_comment"),
         (CommentsApi, "delete_comment"),
         (CommentsApi, "list_comments"),

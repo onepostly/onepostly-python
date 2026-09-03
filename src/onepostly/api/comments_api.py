@@ -44,7 +44,6 @@ class CommentsApi:
     @validate_call
     async def create_comment(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         create_comment_body: CreateCommentBody,
         _request_timeout: Union[
             None,
@@ -61,9 +60,8 @@ class CommentsApi:
     ) -> CreateComment201Response:
         """Create reply
 
+        Reply to one published destination or native post.
 
-        :param id: (required)
-        :type id: str
         :param create_comment_body: (required)
         :type create_comment_body: CreateCommentBody
         :param _request_timeout: timeout setting for this request. If one
@@ -89,7 +87,6 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._create_comment_serialize(
-            id=id,
             create_comment_body=create_comment_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -121,7 +118,6 @@ class CommentsApi:
     @validate_call
     async def create_comment_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         create_comment_body: CreateCommentBody,
         _request_timeout: Union[
             None,
@@ -138,9 +134,8 @@ class CommentsApi:
     ) -> ApiResponse[CreateComment201Response]:
         """Create reply
 
+        Reply to one published destination or native post.
 
-        :param id: (required)
-        :type id: str
         :param create_comment_body: (required)
         :type create_comment_body: CreateCommentBody
         :param _request_timeout: timeout setting for this request. If one
@@ -166,7 +161,6 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._create_comment_serialize(
-            id=id,
             create_comment_body=create_comment_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -198,7 +192,6 @@ class CommentsApi:
     @validate_call
     async def create_comment_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         create_comment_body: CreateCommentBody,
         _request_timeout: Union[
             None,
@@ -215,9 +208,8 @@ class CommentsApi:
     ) -> RESTResponseType:
         """Create reply
 
+        Reply to one published destination or native post.
 
-        :param id: (required)
-        :type id: str
         :param create_comment_body: (required)
         :type create_comment_body: CreateCommentBody
         :param _request_timeout: timeout setting for this request. If one
@@ -243,7 +235,6 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._create_comment_serialize(
-            id=id,
             create_comment_body=create_comment_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -270,7 +261,6 @@ class CommentsApi:
 
     def _create_comment_serialize(
         self,
-        id,
         create_comment_body,
         _request_auth,
         _content_type,
@@ -293,8 +283,6 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
@@ -333,7 +321,7 @@ class CommentsApi:
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/posts/{id}/comments',
+            resource_path='/v1/comments',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -352,9 +340,10 @@ class CommentsApi:
     @validate_call
     async def delete_comment(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        comment_id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -370,12 +359,15 @@ class CommentsApi:
     ) -> DeleteComment200Response:
         """Delete own comment
 
+        Delete a comment owned by the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param comment_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param comment_id: Platform-native comment id. (required)
         :type comment_id: str
-        :param destination_id: (required)
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -400,8 +392,9 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            id=id,
+            post=post,
             comment_id=comment_id,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -433,9 +426,10 @@ class CommentsApi:
     @validate_call
     async def delete_comment_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        comment_id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -451,12 +445,15 @@ class CommentsApi:
     ) -> ApiResponse[DeleteComment200Response]:
         """Delete own comment
 
+        Delete a comment owned by the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param comment_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param comment_id: Platform-native comment id. (required)
         :type comment_id: str
-        :param destination_id: (required)
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -481,8 +478,9 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            id=id,
+            post=post,
             comment_id=comment_id,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -514,9 +512,10 @@ class CommentsApi:
     @validate_call
     async def delete_comment_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        comment_id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -532,12 +531,15 @@ class CommentsApi:
     ) -> RESTResponseType:
         """Delete own comment
 
+        Delete a comment owned by the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param comment_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param comment_id: Platform-native comment id. (required)
         :type comment_id: str
-        :param destination_id: (required)
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -562,8 +564,9 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            id=id,
+            post=post,
             comment_id=comment_id,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -590,8 +593,9 @@ class CommentsApi:
 
     def _delete_comment_serialize(
         self,
-        id,
+        post,
         comment_id,
+        account_id,
         destination_id,
         _request_auth,
         _content_type,
@@ -614,14 +618,22 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
-        if comment_id is not None:
-            _path_params['commentId'] = comment_id
         # process the query parameters
+        if post is not None:
+            
+            _query_params.append(('post', post))
+            
+        if account_id is not None:
+            
+            _query_params.append(('accountId', account_id))
+            
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
+            
+        if comment_id is not None:
+            
+            _query_params.append(('commentId', comment_id))
             
         # process the header parameters
         # process the form parameters
@@ -645,7 +657,7 @@ class CommentsApi:
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/posts/{id}/comments/{commentId}',
+            resource_path='/v1/comments',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -664,10 +676,11 @@ class CommentsApi:
     @validate_call
     async def list_comments(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Optional[StrictStr] = None,
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Requires destinationId")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -683,14 +696,17 @@ class CommentsApi:
     ) -> ListComments200Response:
         """List comments
 
+        Comments for every destination of a post, or for one platform-native post id.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id:
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param limit:
         :type limit: int
-        :param cursor: Requires destinationId
+        :param cursor: Requires a single resolved target
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -715,7 +731,8 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._list_comments_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             limit=limit,
             cursor=cursor,
@@ -745,10 +762,11 @@ class CommentsApi:
     @validate_call
     async def list_comments_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Optional[StrictStr] = None,
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Requires destinationId")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -764,14 +782,17 @@ class CommentsApi:
     ) -> ApiResponse[ListComments200Response]:
         """List comments
 
+        Comments for every destination of a post, or for one platform-native post id.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id:
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param limit:
         :type limit: int
-        :param cursor: Requires destinationId
+        :param cursor: Requires a single resolved target
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -796,7 +817,8 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._list_comments_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             limit=limit,
             cursor=cursor,
@@ -826,10 +848,11 @@ class CommentsApi:
     @validate_call
     async def list_comments_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Optional[StrictStr] = None,
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Requires destinationId")] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -845,14 +868,17 @@ class CommentsApi:
     ) -> RESTResponseType:
         """List comments
 
+        Comments for every destination of a post, or for one platform-native post id.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id:
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param limit:
         :type limit: int
-        :param cursor: Requires destinationId
+        :param cursor: Requires a single resolved target
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -877,7 +903,8 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._list_comments_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             limit=limit,
             cursor=cursor,
@@ -902,7 +929,8 @@ class CommentsApi:
 
     def _list_comments_serialize(
         self,
-        id,
+        post,
+        account_id,
         destination_id,
         limit,
         cursor,
@@ -927,9 +955,15 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
+        if post is not None:
+            
+            _query_params.append(('post', post))
+            
+        if account_id is not None:
+            
+            _query_params.append(('accountId', account_id))
+            
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
@@ -964,7 +998,7 @@ class CommentsApi:
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/posts/{id}/comments',
+            resource_path='/v1/comments',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -19,7 +19,7 @@ from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
 from onepostly.models.bookmark201_response import Bookmark201Response
-from onepostly.models.destination_id_body import DestinationIdBody
+from onepostly.models.engagement_target_body import EngagementTargetBody
 from onepostly.models.like201_response import Like201Response
 from onepostly.models.list_retweeters200_response import ListRetweeters200Response
 from onepostly.models.quote201_response import Quote201Response
@@ -47,8 +47,7 @@ class EngagementApi:
     @validate_call
     async def bookmark(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -64,11 +63,10 @@ class EngagementApi:
     ) -> Bookmark201Response:
         """Bookmark
 
+        Bookmark one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -92,8 +90,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._bookmark_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -124,8 +121,7 @@ class EngagementApi:
     @validate_call
     async def bookmark_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -141,11 +137,10 @@ class EngagementApi:
     ) -> ApiResponse[Bookmark201Response]:
         """Bookmark
 
+        Bookmark one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -169,8 +164,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._bookmark_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -201,8 +195,7 @@ class EngagementApi:
     @validate_call
     async def bookmark_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -218,11 +211,10 @@ class EngagementApi:
     ) -> RESTResponseType:
         """Bookmark
 
+        Bookmark one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -246,8 +238,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._bookmark_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -273,8 +264,7 @@ class EngagementApi:
 
     def _bookmark_serialize(
         self,
-        id,
-        destination_id_body,
+        engagement_target_body,
         _request_auth,
         _content_type,
         _headers,
@@ -296,14 +286,12 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if destination_id_body is not None:
-            _body_params = destination_id_body
+        if engagement_target_body is not None:
+            _body_params = engagement_target_body
 
 
         # set the HTTP header `Accept`
@@ -336,7 +324,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/posts/{id}/bookmarks',
+            resource_path='/v1/bookmarks',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -355,8 +343,7 @@ class EngagementApi:
     @validate_call
     async def like(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -372,11 +359,10 @@ class EngagementApi:
     ) -> Like201Response:
         """Like
 
+        Like one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -400,8 +386,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._like_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -432,8 +417,7 @@ class EngagementApi:
     @validate_call
     async def like_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -449,11 +433,10 @@ class EngagementApi:
     ) -> ApiResponse[Like201Response]:
         """Like
 
+        Like one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -477,8 +460,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._like_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -509,8 +491,7 @@ class EngagementApi:
     @validate_call
     async def like_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -526,11 +507,10 @@ class EngagementApi:
     ) -> RESTResponseType:
         """Like
 
+        Like one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -554,8 +534,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._like_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -581,8 +560,7 @@ class EngagementApi:
 
     def _like_serialize(
         self,
-        id,
-        destination_id_body,
+        engagement_target_body,
         _request_auth,
         _content_type,
         _headers,
@@ -604,14 +582,12 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if destination_id_body is not None:
-            _body_params = destination_id_body
+        if engagement_target_body is not None:
+            _body_params = engagement_target_body
 
 
         # set the HTTP header `Accept`
@@ -644,7 +620,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/posts/{id}/likes',
+            resource_path='/v1/likes',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -663,10 +639,11 @@ class EngagementApi:
     @validate_call
     async def list_retweeters(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Optional[StrictStr] = None,
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Optional[StrictStr] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -682,14 +659,17 @@ class EngagementApi:
     ) -> ListRetweeters200Response:
         """List retweeters
 
+        Accounts that reposted a post, grouped per destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id:
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param limit:
         :type limit: int
-        :param cursor:
+        :param cursor: Requires a single resolved target
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -714,7 +694,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._list_retweeters_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             limit=limit,
             cursor=cursor,
@@ -726,6 +707,7 @@ class EngagementApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListRetweeters200Response",
+            '400': "Error",
             '401': "Error",
             '404': "Error",
             '502': "Error",
@@ -744,10 +726,11 @@ class EngagementApi:
     @validate_call
     async def list_retweeters_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Optional[StrictStr] = None,
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Optional[StrictStr] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -763,14 +746,17 @@ class EngagementApi:
     ) -> ApiResponse[ListRetweeters200Response]:
         """List retweeters
 
+        Accounts that reposted a post, grouped per destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id:
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param limit:
         :type limit: int
-        :param cursor:
+        :param cursor: Requires a single resolved target
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -795,7 +781,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._list_retweeters_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             limit=limit,
             cursor=cursor,
@@ -807,6 +794,7 @@ class EngagementApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListRetweeters200Response",
+            '400': "Error",
             '401': "Error",
             '404': "Error",
             '502': "Error",
@@ -825,10 +813,11 @@ class EngagementApi:
     @validate_call
     async def list_retweeters_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Optional[StrictStr] = None,
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Optional[StrictStr] = None,
+        cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -844,14 +833,17 @@ class EngagementApi:
     ) -> RESTResponseType:
         """List retweeters
 
+        Accounts that reposted a post, grouped per destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id:
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param limit:
         :type limit: int
-        :param cursor:
+        :param cursor: Requires a single resolved target
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -876,7 +868,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._list_retweeters_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             limit=limit,
             cursor=cursor,
@@ -888,6 +881,7 @@ class EngagementApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListRetweeters200Response",
+            '400': "Error",
             '401': "Error",
             '404': "Error",
             '502': "Error",
@@ -901,7 +895,8 @@ class EngagementApi:
 
     def _list_retweeters_serialize(
         self,
-        id,
+        post,
+        account_id,
         destination_id,
         limit,
         cursor,
@@ -926,9 +921,15 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
+        if post is not None:
+            
+            _query_params.append(('post', post))
+            
+        if account_id is not None:
+            
+            _query_params.append(('accountId', account_id))
+            
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
@@ -963,7 +964,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/posts/{id}/retweets',
+            resource_path='/v1/retweets',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -982,7 +983,6 @@ class EngagementApi:
     @validate_call
     async def quote(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         quote_body: QuoteBody,
         _request_timeout: Union[
             None,
@@ -999,9 +999,8 @@ class EngagementApi:
     ) -> Quote201Response:
         """Quote tweet
 
+        Quote one published destination or native post with new text.
 
-        :param id: (required)
-        :type id: str
         :param quote_body: (required)
         :type quote_body: QuoteBody
         :param _request_timeout: timeout setting for this request. If one
@@ -1027,7 +1026,6 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._quote_serialize(
-            id=id,
             quote_body=quote_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1059,7 +1057,6 @@ class EngagementApi:
     @validate_call
     async def quote_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         quote_body: QuoteBody,
         _request_timeout: Union[
             None,
@@ -1076,9 +1073,8 @@ class EngagementApi:
     ) -> ApiResponse[Quote201Response]:
         """Quote tweet
 
+        Quote one published destination or native post with new text.
 
-        :param id: (required)
-        :type id: str
         :param quote_body: (required)
         :type quote_body: QuoteBody
         :param _request_timeout: timeout setting for this request. If one
@@ -1104,7 +1100,6 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._quote_serialize(
-            id=id,
             quote_body=quote_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1136,7 +1131,6 @@ class EngagementApi:
     @validate_call
     async def quote_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         quote_body: QuoteBody,
         _request_timeout: Union[
             None,
@@ -1153,9 +1147,8 @@ class EngagementApi:
     ) -> RESTResponseType:
         """Quote tweet
 
+        Quote one published destination or native post with new text.
 
-        :param id: (required)
-        :type id: str
         :param quote_body: (required)
         :type quote_body: QuoteBody
         :param _request_timeout: timeout setting for this request. If one
@@ -1181,7 +1174,6 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._quote_serialize(
-            id=id,
             quote_body=quote_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1208,7 +1200,6 @@ class EngagementApi:
 
     def _quote_serialize(
         self,
-        id,
         quote_body,
         _request_auth,
         _content_type,
@@ -1231,8 +1222,6 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
@@ -1271,7 +1260,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/posts/{id}/quotes',
+            resource_path='/v1/quotes',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1290,8 +1279,9 @@ class EngagementApi:
     @validate_call
     async def remove_bookmark(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1307,10 +1297,13 @@ class EngagementApi:
     ) -> Bookmark201Response:
         """Remove bookmark
 
+        Remove a bookmark from the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1335,7 +1328,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._remove_bookmark_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1367,8 +1361,9 @@ class EngagementApi:
     @validate_call
     async def remove_bookmark_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1384,10 +1379,13 @@ class EngagementApi:
     ) -> ApiResponse[Bookmark201Response]:
         """Remove bookmark
 
+        Remove a bookmark from the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1412,7 +1410,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._remove_bookmark_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1444,8 +1443,9 @@ class EngagementApi:
     @validate_call
     async def remove_bookmark_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1461,10 +1461,13 @@ class EngagementApi:
     ) -> RESTResponseType:
         """Remove bookmark
 
+        Remove a bookmark from the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1489,7 +1492,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._remove_bookmark_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1516,7 +1520,8 @@ class EngagementApi:
 
     def _remove_bookmark_serialize(
         self,
-        id,
+        post,
+        account_id,
         destination_id,
         _request_auth,
         _content_type,
@@ -1539,9 +1544,15 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
+        if post is not None:
+            
+            _query_params.append(('post', post))
+            
+        if account_id is not None:
+            
+            _query_params.append(('accountId', account_id))
+            
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
@@ -1568,7 +1579,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/posts/{id}/bookmarks',
+            resource_path='/v1/bookmarks',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1587,8 +1598,7 @@ class EngagementApi:
     @validate_call
     async def retweet(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1604,11 +1614,10 @@ class EngagementApi:
     ) -> Retweet201Response:
         """Retweet
 
+        Repost one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1632,8 +1641,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._retweet_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1664,8 +1672,7 @@ class EngagementApi:
     @validate_call
     async def retweet_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1681,11 +1688,10 @@ class EngagementApi:
     ) -> ApiResponse[Retweet201Response]:
         """Retweet
 
+        Repost one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1709,8 +1715,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._retweet_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1741,8 +1746,7 @@ class EngagementApi:
     @validate_call
     async def retweet_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id_body: DestinationIdBody,
+        engagement_target_body: EngagementTargetBody,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1758,11 +1762,10 @@ class EngagementApi:
     ) -> RESTResponseType:
         """Retweet
 
+        Repost one published destination or native post.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id_body: (required)
-        :type destination_id_body: DestinationIdBody
+        :param engagement_target_body: (required)
+        :type engagement_target_body: EngagementTargetBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1786,8 +1789,7 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._retweet_serialize(
-            id=id,
-            destination_id_body=destination_id_body,
+            engagement_target_body=engagement_target_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1813,8 +1815,7 @@ class EngagementApi:
 
     def _retweet_serialize(
         self,
-        id,
-        destination_id_body,
+        engagement_target_body,
         _request_auth,
         _content_type,
         _headers,
@@ -1836,14 +1837,12 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if destination_id_body is not None:
-            _body_params = destination_id_body
+        if engagement_target_body is not None:
+            _body_params = engagement_target_body
 
 
         # set the HTTP header `Accept`
@@ -1876,7 +1875,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/posts/{id}/retweets',
+            resource_path='/v1/retweets',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1895,8 +1894,9 @@ class EngagementApi:
     @validate_call
     async def undo_retweet(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1912,10 +1912,13 @@ class EngagementApi:
     ) -> Retweet201Response:
         """Undo retweet
 
+        Remove a repost created by the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1940,7 +1943,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._undo_retweet_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1972,8 +1976,9 @@ class EngagementApi:
     @validate_call
     async def undo_retweet_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1989,10 +1994,13 @@ class EngagementApi:
     ) -> ApiResponse[Retweet201Response]:
         """Undo retweet
 
+        Remove a repost created by the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2017,7 +2025,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._undo_retweet_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -2049,8 +2058,9 @@ class EngagementApi:
     @validate_call
     async def undo_retweet_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2066,10 +2076,13 @@ class EngagementApi:
     ) -> RESTResponseType:
         """Undo retweet
 
+        Remove a repost created by the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2094,7 +2107,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._undo_retweet_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -2121,7 +2135,8 @@ class EngagementApi:
 
     def _undo_retweet_serialize(
         self,
-        id,
+        post,
+        account_id,
         destination_id,
         _request_auth,
         _content_type,
@@ -2144,9 +2159,15 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
+        if post is not None:
+            
+            _query_params.append(('post', post))
+            
+        if account_id is not None:
+            
+            _query_params.append(('accountId', account_id))
+            
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
@@ -2173,7 +2194,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/posts/{id}/retweets',
+            resource_path='/v1/retweets',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2192,8 +2213,9 @@ class EngagementApi:
     @validate_call
     async def unlike(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2209,10 +2231,13 @@ class EngagementApi:
     ) -> Like201Response:
         """Unlike
 
+        Remove a like from the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2237,7 +2262,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._unlike_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -2269,8 +2295,9 @@ class EngagementApi:
     @validate_call
     async def unlike_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2286,10 +2313,13 @@ class EngagementApi:
     ) -> ApiResponse[Like201Response]:
         """Unlike
 
+        Remove a like from the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2314,7 +2344,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._unlike_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -2346,8 +2377,9 @@ class EngagementApi:
     @validate_call
     async def unlike_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        destination_id: Annotated[str, Field(min_length=1, strict=True)],
+        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2363,10 +2395,13 @@ class EngagementApi:
     ) -> RESTResponseType:
         """Unlike
 
+        Remove a like from the connected account.
 
-        :param id: (required)
-        :type id: str
-        :param destination_id: (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :type post: str
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :type account_id: str
+        :param destination_id: Internal destinations only. Narrows with accountId.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2391,7 +2426,8 @@ class EngagementApi:
         """ # noqa: E501
 
         _param = self._unlike_serialize(
-            id=id,
+            post=post,
+            account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -2418,7 +2454,8 @@ class EngagementApi:
 
     def _unlike_serialize(
         self,
-        id,
+        post,
+        account_id,
         destination_id,
         _request_auth,
         _content_type,
@@ -2441,9 +2478,15 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         # process the query parameters
+        if post is not None:
+            
+            _query_params.append(('post', post))
+            
+        if account_id is not None:
+            
+            _query_params.append(('accountId', account_id))
+            
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
@@ -2470,7 +2513,7 @@ class EngagementApi:
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/posts/{id}/likes',
+            resource_path='/v1/likes',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

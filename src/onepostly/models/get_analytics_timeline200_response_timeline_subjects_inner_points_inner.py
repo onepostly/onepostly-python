@@ -17,21 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.normalized_metrics import NormalizedMetrics
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ListConnectionMedia200Response(BaseModel):
+class GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner(BaseModel):
     """
-    ListConnectionMedia200Response
+    GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner
     """ # noqa: E501
-    account_id: StrictStr = Field(alias="accountId")
-    platform: StrictStr
-    items: List[Dict[str, Any]]
-    next_cursor: Optional[StrictStr] = Field(alias="nextCursor")
-    __properties: ClassVar[List[str]] = ["accountId", "platform", "items", "nextCursor"]
+    day: StrictStr
+    metrics: Optional[NormalizedMetrics] = None
+    delta: Optional[NormalizedMetrics] = None
+    __properties: ClassVar[List[str]] = ["day", "metrics", "delta"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,7 +51,7 @@ class ListConnectionMedia200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ListConnectionMedia200Response from a JSON string"""
+        """Create an instance of GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,16 +72,17 @@ class ListConnectionMedia200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if next_cursor (nullable) is None
-        # and model_fields_set contains the field
-        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
-            _dict['nextCursor'] = None
-
+        # override the default output from pydantic by calling `to_dict()` of metrics
+        if self.metrics:
+            _dict['metrics'] = self.metrics.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of delta
+        if self.delta:
+            _dict['delta'] = self.delta.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ListConnectionMedia200Response from a dict"""
+        """Create an instance of GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner from a dict"""
         if obj is None:
             return None
 
@@ -89,10 +90,9 @@ class ListConnectionMedia200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "accountId": obj.get("accountId"),
-            "platform": obj.get("platform"),
-            "items": obj.get("items"),
-            "nextCursor": obj.get("nextCursor")
+            "day": obj.get("day"),
+            "metrics": NormalizedMetrics.from_dict(obj["metrics"]) if obj.get("metrics") is not None else None,
+            "delta": NormalizedMetrics.from_dict(obj["delta"]) if obj.get("delta") is not None else None
         })
         return _obj
 

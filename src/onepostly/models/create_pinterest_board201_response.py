@@ -29,12 +29,12 @@ class CreatePinterestBoard201Response(BaseModel):
     """
     CreatePinterestBoard201Response
     """ # noqa: E501
-    connection_id: StrictStr = Field(alias="connectionId")
+    account_id: StrictStr = Field(alias="accountId")
     platform: StrictStr
     board: ListPinterestBoards200ResponseBoardsInner
     sandbox: StrictBool
     created_at: datetime = Field(alias="createdAt")
-    __properties: ClassVar[List[str]] = ["connectionId", "platform", "board", "sandbox", "createdAt"]
+    __properties: ClassVar[List[str]] = ["accountId", "platform", "board", "sandbox", "createdAt"]
 
     @field_validator('platform')
     def platform_validate_enum(cls, value):
@@ -97,7 +97,7 @@ class CreatePinterestBoard201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "connectionId": obj.get("connectionId"),
+            "accountId": obj.get("accountId"),
             "platform": obj.get("platform"),
             "board": ListPinterestBoards200ResponseBoardsInner.from_dict(obj["board"]) if obj.get("board") is not None else None,
             "sandbox": obj.get("sandbox"),

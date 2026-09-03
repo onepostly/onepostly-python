@@ -17,19 +17,30 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
-from onepostly.models.get_post_insights_timeline200_response_timeline import GetPostInsightsTimeline200ResponseTimeline
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.get_analytics_timeline200_response_timeline_subjects_inner_points_inner import GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class GetPostInsightsTimeline200Response(BaseModel):
+class GetAnalyticsTimeline200ResponseTimelineSubjectsInner(BaseModel):
     """
-    GetPostInsightsTimeline200Response
+    GetAnalyticsTimeline200ResponseTimelineSubjectsInner
     """ # noqa: E501
-    timeline: GetPostInsightsTimeline200ResponseTimeline
-    __properties: ClassVar[List[str]] = ["timeline"]
+    scope: StrictStr
+    subject_id: StrictStr = Field(alias="subjectId")
+    platform: StrictStr
+    status: Optional[StrictStr] = None
+    points: Optional[List[GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner]] = None
+    __properties: ClassVar[List[str]] = ["scope", "subjectId", "platform", "status", "points"]
+
+    @field_validator('scope')
+    def scope_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['destination', 'external']):
+            raise ValueError("must be one of enum values ('destination', 'external')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +60,7 @@ class GetPostInsightsTimeline200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200Response from a JSON string"""
+        """Create an instance of GetAnalyticsTimeline200ResponseTimelineSubjectsInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,14 +81,17 @@ class GetPostInsightsTimeline200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of timeline
-        if self.timeline:
-            _dict['timeline'] = self.timeline.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in points (list)
+        _items = []
+        if self.points:
+            for _item_points in self.points:
+                _items.append(_item_points.to_dict() if _item_points is not None else None)
+            _dict['points'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200Response from a dict"""
+        """Create an instance of GetAnalyticsTimeline200ResponseTimelineSubjectsInner from a dict"""
         if obj is None:
             return None
 
@@ -85,7 +99,11 @@ class GetPostInsightsTimeline200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "timeline": GetPostInsightsTimeline200ResponseTimeline.from_dict(obj["timeline"]) if obj.get("timeline") is not None else None
+            "scope": obj.get("scope"),
+            "subjectId": obj.get("subjectId"),
+            "platform": obj.get("platform"),
+            "status": obj.get("status"),
+            "points": [GetAnalyticsTimeline200ResponseTimelineSubjectsInnerPointsInner.from_dict(_item) for _item in obj["points"]] if obj.get("points") is not None else None
         })
         return _obj
 

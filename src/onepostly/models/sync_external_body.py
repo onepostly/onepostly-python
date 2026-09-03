@@ -18,19 +18,20 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
-from onepostly.models.get_post_insights_timeline200_response_timeline_destinations_inner import GetPostInsightsTimeline200ResponseTimelineDestinationsInner
+from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class GetPostInsightsTimeline200ResponseTimeline(BaseModel):
+class SyncExternalBody(BaseModel):
     """
-    GetPostInsightsTimeline200ResponseTimeline
+    SyncExternalBody
     """ # noqa: E501
-    post_id: StrictStr = Field(alias="postId")
-    destinations: List[GetPostInsightsTimeline200ResponseTimelineDestinationsInner]
-    __properties: ClassVar[List[str]] = ["postId", "destinations"]
+    account_id: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Connected social account id whose posts to sync.", alias="accountId")
+    url: Optional[StrictStr] = Field(default=None, description="Post URL to locate. Optional: provide url or postId for single-post mode, omit both for bulk refresh.")
+    post_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="Platform-native post/media/video id to locate, as an alternative to url.", alias="postId")
+    __properties: ClassVar[List[str]] = ["accountId", "url", "postId"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -50,7 +51,7 @@ class GetPostInsightsTimeline200ResponseTimeline(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200ResponseTimeline from a JSON string"""
+        """Create an instance of SyncExternalBody from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,17 +72,11 @@ class GetPostInsightsTimeline200ResponseTimeline(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in destinations (list)
-        _items = []
-        if self.destinations:
-            for _item_destinations in self.destinations:
-                _items.append(_item_destinations.to_dict() if _item_destinations is not None else None)
-            _dict['destinations'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200ResponseTimeline from a dict"""
+        """Create an instance of SyncExternalBody from a dict"""
         if obj is None:
             return None
 
@@ -89,8 +84,9 @@ class GetPostInsightsTimeline200ResponseTimeline(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "postId": obj.get("postId"),
-            "destinations": [GetPostInsightsTimeline200ResponseTimelineDestinationsInner.from_dict(_item) for _item in obj["destinations"]] if obj.get("destinations") is not None else None
+            "accountId": obj.get("accountId"),
+            "url": obj.get("url"),
+            "postId": obj.get("postId")
         })
         return _obj
 

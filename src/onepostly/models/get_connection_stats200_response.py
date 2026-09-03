@@ -28,12 +28,12 @@ class GetConnectionStats200Response(BaseModel):
     """
     GetConnectionStats200Response
     """ # noqa: E501
-    connection_id: StrictStr = Field(alias="connectionId")
+    account_id: StrictStr = Field(alias="accountId")
     platform: StrictStr
     status: StrictStr
     stats: Optional[Dict[str, Any]] = None
     fetched_at: datetime = Field(alias="fetchedAt")
-    __properties: ClassVar[List[str]] = ["connectionId", "platform", "status", "stats", "fetchedAt"]
+    __properties: ClassVar[List[str]] = ["accountId", "platform", "status", "stats", "fetchedAt"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -91,7 +91,7 @@ class GetConnectionStats200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "connectionId": obj.get("connectionId"),
+            "accountId": obj.get("accountId"),
             "platform": obj.get("platform"),
             "status": obj.get("status"),
             "stats": obj.get("stats"),

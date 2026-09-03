@@ -17,22 +17,23 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List, Optional
-from onepostly.models.normalized_metrics import NormalizedMetrics
+from onepostly.models.external_post import ExternalPost
+from onepostly.models.sync_external200_response_synced import SyncExternal200ResponseSynced
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class GetPostInsights200ResponseInsightsDestinationsInner(BaseModel):
+class SyncExternal200Response(BaseModel):
     """
-    GetPostInsights200ResponseInsightsDestinationsInner
+    SyncExternal200Response
     """ # noqa: E501
-    destination_id: StrictStr = Field(alias="destinationId")
-    platform: StrictStr
-    status: Optional[StrictStr] = None
-    metrics: Optional[NormalizedMetrics] = None
-    __properties: ClassVar[List[str]] = ["destinationId", "platform", "status", "metrics"]
+    synced: SyncExternal200ResponseSynced
+    found: Optional[StrictBool] = None
+    post: Optional[ExternalPost] = None
+    posts: Optional[List[Optional[ExternalPost]]] = None
+    __properties: ClassVar[List[str]] = ["synced", "found", "post", "posts"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -52,7 +53,7 @@ class GetPostInsights200ResponseInsightsDestinationsInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetPostInsights200ResponseInsightsDestinationsInner from a JSON string"""
+        """Create an instance of SyncExternal200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,14 +74,28 @@ class GetPostInsights200ResponseInsightsDestinationsInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of metrics
-        if self.metrics:
-            _dict['metrics'] = self.metrics.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of synced
+        if self.synced:
+            _dict['synced'] = self.synced.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of post
+        if self.post:
+            _dict['post'] = self.post.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in posts (list)
+        _items = []
+        if self.posts:
+            for _item_posts in self.posts:
+                _items.append(_item_posts.to_dict() if _item_posts is not None else None)
+            _dict['posts'] = _items
+        # set to None if post (nullable) is None
+        # and model_fields_set contains the field
+        if self.post is None and "post" in self.model_fields_set:
+            _dict['post'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetPostInsights200ResponseInsightsDestinationsInner from a dict"""
+        """Create an instance of SyncExternal200Response from a dict"""
         if obj is None:
             return None
 
@@ -88,10 +103,10 @@ class GetPostInsights200ResponseInsightsDestinationsInner(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destinationId": obj.get("destinationId"),
-            "platform": obj.get("platform"),
-            "status": obj.get("status"),
-            "metrics": NormalizedMetrics.from_dict(obj["metrics"]) if obj.get("metrics") is not None else None
+            "synced": SyncExternal200ResponseSynced.from_dict(obj["synced"]) if obj.get("synced") is not None else None,
+            "found": obj.get("found"),
+            "post": ExternalPost.from_dict(obj["post"]) if obj.get("post") is not None else None,
+            "posts": [ExternalPost.from_dict(_item) for _item in obj["posts"]] if obj.get("posts") is not None else None
         })
         return _obj
 

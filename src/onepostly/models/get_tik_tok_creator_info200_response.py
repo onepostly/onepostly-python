@@ -29,11 +29,11 @@ class GetTikTokCreatorInfo200Response(BaseModel):
     """
     GetTikTokCreatorInfo200Response
     """ # noqa: E501
-    connection_id: StrictStr = Field(alias="connectionId")
+    account_id: StrictStr = Field(alias="accountId")
     platform: StrictStr
     creator_info: GetTikTokCreatorInfo200ResponseCreatorInfo = Field(alias="creatorInfo")
     fetched_at: datetime = Field(alias="fetchedAt")
-    __properties: ClassVar[List[str]] = ["connectionId", "platform", "creatorInfo", "fetchedAt"]
+    __properties: ClassVar[List[str]] = ["accountId", "platform", "creatorInfo", "fetchedAt"]
 
     @field_validator('platform')
     def platform_validate_enum(cls, value):
@@ -96,7 +96,7 @@ class GetTikTokCreatorInfo200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "connectionId": obj.get("connectionId"),
+            "accountId": obj.get("accountId"),
             "platform": obj.get("platform"),
             "creatorInfo": GetTikTokCreatorInfo200ResponseCreatorInfo.from_dict(obj["creatorInfo"]) if obj.get("creatorInfo") is not None else None,
             "fetchedAt": obj.get("fetchedAt")

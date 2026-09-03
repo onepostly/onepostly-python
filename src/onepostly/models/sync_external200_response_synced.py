@@ -17,19 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
-from onepostly.models.get_post_insights200_response_insights import GetPostInsights200ResponseInsights
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt
+from typing import Any, ClassVar, Dict, List, Union
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class GetPostInsights200Response(BaseModel):
+class SyncExternal200ResponseSynced(BaseModel):
     """
-    GetPostInsights200Response
+    SyncExternal200ResponseSynced
     """ # noqa: E501
-    insights: GetPostInsights200ResponseInsights
-    __properties: ClassVar[List[str]] = ["insights"]
+    posts_found: Union[StrictFloat, StrictInt] = Field(alias="postsFound")
+    posts_synced: Union[StrictFloat, StrictInt] = Field(alias="postsSynced")
+    skipped: StrictBool
+    __properties: ClassVar[List[str]] = ["postsFound", "postsSynced", "skipped"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +50,7 @@ class GetPostInsights200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetPostInsights200Response from a JSON string"""
+        """Create an instance of SyncExternal200ResponseSynced from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,14 +71,11 @@ class GetPostInsights200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of insights
-        if self.insights:
-            _dict['insights'] = self.insights.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetPostInsights200Response from a dict"""
+        """Create an instance of SyncExternal200ResponseSynced from a dict"""
         if obj is None:
             return None
 
@@ -85,7 +83,9 @@ class GetPostInsights200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "insights": GetPostInsights200ResponseInsights.from_dict(obj["insights"]) if obj.get("insights") is not None else None
+            "postsFound": obj.get("postsFound"),
+            "postsSynced": obj.get("postsSynced"),
+            "skipped": obj.get("skipped")
         })
         return _obj
 

@@ -159,13 +159,14 @@ All methods take named keyword arguments.
 | `posts.get_post()` | Get post |
 | `posts.cancel_post()` | Cancel post |
 | `posts.delete_post_destination()` | Remote-delete destination |
+| `posts.sync_external()` | Sync external posts |
 
-### InsightsApi
+### AnalyticsApi
 
 | Method | Description |
 | --- | --- |
-| `insights.get_post_insights()` | Get insights |
-| `insights.get_post_insights_timeline()` | Get daily insights timeline |
+| `analytics.get_analytics()` | Get analytics |
+| `analytics.get_analytics_timeline()` | Get daily analytics timeline |
 
 ### CommentsApi
 

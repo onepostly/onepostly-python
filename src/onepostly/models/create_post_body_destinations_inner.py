@@ -28,7 +28,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
     """
     CreatePostBodyDestinationsInner
     """ # noqa: E501
-    connection_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="connectionId")
+    account_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="accountId")
     text: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = None
     quote_tweet_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = Field(default=None, alias="quoteTweetId")
     privacy_status: Optional[StrictStr] = Field(default=None, alias="privacyStatus")
@@ -38,6 +38,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
     disable_stitch: Optional[StrictBool] = Field(default=None, alias="disableStitch")
     brand_organic_toggle: Optional[StrictBool] = Field(default=None, alias="brandOrganicToggle")
     brand_content_toggle: Optional[StrictBool] = Field(default=None, alias="brandContentToggle")
+    ai_generated: Optional[StrictBool] = Field(default=None, alias="aiGenerated")
     description: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = None
     board_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="Pinterest only. Required for Pinterest destinations.", alias="boardId")
     link: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
@@ -48,7 +49,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
     nsfw: Optional[StrictBool] = None
     spoiler: Optional[StrictBool] = None
     thumbnail_url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, alias="thumbnailUrl")
-    __properties: ClassVar[List[str]] = ["connectionId", "text", "quoteTweetId", "privacyStatus", "privacyLevel", "disableComment", "disableDuet", "disableStitch", "brandOrganicToggle", "brandContentToggle", "description", "boardId", "link", "title", "subreddit", "flairId", "flairText", "nsfw", "spoiler", "thumbnailUrl"]
+    __properties: ClassVar[List[str]] = ["accountId", "text", "quoteTweetId", "privacyStatus", "privacyLevel", "disableComment", "disableDuet", "disableStitch", "brandOrganicToggle", "brandContentToggle", "aiGenerated", "description", "boardId", "link", "title", "subreddit", "flairId", "flairText", "nsfw", "spoiler", "thumbnailUrl"]
 
     @field_validator('privacy_status')
     def privacy_status_validate_enum(cls, value):
@@ -131,7 +132,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "connectionId": obj.get("connectionId"),
+            "accountId": obj.get("accountId"),
             "text": obj.get("text"),
             "quoteTweetId": obj.get("quoteTweetId"),
             "privacyStatus": obj.get("privacyStatus"),
@@ -141,6 +142,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
             "disableStitch": obj.get("disableStitch"),
             "brandOrganicToggle": obj.get("brandOrganicToggle"),
             "brandContentToggle": obj.get("brandContentToggle"),
+            "aiGenerated": obj.get("aiGenerated"),
             "description": obj.get("description"),
             "boardId": obj.get("boardId"),
             "link": obj.get("link"),

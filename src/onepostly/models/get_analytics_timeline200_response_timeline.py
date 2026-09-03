@@ -17,22 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from onepostly.models.get_post_insights_timeline200_response_timeline_destinations_inner_points_inner import GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner
+from pydantic import BaseModel, ConfigDict, StrictStr
+from typing import Any, ClassVar, Dict, List
+from onepostly.models.get_analytics_timeline200_response_timeline_subjects_inner import GetAnalyticsTimeline200ResponseTimelineSubjectsInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class GetPostInsightsTimeline200ResponseTimelineDestinationsInner(BaseModel):
+class GetAnalyticsTimeline200ResponseTimeline(BaseModel):
     """
-    GetPostInsightsTimeline200ResponseTimelineDestinationsInner
+    GetAnalyticsTimeline200ResponseTimeline
     """ # noqa: E501
-    destination_id: StrictStr = Field(alias="destinationId")
-    platform: StrictStr
-    status: Optional[StrictStr] = None
-    points: Optional[List[GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner]] = None
-    __properties: ClassVar[List[str]] = ["destinationId", "platform", "status", "points"]
+    post: StrictStr
+    subjects: List[GetAnalyticsTimeline200ResponseTimelineSubjectsInner]
+    __properties: ClassVar[List[str]] = ["post", "subjects"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -52,7 +50,7 @@ class GetPostInsightsTimeline200ResponseTimelineDestinationsInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200ResponseTimelineDestinationsInner from a JSON string"""
+        """Create an instance of GetAnalyticsTimeline200ResponseTimeline from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,17 +71,17 @@ class GetPostInsightsTimeline200ResponseTimelineDestinationsInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in points (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in subjects (list)
         _items = []
-        if self.points:
-            for _item_points in self.points:
-                _items.append(_item_points.to_dict() if _item_points is not None else None)
-            _dict['points'] = _items
+        if self.subjects:
+            for _item_subjects in self.subjects:
+                _items.append(_item_subjects.to_dict() if _item_subjects is not None else None)
+            _dict['subjects'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetPostInsightsTimeline200ResponseTimelineDestinationsInner from a dict"""
+        """Create an instance of GetAnalyticsTimeline200ResponseTimeline from a dict"""
         if obj is None:
             return None
 
@@ -91,10 +89,8 @@ class GetPostInsightsTimeline200ResponseTimelineDestinationsInner(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "destinationId": obj.get("destinationId"),
-            "platform": obj.get("platform"),
-            "status": obj.get("status"),
-            "points": [GetPostInsightsTimeline200ResponseTimelineDestinationsInnerPointsInner.from_dict(_item) for _item in obj["points"]] if obj.get("points") is not None else None
+            "post": obj.get("post"),
+            "subjects": [GetAnalyticsTimeline200ResponseTimelineSubjectsInner.from_dict(_item) for _item in obj["subjects"]] if obj.get("subjects") is not None else None
         })
         return _obj
 

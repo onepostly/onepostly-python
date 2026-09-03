@@ -17,21 +17,30 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from onepostly.models.get_post_insights200_response_insights_destinations_inner import GetPostInsights200ResponseInsightsDestinationsInner
+from onepostly.models.actor import Actor
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class GetPostInsights200ResponseInsights(BaseModel):
+class ListRetweeters200ResponseRetweetsSubjectsInner(BaseModel):
     """
-    GetPostInsights200ResponseInsights
+    ListRetweeters200ResponseRetweetsSubjectsInner
     """ # noqa: E501
-    post_id: StrictStr = Field(alias="postId")
+    scope: StrictStr
+    subject_id: StrictStr = Field(alias="subjectId")
     status: Optional[StrictStr] = None
-    destinations: Optional[List[GetPostInsights200ResponseInsightsDestinationsInner]] = None
-    __properties: ClassVar[List[str]] = ["postId", "status", "destinations"]
+    actors: Optional[List[Actor]] = None
+    next_cursor: Optional[StrictStr] = Field(default=None, alias="nextCursor")
+    __properties: ClassVar[List[str]] = ["scope", "subjectId", "status", "actors", "nextCursor"]
+
+    @field_validator('scope')
+    def scope_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['destination', 'external']):
+            raise ValueError("must be one of enum values ('destination', 'external')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -51,7 +60,7 @@ class GetPostInsights200ResponseInsights(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetPostInsights200ResponseInsights from a JSON string"""
+        """Create an instance of ListRetweeters200ResponseRetweetsSubjectsInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,17 +81,22 @@ class GetPostInsights200ResponseInsights(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in destinations (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in actors (list)
         _items = []
-        if self.destinations:
-            for _item_destinations in self.destinations:
-                _items.append(_item_destinations.to_dict() if _item_destinations is not None else None)
-            _dict['destinations'] = _items
+        if self.actors:
+            for _item_actors in self.actors:
+                _items.append(_item_actors.to_dict() if _item_actors is not None else None)
+            _dict['actors'] = _items
+        # set to None if next_cursor (nullable) is None
+        # and model_fields_set contains the field
+        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
+            _dict['nextCursor'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetPostInsights200ResponseInsights from a dict"""
+        """Create an instance of ListRetweeters200ResponseRetweetsSubjectsInner from a dict"""
         if obj is None:
             return None
 
@@ -90,9 +104,11 @@ class GetPostInsights200ResponseInsights(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "postId": obj.get("postId"),
+            "scope": obj.get("scope"),
+            "subjectId": obj.get("subjectId"),
             "status": obj.get("status"),
-            "destinations": [GetPostInsights200ResponseInsightsDestinationsInner.from_dict(_item) for _item in obj["destinations"]] if obj.get("destinations") is not None else None
+            "actors": [Actor.from_dict(_item) for _item in obj["actors"]] if obj.get("actors") is not None else None,
+            "nextCursor": obj.get("nextCursor")
         })
         return _obj
 
