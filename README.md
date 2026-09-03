@@ -44,7 +44,7 @@ with ApiClient(configuration) as api_client:
         create_post_body={
             "text": "Hello from Onepostly",
             "mediaKind": "text",
-            "destinations": [{"connectionId": "…"}],
+            "destinations": [{"accountId": "…"}],
         }
     )
     print(response.post.id, response.post.status)  # "queued"
@@ -52,7 +52,7 @@ with ApiClient(configuration) as api_client:
 
 Methods are `async` and return deserialized pydantic models (`PostResponse`, `ListPosts200Response`, …). The `…with_http_info()` variants return an `ApiResponse` with `status_code`, `headers`, and `raw_data` alongside `data`.
 
-Pass plain dicts anywhere a model is expected — pydantic validates and coerces them (alias names like `connectionId` and `mediaKind` are accepted on both keys and fields).
+Pass plain dicts anywhere a model is expected — pydantic validates and coerces them (alias names like `accountId` and `mediaKind` are accepted on both keys and fields).
 
 ### Scheduling
 
@@ -62,7 +62,7 @@ await posts.create_post(
         "text": "Tomorrow morning",
         "scheduledFor": "2026-09-01T09:00:00",  # timezone-naive local time
         "timezone": "Europe/Istanbul",
-        "destinations": [{"connectionId": "…"}],
+        "destinations": [{"accountId": "…"}],
     }
 )
 # 201 Created, status "scheduled"
@@ -84,24 +84,24 @@ await posts.create_post(
         "text": "With an image",
         "mediaKind": "image",
         "mediaUrls": [media_url],
-        "destinations": [{"connectionId": "…"}],
+        "destinations": [{"accountId": "…"}],
     }
 )
 ```
 
-### Insights
+### Analytics
 
 ```python
-from onepostly.api.insights_api import InsightsApi
+from onepostly.api.analytics_api import AnalyticsApi
 
-insights_api = InsightsApi(api_client)
+analytics_api = AnalyticsApi(api_client)
 
-post_insights = await insights_api.get_post_insights(id=post_id)
-for destination in post_insights.insights.destinations or []:
-    print(destination.platform, destination.metrics)
+post_analytics = await analytics_api.get_analytics(post=post_id)
+for subject in post_analytics.analytics.subjects or []:
+    print(subject.platform, subject.metrics)
 
-timeline = await insights_api.get_post_insights_timeline(
-    id=post_id,
+timeline = await analytics_api.get_analytics_timeline(
+    post=post_id,
     var_from="2026-08-01",  # inclusive, YYYY-MM-DD (`from` is a Python keyword)
     to="2026-08-28",        # inclusive, YYYY-MM-DD
 )

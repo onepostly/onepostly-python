@@ -53,17 +53,17 @@ async def test_create_post_sends_body_and_api_key():
         create_post_body={
             "text": "Hello",
             "mediaKind": "text",
-            "destinations": [{"connectionId": "c1"}],
+            "destinations": [{"accountId": "c1"}],
         }
     )
     assert str(response.post.id) == "1699f415-7fb6-43f4-9d2a-c447491f32a8"
     assert seen["url"].endswith("/v1/posts")
     assert seen["api_key"] == "op_test"
-    assert seen["body"]["destinations"] == [{"connectionId": "c1"}]
+    assert seen["body"]["destinations"] == [{"accountId": "c1"}]
 
 
 @pytest.mark.asyncio
-async def test_undo_retweet_sends_destination_id_query():
+async def test_undo_retweet_sends_post_query():
     seen = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -72,9 +72,9 @@ async def test_undo_retweet_sends_destination_id_query():
         return httpx.Response(200, json={"retweet": {}})
 
     api = EngagementApi(_client(handler))
-    await api.undo_retweet(id="p1", destination_id="d1")
-    assert "/v1/posts/p1/retweets" in seen["url"]
-    assert "destinationId=d1" in seen["url"]
+    await api.undo_retweet(post="p1")
+    assert "/v1/retweets" in seen["url"]
+    assert "post=p1" in seen["url"]
     assert seen["method"] == "DELETE"
 
 

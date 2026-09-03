@@ -64,7 +64,7 @@ async def test_error_body_is_preserved_for_callers():
             create_post_body={
                 "text": "Hello",
                 "mediaKind": "text",
-                "destinations": [{"connectionId": "c1"}],
+                "destinations": [{"accountId": "c1"}],
             }
         )
 
