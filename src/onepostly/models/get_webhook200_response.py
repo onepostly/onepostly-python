@@ -17,22 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict
+from typing import Any, ClassVar, Dict, List
+from onepostly.models.webhook import Webhook
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class UpdateWebhookBody(BaseModel):
+class GetWebhook200Response(BaseModel):
     """
-    UpdateWebhookBody
+    GetWebhook200Response
     """ # noqa: E501
-    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=120)]] = None
-    url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    events: Optional[Annotated[List[StrictStr], Field(min_length=1, max_length=26)]] = None
-    enabled: Optional[StrictBool] = None
-    __properties: ClassVar[List[str]] = ["name", "url", "events", "enabled"]
+    webhook: Webhook
+    __properties: ClassVar[List[str]] = ["webhook"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -52,7 +49,7 @@ class UpdateWebhookBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a JSON string"""
+        """Create an instance of GetWebhook200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,11 +70,14 @@ class UpdateWebhookBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of webhook
+        if self.webhook:
+            _dict['webhook'] = self.webhook.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a dict"""
+        """Create an instance of GetWebhook200Response from a dict"""
         if obj is None:
             return None
 
@@ -85,10 +85,7 @@ class UpdateWebhookBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "url": obj.get("url"),
-            "events": obj.get("events"),
-            "enabled": obj.get("enabled")
+            "webhook": Webhook.from_dict(obj["webhook"]) if obj.get("webhook") is not None else None
         })
         return _obj
 

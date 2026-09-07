@@ -17,8 +17,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,8 +27,12 @@ class Like201Response(BaseModel):
     """
     Like201Response
     """ # noqa: E501
-    like: Optional[Any] = None
-    __properties: ClassVar[List[str]] = ["like"]
+    post_id: StrictStr = Field(alias="postId")
+    destination_id: StrictStr = Field(alias="destinationId")
+    platform: StrictStr
+    kind: StrictStr
+    active: StrictBool
+    __properties: ClassVar[List[str]] = ["postId", "destinationId", "platform", "kind", "active"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -69,11 +73,6 @@ class Like201Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if like (nullable) is None
-        # and model_fields_set contains the field
-        if self.like is None and "like" in self.model_fields_set:
-            _dict['like'] = None
-
         return _dict
 
     @classmethod
@@ -86,7 +85,11 @@ class Like201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "like": obj.get("like")
+            "postId": obj.get("postId"),
+            "destinationId": obj.get("destinationId"),
+            "platform": obj.get("platform"),
+            "kind": obj.get("kind"),
+            "active": obj.get("active")
         })
         return _obj
 

@@ -18,13 +18,13 @@ from typing_extensions import Annotated
 from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
-from onepostly.models.bookmark201_response import Bookmark201Response
 from onepostly.models.engagement_target_body import EngagementTargetBody
 from onepostly.models.like201_response import Like201Response
 from onepostly.models.list_retweeters200_response import ListRetweeters200Response
 from onepostly.models.quote201_response import Quote201Response
 from onepostly.models.quote_body import QuoteBody
 from onepostly.models.retweet201_response import Retweet201Response
+from onepostly.models.undo_retweet200_response import UndoRetweet200Response
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -60,7 +60,7 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Bookmark201Response:
+    ) -> Like201Response:
         """Bookmark
 
         Bookmark one published destination or native post.
@@ -98,7 +98,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Bookmark201Response",
+            '201': "Like201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -134,7 +134,7 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Bookmark201Response]:
+    ) -> ApiResponse[Like201Response]:
         """Bookmark
 
         Bookmark one published destination or native post.
@@ -172,7 +172,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Bookmark201Response",
+            '201': "Like201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -246,7 +246,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Bookmark201Response",
+            '201': "Like201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -639,9 +639,9 @@ class EngagementApi:
     @validate_call
     async def list_retweeters(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
@@ -661,11 +661,11 @@ class EngagementApi:
 
         Accounts that reposted a post, grouped per destination or native post.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param limit:
         :type limit: int
@@ -726,9 +726,9 @@ class EngagementApi:
     @validate_call
     async def list_retweeters_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
@@ -748,11 +748,11 @@ class EngagementApi:
 
         Accounts that reposted a post, grouped per destination or native post.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param limit:
         :type limit: int
@@ -813,9 +813,9 @@ class EngagementApi:
     @validate_call
     async def list_retweeters_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
@@ -835,11 +835,11 @@ class EngagementApi:
 
         Accounts that reposted a post, grouped per destination or native post.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param limit:
         :type limit: int
@@ -1279,9 +1279,9 @@ class EngagementApi:
     @validate_call
     async def remove_bookmark(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1294,16 +1294,16 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Bookmark201Response:
+    ) -> Like201Response:
         """Remove bookmark
 
         Remove a bookmark from the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1338,7 +1338,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Bookmark201Response",
+            '200': "Like201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -1361,9 +1361,9 @@ class EngagementApi:
     @validate_call
     async def remove_bookmark_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1376,16 +1376,16 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Bookmark201Response]:
+    ) -> ApiResponse[Like201Response]:
         """Remove bookmark
 
         Remove a bookmark from the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1420,7 +1420,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Bookmark201Response",
+            '200': "Like201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -1443,9 +1443,9 @@ class EngagementApi:
     @validate_call
     async def remove_bookmark_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1463,11 +1463,11 @@ class EngagementApi:
 
         Remove a bookmark from the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1502,7 +1502,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Bookmark201Response",
+            '200': "Like201Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -1894,9 +1894,9 @@ class EngagementApi:
     @validate_call
     async def undo_retweet(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1909,16 +1909,16 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Retweet201Response:
+    ) -> UndoRetweet200Response:
         """Undo retweet
 
         Remove a repost created by the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1953,7 +1953,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Retweet201Response",
+            '200': "UndoRetweet200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -1976,9 +1976,9 @@ class EngagementApi:
     @validate_call
     async def undo_retweet_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1991,16 +1991,16 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Retweet201Response]:
+    ) -> ApiResponse[UndoRetweet200Response]:
         """Undo retweet
 
         Remove a repost created by the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2035,7 +2035,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Retweet201Response",
+            '200': "UndoRetweet200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2058,9 +2058,9 @@ class EngagementApi:
     @validate_call
     async def undo_retweet_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2078,11 +2078,11 @@ class EngagementApi:
 
         Remove a repost created by the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2117,7 +2117,7 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Retweet201Response",
+            '200': "UndoRetweet200Response",
             '400': "Error",
             '401': "Error",
             '402': "Error",
@@ -2213,9 +2213,9 @@ class EngagementApi:
     @validate_call
     async def unlike(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2233,11 +2233,11 @@ class EngagementApi:
 
         Remove a like from the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2295,9 +2295,9 @@ class EngagementApi:
     @validate_call
     async def unlike_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2315,11 +2315,11 @@ class EngagementApi:
 
         Remove a like from the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -2377,9 +2377,9 @@ class EngagementApi:
     @validate_call
     async def unlike_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2397,11 +2397,11 @@ class EngagementApi:
 
         Remove a like from the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

@@ -340,10 +340,10 @@ class CommentsApi:
     @validate_call
     async def delete_comment(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
         comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -361,13 +361,13 @@ class CommentsApi:
 
         Delete a comment owned by the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
-        :type post: str
         :param comment_id: Platform-native comment id. (required)
         :type comment_id: str
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
+        :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -392,8 +392,8 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            post=post,
             comment_id=comment_id,
+            post=post,
             account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
@@ -426,10 +426,10 @@ class CommentsApi:
     @validate_call
     async def delete_comment_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
         comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -447,13 +447,13 @@ class CommentsApi:
 
         Delete a comment owned by the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
-        :type post: str
         :param comment_id: Platform-native comment id. (required)
         :type comment_id: str
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
+        :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -478,8 +478,8 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            post=post,
             comment_id=comment_id,
+            post=post,
             account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
@@ -512,10 +512,10 @@ class CommentsApi:
     @validate_call
     async def delete_comment_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
         comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -533,13 +533,13 @@ class CommentsApi:
 
         Delete a comment owned by the connected account.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
-        :type post: str
         :param comment_id: Platform-native comment id. (required)
         :type comment_id: str
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
+        :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -564,8 +564,8 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            post=post,
             comment_id=comment_id,
+            post=post,
             account_id=account_id,
             destination_id=destination_id,
             _request_auth=_request_auth,
@@ -593,8 +593,8 @@ class CommentsApi:
 
     def _delete_comment_serialize(
         self,
-        post,
         comment_id,
+        post,
         account_id,
         destination_id,
         _request_auth,
@@ -676,9 +676,9 @@ class CommentsApi:
     @validate_call
     async def list_comments(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
@@ -698,11 +698,11 @@ class CommentsApi:
 
         Comments for every destination of a post, or for one platform-native post id.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param limit:
         :type limit: int
@@ -762,9 +762,9 @@ class CommentsApi:
     @validate_call
     async def list_comments_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
@@ -784,11 +784,11 @@ class CommentsApi:
 
         Comments for every destination of a post, or for one platform-native post id.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param limit:
         :type limit: int
@@ -848,9 +848,9 @@ class CommentsApi:
     @validate_call
     async def list_comments_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Requires a single resolved target")] = None,
         _request_timeout: Union[
@@ -870,11 +870,11 @@ class CommentsApi:
 
         Comments for every destination of a post, or for one platform-native post id.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param limit:
         :type limit: int

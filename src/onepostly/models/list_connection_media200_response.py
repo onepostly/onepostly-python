@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.list_connection_media200_response_items_inner import ListConnectionMedia200ResponseItemsInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -29,7 +30,7 @@ class ListConnectionMedia200Response(BaseModel):
     """ # noqa: E501
     account_id: StrictStr = Field(alias="accountId")
     platform: StrictStr
-    items: List[Dict[str, Any]]
+    items: List[ListConnectionMedia200ResponseItemsInner]
     next_cursor: Optional[StrictStr] = Field(alias="nextCursor")
     __properties: ClassVar[List[str]] = ["accountId", "platform", "items", "nextCursor"]
 
@@ -72,6 +73,12 @@ class ListConnectionMedia200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in items (list)
+        _items = []
+        if self.items:
+            for _item_items in self.items:
+                _items.append(_item_items.to_dict() if _item_items is not None else None)
+            _dict['items'] = _items
         # set to None if next_cursor (nullable) is None
         # and model_fields_set contains the field
         if self.next_cursor is None and "next_cursor" in self.model_fields_set:
@@ -91,7 +98,7 @@ class ListConnectionMedia200Response(BaseModel):
         _obj = cls.model_validate({
             "accountId": obj.get("accountId"),
             "platform": obj.get("platform"),
-            "items": obj.get("items"),
+            "items": [ListConnectionMedia200ResponseItemsInner.from_dict(_item) for _item in obj["items"]] if obj.get("items") is not None else None,
             "nextCursor": obj.get("nextCursor")
         })
         return _obj

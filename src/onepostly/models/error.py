@@ -17,9 +17,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
-from onepostly.models.error_error import ErrorError
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,8 +27,12 @@ class Error(BaseModel):
     """
     Error
     """ # noqa: E501
-    error: ErrorError
-    __properties: ClassVar[List[str]] = ["error"]
+    error: StrictStr = Field(description="Human-readable message. Display-only; never branch on it.")
+    code: StrictStr = Field(description="Stable machine-readable code.")
+    param: Optional[StrictStr] = Field(default=None, description="Request field at fault, when applicable.")
+    details: Optional[Dict[str, Any]] = Field(default=None, description="Additional structured context, when available.")
+    platform: Optional[StrictStr] = Field(default=None, description="Upstream platform that rejected the request, when applicable.")
+    __properties: ClassVar[List[str]] = ["error", "code", "param", "details", "platform"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -70,9 +73,6 @@ class Error(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of error
-        if self.error:
-            _dict['error'] = self.error.to_dict()
         return _dict
 
     @classmethod
@@ -85,7 +85,11 @@ class Error(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "error": ErrorError.from_dict(obj["error"]) if obj.get("error") is not None else None
+            "error": obj.get("error"),
+            "code": obj.get("code"),
+            "param": obj.get("param"),
+            "details": obj.get("details"),
+            "platform": obj.get("platform")
         })
         return _obj
 

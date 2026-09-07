@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,8 +27,12 @@ class Retweet201Response(BaseModel):
     """
     Retweet201Response
     """ # noqa: E501
-    retweet: Optional[Any] = None
-    __properties: ClassVar[List[str]] = ["retweet"]
+    post_id: StrictStr = Field(alias="postId")
+    destination_id: StrictStr = Field(alias="destinationId")
+    platform: StrictStr
+    retweeted: StrictBool
+    retweet_id: Optional[StrictStr] = Field(alias="retweetId")
+    __properties: ClassVar[List[str]] = ["postId", "destinationId", "platform", "retweeted", "retweetId"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -69,10 +73,10 @@ class Retweet201Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if retweet (nullable) is None
+        # set to None if retweet_id (nullable) is None
         # and model_fields_set contains the field
-        if self.retweet is None and "retweet" in self.model_fields_set:
-            _dict['retweet'] = None
+        if self.retweet_id is None and "retweet_id" in self.model_fields_set:
+            _dict['retweetId'] = None
 
         return _dict
 
@@ -86,7 +90,11 @@ class Retweet201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "retweet": obj.get("retweet")
+            "postId": obj.get("postId"),
+            "destinationId": obj.get("destinationId"),
+            "platform": obj.get("platform"),
+            "retweeted": obj.get("retweeted"),
+            "retweetId": obj.get("retweetId")
         })
         return _obj
 

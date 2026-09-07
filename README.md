@@ -146,8 +146,8 @@ All methods take named keyword arguments.
 
 | Method | Description |
 | --- | --- |
+| `media.get_media_presigned_url()` | Get a presigned upload URL |
 | `media.list_media()` | List media |
-| `media.upload_media()` | Upload media |
 | `media.delete_media()` | Delete media |
 
 ### PostsApi
@@ -199,7 +199,6 @@ All methods take named keyword arguments.
 | `webhooks.get_webhook()` | Get webhook |
 | `webhooks.delete_webhook()` | Delete webhook |
 | `webhooks.update_webhook()` | Update webhook |
-| `webhooks.rotate_webhook_secret()` | Rotate webhook secret |
 | `webhooks.list_webhook_deliveries()` | List webhook deliveries |
 | `webhooks.test_webhook()` | Send test event |
 <!-- END GENERATED API REFERENCE -->

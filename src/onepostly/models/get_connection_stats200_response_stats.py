@@ -17,22 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class UpdateWebhookBody(BaseModel):
+class GetConnectionStats200ResponseStats(BaseModel):
     """
-    UpdateWebhookBody
+    GetConnectionStats200ResponseStats
     """ # noqa: E501
-    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=120)]] = None
-    url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    events: Optional[Annotated[List[StrictStr], Field(min_length=1, max_length=26)]] = None
-    enabled: Optional[StrictBool] = None
-    __properties: ClassVar[List[str]] = ["name", "url", "events", "enabled"]
+    follower_count: Optional[Union[StrictFloat, StrictInt]] = Field(alias="followerCount")
+    following_count: Optional[Union[StrictFloat, StrictInt]] = Field(alias="followingCount")
+    likes_count: Optional[Union[StrictFloat, StrictInt]] = Field(alias="likesCount")
+    video_count: Optional[Union[StrictFloat, StrictInt]] = Field(alias="videoCount")
+    __properties: ClassVar[List[str]] = ["followerCount", "followingCount", "likesCount", "videoCount"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -52,7 +51,7 @@ class UpdateWebhookBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a JSON string"""
+        """Create an instance of GetConnectionStats200ResponseStats from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,11 +72,31 @@ class UpdateWebhookBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if follower_count (nullable) is None
+        # and model_fields_set contains the field
+        if self.follower_count is None and "follower_count" in self.model_fields_set:
+            _dict['followerCount'] = None
+
+        # set to None if following_count (nullable) is None
+        # and model_fields_set contains the field
+        if self.following_count is None and "following_count" in self.model_fields_set:
+            _dict['followingCount'] = None
+
+        # set to None if likes_count (nullable) is None
+        # and model_fields_set contains the field
+        if self.likes_count is None and "likes_count" in self.model_fields_set:
+            _dict['likesCount'] = None
+
+        # set to None if video_count (nullable) is None
+        # and model_fields_set contains the field
+        if self.video_count is None and "video_count" in self.model_fields_set:
+            _dict['videoCount'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a dict"""
+        """Create an instance of GetConnectionStats200ResponseStats from a dict"""
         if obj is None:
             return None
 
@@ -85,10 +104,10 @@ class UpdateWebhookBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "url": obj.get("url"),
-            "events": obj.get("events"),
-            "enabled": obj.get("enabled")
+            "followerCount": obj.get("followerCount"),
+            "followingCount": obj.get("followingCount"),
+            "likesCount": obj.get("likesCount"),
+            "videoCount": obj.get("videoCount")
         })
         return _obj
 

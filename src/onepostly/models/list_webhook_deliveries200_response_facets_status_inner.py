@@ -17,19 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List
-from onepostly.models.media_asset import MediaAsset
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class UploadMedia201Response(BaseModel):
+class ListWebhookDeliveries200ResponseFacetsStatusInner(BaseModel):
     """
-    UploadMedia201Response
+    ListWebhookDeliveries200ResponseFacetsStatusInner
     """ # noqa: E501
-    media: MediaAsset
-    __properties: ClassVar[List[str]] = ["media"]
+    status: StrictStr
+    count: StrictInt
+    __properties: ClassVar[List[str]] = ["status", "count"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +49,7 @@ class UploadMedia201Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UploadMedia201Response from a JSON string"""
+        """Create an instance of ListWebhookDeliveries200ResponseFacetsStatusInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,14 +70,11 @@ class UploadMedia201Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of media
-        if self.media:
-            _dict['media'] = self.media.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UploadMedia201Response from a dict"""
+        """Create an instance of ListWebhookDeliveries200ResponseFacetsStatusInner from a dict"""
         if obj is None:
             return None
 
@@ -85,7 +82,8 @@ class UploadMedia201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "media": MediaAsset.from_dict(obj["media"]) if obj.get("media") is not None else None
+            "status": obj.get("status"),
+            "count": obj.get("count")
         })
         return _obj
 

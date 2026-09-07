@@ -15,11 +15,12 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field
+from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from onepostly.models.create_webhook201_response import CreateWebhook201Response
 from onepostly.models.create_webhook_body import CreateWebhookBody
+from onepostly.models.get_webhook200_response import GetWebhook200Response
 from onepostly.models.list_webhook_deliveries200_response import ListWebhookDeliveries200Response
 from onepostly.models.list_webhook_event_types200_response import ListWebhookEventTypes200Response
 from onepostly.models.list_webhooks200_response import ListWebhooks200Response
@@ -609,7 +610,7 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateWebhook201Response:
+    ) -> GetWebhook200Response:
         """Get webhook
 
 
@@ -646,7 +647,7 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
+            '200': "GetWebhook200Response",
             '401': "Error",
             '404': "Error",
         }
@@ -677,7 +678,7 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateWebhook201Response]:
+    ) -> ApiResponse[GetWebhook200Response]:
         """Get webhook
 
 
@@ -714,7 +715,7 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
+            '200': "GetWebhook200Response",
             '401': "Error",
             '404': "Error",
         }
@@ -782,7 +783,7 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
+            '200': "GetWebhook200Response",
             '401': "Error",
             '404': "Error",
         }
@@ -862,7 +863,11 @@ class WebhooksApi:
     async def list_webhook_deliveries(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
+        range: Annotated[Optional[StrictStr], Field(description="Window in days (default 7, capped by plan retention).")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated delivery statuses (success,failed).")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Prefix match on event type/id within the window.")] = None,
+        cursor: Optional[StrictStr] = None,
+        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -881,7 +886,15 @@ class WebhooksApi:
 
         :param id: (required)
         :type id: str
-        :param limit: Page size (default varies by endpoint).
+        :param range: Window in days (default 7, capped by plan retention).
+        :type range: str
+        :param status: Comma-separated delivery statuses (success,failed).
+        :type status: str
+        :param q: Prefix match on event type/id within the window.
+        :type q: str
+        :param cursor:
+        :type cursor: str
+        :param limit:
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -907,6 +920,10 @@ class WebhooksApi:
 
         _param = self._list_webhook_deliveries_serialize(
             id=id,
+            range=range,
+            status=status,
+            q=q,
+            cursor=cursor,
             limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -934,7 +951,11 @@ class WebhooksApi:
     async def list_webhook_deliveries_with_http_info(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
+        range: Annotated[Optional[StrictStr], Field(description="Window in days (default 7, capped by plan retention).")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated delivery statuses (success,failed).")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Prefix match on event type/id within the window.")] = None,
+        cursor: Optional[StrictStr] = None,
+        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -953,7 +974,15 @@ class WebhooksApi:
 
         :param id: (required)
         :type id: str
-        :param limit: Page size (default varies by endpoint).
+        :param range: Window in days (default 7, capped by plan retention).
+        :type range: str
+        :param status: Comma-separated delivery statuses (success,failed).
+        :type status: str
+        :param q: Prefix match on event type/id within the window.
+        :type q: str
+        :param cursor:
+        :type cursor: str
+        :param limit:
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -979,6 +1008,10 @@ class WebhooksApi:
 
         _param = self._list_webhook_deliveries_serialize(
             id=id,
+            range=range,
+            status=status,
+            q=q,
+            cursor=cursor,
             limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1006,7 +1039,11 @@ class WebhooksApi:
     async def list_webhook_deliveries_without_preload_content(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
+        range: Annotated[Optional[StrictStr], Field(description="Window in days (default 7, capped by plan retention).")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated delivery statuses (success,failed).")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Prefix match on event type/id within the window.")] = None,
+        cursor: Optional[StrictStr] = None,
+        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1025,7 +1062,15 @@ class WebhooksApi:
 
         :param id: (required)
         :type id: str
-        :param limit: Page size (default varies by endpoint).
+        :param range: Window in days (default 7, capped by plan retention).
+        :type range: str
+        :param status: Comma-separated delivery statuses (success,failed).
+        :type status: str
+        :param q: Prefix match on event type/id within the window.
+        :type q: str
+        :param cursor:
+        :type cursor: str
+        :param limit:
         :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1051,6 +1096,10 @@ class WebhooksApi:
 
         _param = self._list_webhook_deliveries_serialize(
             id=id,
+            range=range,
+            status=status,
+            q=q,
+            cursor=cursor,
             limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -1073,6 +1122,10 @@ class WebhooksApi:
     def _list_webhook_deliveries_serialize(
         self,
         id,
+        range,
+        status,
+        q,
+        cursor,
         limit,
         _request_auth,
         _content_type,
@@ -1098,6 +1151,22 @@ class WebhooksApi:
         if id is not None:
             _path_params['id'] = id
         # process the query parameters
+        if range is not None:
+            
+            _query_params.append(('range', range))
+            
+        if status is not None:
+            
+            _query_params.append(('status', status))
+            
+        if q is not None:
+            
+            _query_params.append(('q', q))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
         if limit is not None:
             
             _query_params.append(('limit', limit))
@@ -1635,274 +1704,6 @@ class WebhooksApi:
 
 
     @validate_call
-    async def rotate_webhook_secret(
-        self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateWebhook201Response:
-        """Rotate webhook secret
-
-
-        :param id: (required)
-        :type id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._rotate_webhook_secret_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def rotate_webhook_secret_with_http_info(
-        self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateWebhook201Response]:
-        """Rotate webhook secret
-
-
-        :param id: (required)
-        :type id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._rotate_webhook_secret_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def rotate_webhook_secret_without_preload_content(
-        self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Rotate webhook secret
-
-
-        :param id: (required)
-        :type id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._rotate_webhook_secret_serialize(
-            id=id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _rotate_webhook_secret_serialize(
-        self,
-        id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKeyHeader', 
-            'ApiKeyBearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/webhooks/{id}/rotate-secret',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
     async def test_webhook(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
@@ -2187,7 +1988,7 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateWebhook201Response:
+    ) -> GetWebhook200Response:
         """Update webhook
 
 
@@ -2227,7 +2028,7 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
+            '200': "GetWebhook200Response",
             '400': "Error",
             '401': "Error",
             '403': "Error",
@@ -2261,7 +2062,7 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateWebhook201Response]:
+    ) -> ApiResponse[GetWebhook200Response]:
         """Update webhook
 
 
@@ -2301,7 +2102,7 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
+            '200': "GetWebhook200Response",
             '400': "Error",
             '401': "Error",
             '403': "Error",
@@ -2375,7 +2176,7 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "CreateWebhook201Response",
+            '200': "GetWebhook200Response",
             '400': "Error",
             '401': "Error",
             '403': "Error",

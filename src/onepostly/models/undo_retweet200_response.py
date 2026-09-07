@@ -17,18 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class Bookmark201Response(BaseModel):
+class UndoRetweet200Response(BaseModel):
     """
-    Bookmark201Response
+    UndoRetweet200Response
     """ # noqa: E501
-    bookmark: Optional[Any] = None
-    __properties: ClassVar[List[str]] = ["bookmark"]
+    post_id: StrictStr = Field(alias="postId")
+    destination_id: StrictStr = Field(alias="destinationId")
+    platform: StrictStr
+    retweeted: StrictBool
+    __properties: ClassVar[List[str]] = ["postId", "destinationId", "platform", "retweeted"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -48,7 +51,7 @@ class Bookmark201Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of Bookmark201Response from a JSON string"""
+        """Create an instance of UndoRetweet200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,16 +72,11 @@ class Bookmark201Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if bookmark (nullable) is None
-        # and model_fields_set contains the field
-        if self.bookmark is None and "bookmark" in self.model_fields_set:
-            _dict['bookmark'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of Bookmark201Response from a dict"""
+        """Create an instance of UndoRetweet200Response from a dict"""
         if obj is None:
             return None
 
@@ -86,7 +84,10 @@ class Bookmark201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "bookmark": obj.get("bookmark")
+            "postId": obj.get("postId"),
+            "destinationId": obj.get("destinationId"),
+            "platform": obj.get("platform"),
+            "retweeted": obj.get("retweeted")
         })
         return _obj
 

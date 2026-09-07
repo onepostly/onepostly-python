@@ -17,22 +17,23 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class UpdateWebhookBody(BaseModel):
+class CreateWebhook201ResponseWebhook(BaseModel):
     """
-    UpdateWebhookBody
+    CreateWebhook201ResponseWebhook
     """ # noqa: E501
-    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=120)]] = None
-    url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    events: Optional[Annotated[List[StrictStr], Field(min_length=1, max_length=26)]] = None
+    id: StrictStr
+    name: StrictStr
+    url: StrictStr
     enabled: Optional[StrictBool] = None
-    __properties: ClassVar[List[str]] = ["name", "url", "events", "enabled"]
+    events: Optional[List[StrictStr]] = None
+    secret: StrictStr
+    __properties: ClassVar[List[str]] = ["id", "name", "url", "enabled", "events", "secret"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -52,7 +53,7 @@ class UpdateWebhookBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a JSON string"""
+        """Create an instance of CreateWebhook201ResponseWebhook from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -77,7 +78,7 @@ class UpdateWebhookBody(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a dict"""
+        """Create an instance of CreateWebhook201ResponseWebhook from a dict"""
         if obj is None:
             return None
 
@@ -85,10 +86,12 @@ class UpdateWebhookBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "id": obj.get("id"),
             "name": obj.get("name"),
             "url": obj.get("url"),
+            "enabled": obj.get("enabled"),
             "events": obj.get("events"),
-            "enabled": obj.get("enabled")
+            "secret": obj.get("secret")
         })
         return _obj
 

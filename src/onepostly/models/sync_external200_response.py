@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, StrictBool
 from typing import Any, ClassVar, Dict, List, Optional
 from onepostly.models.external_post import ExternalPost
+from onepostly.models.sync_external200_response_post import SyncExternal200ResponsePost
 from onepostly.models.sync_external200_response_synced import SyncExternal200ResponseSynced
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,8 +32,8 @@ class SyncExternal200Response(BaseModel):
     """ # noqa: E501
     synced: SyncExternal200ResponseSynced
     found: Optional[StrictBool] = None
-    post: Optional[ExternalPost] = None
-    posts: Optional[List[Optional[ExternalPost]]] = None
+    post: Optional[SyncExternal200ResponsePost] = None
+    posts: Optional[List[ExternalPost]] = None
     __properties: ClassVar[List[str]] = ["synced", "found", "post", "posts"]
 
     model_config = ConfigDict(
@@ -105,7 +106,7 @@ class SyncExternal200Response(BaseModel):
         _obj = cls.model_validate({
             "synced": SyncExternal200ResponseSynced.from_dict(obj["synced"]) if obj.get("synced") is not None else None,
             "found": obj.get("found"),
-            "post": ExternalPost.from_dict(obj["post"]) if obj.get("post") is not None else None,
+            "post": SyncExternal200ResponsePost.from_dict(obj["post"]) if obj.get("post") is not None else None,
             "posts": [ExternalPost.from_dict(_item) for _item in obj["posts"]] if obj.get("posts") is not None else None
         })
         return _obj

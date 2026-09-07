@@ -20,6 +20,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.get_connection_stats200_response_stats import GetConnectionStats200ResponseStats
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -31,7 +32,7 @@ class GetConnectionStats200Response(BaseModel):
     account_id: StrictStr = Field(alias="accountId")
     platform: StrictStr
     status: StrictStr
-    stats: Optional[Dict[str, Any]] = None
+    stats: Optional[GetConnectionStats200ResponseStats] = None
     fetched_at: datetime = Field(alias="fetchedAt")
     __properties: ClassVar[List[str]] = ["accountId", "platform", "status", "stats", "fetchedAt"]
 
@@ -74,6 +75,9 @@ class GetConnectionStats200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of stats
+        if self.stats:
+            _dict['stats'] = self.stats.to_dict()
         # set to None if stats (nullable) is None
         # and model_fields_set contains the field
         if self.stats is None and "stats" in self.model_fields_set:
@@ -94,7 +98,7 @@ class GetConnectionStats200Response(BaseModel):
             "accountId": obj.get("accountId"),
             "platform": obj.get("platform"),
             "status": obj.get("status"),
-            "stats": obj.get("stats"),
+            "stats": GetConnectionStats200ResponseStats.from_dict(obj["stats"]) if obj.get("stats") is not None else None,
             "fetchedAt": obj.get("fetchedAt")
         })
         return _obj

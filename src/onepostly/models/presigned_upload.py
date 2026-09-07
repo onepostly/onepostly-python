@@ -17,22 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Union
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class UpdateWebhookBody(BaseModel):
+class PresignedUpload(BaseModel):
     """
-    UpdateWebhookBody
+    PresignedUpload
     """ # noqa: E501
-    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=120)]] = None
-    url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    events: Optional[Annotated[List[StrictStr], Field(min_length=1, max_length=26)]] = None
-    enabled: Optional[StrictBool] = None
-    __properties: ClassVar[List[str]] = ["name", "url", "events", "enabled"]
+    upload_url: StrictStr = Field(alias="uploadUrl", json_schema_extra={"examples": ["https://myaccount.r2.cloudflarestorage.com/temp/1690000000_a1b2c3d4_photo.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=3600"]})
+    public_url: StrictStr = Field(alias="publicUrl", json_schema_extra={"examples": ["https://cdn.onepostly.com/temp/1690000000_a1b2c3d4_photo.jpg"]})
+    key: StrictStr = Field(json_schema_extra={"examples": ["temp/1690000000_a1b2c3d4_photo.jpg"]})
+    expires_in: Union[StrictFloat, StrictInt] = Field(alias="expiresIn", json_schema_extra={"examples": [3600]})
+    __properties: ClassVar[List[str]] = ["uploadUrl", "publicUrl", "key", "expiresIn"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -52,7 +51,7 @@ class UpdateWebhookBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a JSON string"""
+        """Create an instance of PresignedUpload from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -77,7 +76,7 @@ class UpdateWebhookBody(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a dict"""
+        """Create an instance of PresignedUpload from a dict"""
         if obj is None:
             return None
 
@@ -85,10 +84,10 @@ class UpdateWebhookBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "url": obj.get("url"),
-            "events": obj.get("events"),
-            "enabled": obj.get("enabled")
+            "uploadUrl": obj.get("uploadUrl"),
+            "publicUrl": obj.get("publicUrl"),
+            "key": obj.get("key"),
+            "expiresIn": obj.get("expiresIn")
         })
         return _obj
 

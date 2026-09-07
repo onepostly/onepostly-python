@@ -17,22 +17,21 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class UpdateWebhookBody(BaseModel):
+class ListConnectionMedia200ResponseItemsInnerMetrics(BaseModel):
     """
-    UpdateWebhookBody
+    ListConnectionMedia200ResponseItemsInnerMetrics
     """ # noqa: E501
-    name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=120)]] = None
-    url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    events: Optional[Annotated[List[StrictStr], Field(min_length=1, max_length=26)]] = None
-    enabled: Optional[StrictBool] = None
-    __properties: ClassVar[List[str]] = ["name", "url", "events", "enabled"]
+    likes: Optional[Union[StrictFloat, StrictInt]]
+    comments: Optional[Union[StrictFloat, StrictInt]]
+    shares: Optional[Union[StrictFloat, StrictInt]]
+    views: Optional[Union[StrictFloat, StrictInt]]
+    __properties: ClassVar[List[str]] = ["likes", "comments", "shares", "views"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -52,7 +51,7 @@ class UpdateWebhookBody(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a JSON string"""
+        """Create an instance of ListConnectionMedia200ResponseItemsInnerMetrics from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,11 +72,31 @@ class UpdateWebhookBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if likes (nullable) is None
+        # and model_fields_set contains the field
+        if self.likes is None and "likes" in self.model_fields_set:
+            _dict['likes'] = None
+
+        # set to None if comments (nullable) is None
+        # and model_fields_set contains the field
+        if self.comments is None and "comments" in self.model_fields_set:
+            _dict['comments'] = None
+
+        # set to None if shares (nullable) is None
+        # and model_fields_set contains the field
+        if self.shares is None and "shares" in self.model_fields_set:
+            _dict['shares'] = None
+
+        # set to None if views (nullable) is None
+        # and model_fields_set contains the field
+        if self.views is None and "views" in self.model_fields_set:
+            _dict['views'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UpdateWebhookBody from a dict"""
+        """Create an instance of ListConnectionMedia200ResponseItemsInnerMetrics from a dict"""
         if obj is None:
             return None
 
@@ -85,10 +104,10 @@ class UpdateWebhookBody(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "url": obj.get("url"),
-            "events": obj.get("events"),
-            "enabled": obj.get("enabled")
+            "likes": obj.get("likes"),
+            "comments": obj.get("comments"),
+            "shares": obj.get("shares"),
+            "views": obj.get("views")
         })
         return _obj
 

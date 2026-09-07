@@ -42,9 +42,9 @@ class AnalyticsApi:
     @validate_call
     async def get_analytics(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Mutually narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -62,11 +62,11 @@ class AnalyticsApi:
 
         Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Mutually narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -120,9 +120,9 @@ class AnalyticsApi:
     @validate_call
     async def get_analytics_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Mutually narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -140,11 +140,11 @@ class AnalyticsApi:
 
         Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Mutually narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -198,9 +198,9 @@ class AnalyticsApi:
     @validate_call
     async def get_analytics_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Mutually narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -218,11 +218,11 @@ class AnalyticsApi:
 
         Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Mutually narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -349,9 +349,9 @@ class AnalyticsApi:
     @validate_call
     async def get_analytics_timeline(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Mutually narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive start date (YYYY-MM-DD).")] = None,
         to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive end date (YYYY-MM-DD).")] = None,
         _request_timeout: Union[
@@ -371,11 +371,11 @@ class AnalyticsApi:
 
         Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 366 days.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Mutually narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param var_from: Inclusive start date (YYYY-MM-DD).
         :type var_from: str
@@ -435,9 +435,9 @@ class AnalyticsApi:
     @validate_call
     async def get_analytics_timeline_with_http_info(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Mutually narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive start date (YYYY-MM-DD).")] = None,
         to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive end date (YYYY-MM-DD).")] = None,
         _request_timeout: Union[
@@ -457,11 +457,11 @@ class AnalyticsApi:
 
         Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 366 days.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Mutually narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param var_from: Inclusive start date (YYYY-MM-DD).
         :type var_from: str
@@ -521,9 +521,9 @@ class AnalyticsApi:
     @validate_call
     async def get_analytics_timeline_without_preload_content(
         self,
-        post: Annotated[str, Field(min_length=1, strict=True, description="Internal post id or platform-native post id. Native ids require accountId.")],
+        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
         account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal destinations only. Mutually narrows with accountId.")] = None,
+        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
         var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive start date (YYYY-MM-DD).")] = None,
         to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive end date (YYYY-MM-DD).")] = None,
         _request_timeout: Union[
@@ -543,11 +543,11 @@ class AnalyticsApi:
 
         Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 366 days.
 
-        :param post: Internal post id or platform-native post id. Native ids require accountId. (required)
+        :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
         :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
         :type account_id: str
-        :param destination_id: Internal destinations only. Mutually narrows with accountId.
+        :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
         :param var_from: Inclusive start date (YYYY-MM-DD).
         :type var_from: str

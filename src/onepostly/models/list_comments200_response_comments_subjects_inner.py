@@ -19,26 +19,26 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from onepostly.models.actor import Actor
+from onepostly.models.comment import Comment
 from onepostly.models.get_analytics200_response_analytics_subjects_inner_error import GetAnalytics200ResponseAnalyticsSubjectsInnerError
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ListRetweeters200ResponseRetweetsSubjectsInner(BaseModel):
+class ListComments200ResponseCommentsSubjectsInner(BaseModel):
     """
-    ListRetweeters200ResponseRetweetsSubjectsInner
+    ListComments200ResponseCommentsSubjectsInner
     """ # noqa: E501
     scope: StrictStr
     subject_id: StrictStr = Field(alias="subjectId")
     account_id: StrictStr = Field(alias="accountId")
     platform: StrictStr
     external_post_id: Optional[StrictStr] = Field(alias="externalPostId")
-    status: Optional[StrictStr] = None
-    actors: Optional[List[Actor]] = None
-    next_cursor: Optional[StrictStr] = Field(default=None, alias="nextCursor")
-    error: Optional[GetAnalytics200ResponseAnalyticsSubjectsInnerError] = None
-    __properties: ClassVar[List[str]] = ["scope", "subjectId", "accountId", "platform", "externalPostId", "status", "actors", "nextCursor", "error"]
+    status: StrictStr
+    comments: List[Comment]
+    next_cursor: Optional[StrictStr] = Field(alias="nextCursor")
+    error: Optional[GetAnalytics200ResponseAnalyticsSubjectsInnerError]
+    __properties: ClassVar[List[str]] = ["scope", "subjectId", "accountId", "platform", "externalPostId", "status", "comments", "nextCursor", "error"]
 
     @field_validator('scope')
     def scope_validate_enum(cls, value):
@@ -65,7 +65,7 @@ class ListRetweeters200ResponseRetweetsSubjectsInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ListRetweeters200ResponseRetweetsSubjectsInner from a JSON string"""
+        """Create an instance of ListComments200ResponseCommentsSubjectsInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,12 +86,12 @@ class ListRetweeters200ResponseRetweetsSubjectsInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in actors (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in comments (list)
         _items = []
-        if self.actors:
-            for _item_actors in self.actors:
-                _items.append(_item_actors.to_dict() if _item_actors is not None else None)
-            _dict['actors'] = _items
+        if self.comments:
+            for _item_comments in self.comments:
+                _items.append(_item_comments.to_dict() if _item_comments is not None else None)
+            _dict['comments'] = _items
         # override the default output from pydantic by calling `to_dict()` of error
         if self.error:
             _dict['error'] = self.error.to_dict()
@@ -114,7 +114,7 @@ class ListRetweeters200ResponseRetweetsSubjectsInner(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ListRetweeters200ResponseRetweetsSubjectsInner from a dict"""
+        """Create an instance of ListComments200ResponseCommentsSubjectsInner from a dict"""
         if obj is None:
             return None
 
@@ -128,7 +128,7 @@ class ListRetweeters200ResponseRetweetsSubjectsInner(BaseModel):
             "platform": obj.get("platform"),
             "externalPostId": obj.get("externalPostId"),
             "status": obj.get("status"),
-            "actors": [Actor.from_dict(_item) for _item in obj["actors"]] if obj.get("actors") is not None else None,
+            "comments": [Comment.from_dict(_item) for _item in obj["comments"]] if obj.get("comments") is not None else None,
             "nextCursor": obj.get("nextCursor"),
             "error": GetAnalytics200ResponseAnalyticsSubjectsInnerError.from_dict(obj["error"]) if obj.get("error") is not None else None
         })

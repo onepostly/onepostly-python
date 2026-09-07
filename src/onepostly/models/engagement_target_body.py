@@ -28,9 +28,9 @@ class EngagementTargetBody(BaseModel):
     """
     EngagementTargetBody
     """ # noqa: E501
-    post: Annotated[str, Field(min_length=1, strict=True)] = Field(description="Internal post id or platform-native post id. Native ids require accountId.")
+    post: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")
     account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="accountId")
-    destination_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="destinationId")
+    destination_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.", alias="destinationId")
     __properties: ClassVar[List[str]] = ["post", "accountId", "destinationId"]
 
     model_config = ConfigDict(

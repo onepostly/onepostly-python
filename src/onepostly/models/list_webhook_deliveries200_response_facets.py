@@ -17,19 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
+from onepostly.models.list_webhook_deliveries200_response_facets_status_inner import ListWebhookDeliveries200ResponseFacetsStatusInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ErrorError(BaseModel):
+class ListWebhookDeliveries200ResponseFacets(BaseModel):
     """
-    ErrorError
+    ListWebhookDeliveries200ResponseFacets
     """ # noqa: E501
-    code: StrictStr
-    message: StrictStr
-    __properties: ClassVar[List[str]] = ["code", "message"]
+    status: List[ListWebhookDeliveries200ResponseFacetsStatusInner]
+    __properties: ClassVar[List[str]] = ["status"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +49,7 @@ class ErrorError(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ErrorError from a JSON string"""
+        """Create an instance of ListWebhookDeliveries200ResponseFacets from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,11 +70,17 @@ class ErrorError(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in status (list)
+        _items = []
+        if self.status:
+            for _item_status in self.status:
+                _items.append(_item_status.to_dict() if _item_status is not None else None)
+            _dict['status'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ErrorError from a dict"""
+        """Create an instance of ListWebhookDeliveries200ResponseFacets from a dict"""
         if obj is None:
             return None
 
@@ -82,8 +88,7 @@ class ErrorError(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "code": obj.get("code"),
-            "message": obj.get("message")
+            "status": [ListWebhookDeliveries200ResponseFacetsStatusInner.from_dict(_item) for _item in obj["status"]] if obj.get("status") is not None else None
         })
         return _obj
 

@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
+from onepostly.models.post import Post
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,8 +28,10 @@ class Quote201Response(BaseModel):
     """
     Quote201Response
     """ # noqa: E501
-    quote: Optional[Any] = None
-    __properties: ClassVar[List[str]] = ["quote"]
+    source_post_id: StrictStr = Field(alias="sourcePostId")
+    source_destination_id: StrictStr = Field(alias="sourceDestinationId")
+    post: Post
+    __properties: ClassVar[List[str]] = ["sourcePostId", "sourceDestinationId", "post"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -69,11 +72,9 @@ class Quote201Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if quote (nullable) is None
-        # and model_fields_set contains the field
-        if self.quote is None and "quote" in self.model_fields_set:
-            _dict['quote'] = None
-
+        # override the default output from pydantic by calling `to_dict()` of post
+        if self.post:
+            _dict['post'] = self.post.to_dict()
         return _dict
 
     @classmethod
@@ -86,7 +87,9 @@ class Quote201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "quote": obj.get("quote")
+            "sourcePostId": obj.get("sourcePostId"),
+            "sourceDestinationId": obj.get("sourceDestinationId"),
+            "post": Post.from_dict(obj["post"]) if obj.get("post") is not None else None
         })
         return _obj
 

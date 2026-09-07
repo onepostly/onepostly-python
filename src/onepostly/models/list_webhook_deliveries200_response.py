@@ -17,8 +17,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.list_webhook_deliveries200_response_deliveries_inner import ListWebhookDeliveries200ResponseDeliveriesInner
+from onepostly.models.list_webhook_deliveries200_response_facets import ListWebhookDeliveries200ResponseFacets
+from onepostly.models.list_webhook_deliveries200_response_histogram_inner import ListWebhookDeliveries200ResponseHistogramInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,8 +30,11 @@ class ListWebhookDeliveries200Response(BaseModel):
     """
     ListWebhookDeliveries200Response
     """ # noqa: E501
-    deliveries: List[Any]
-    __properties: ClassVar[List[str]] = ["deliveries"]
+    deliveries: List[ListWebhookDeliveries200ResponseDeliveriesInner]
+    next_cursor: Optional[StrictStr] = Field(alias="nextCursor")
+    facets: ListWebhookDeliveries200ResponseFacets
+    histogram: List[ListWebhookDeliveries200ResponseHistogramInner]
+    __properties: ClassVar[List[str]] = ["deliveries", "nextCursor", "facets", "histogram"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -69,6 +75,26 @@ class ListWebhookDeliveries200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in deliveries (list)
+        _items = []
+        if self.deliveries:
+            for _item_deliveries in self.deliveries:
+                _items.append(_item_deliveries.to_dict() if _item_deliveries is not None else None)
+            _dict['deliveries'] = _items
+        # override the default output from pydantic by calling `to_dict()` of facets
+        if self.facets:
+            _dict['facets'] = self.facets.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in histogram (list)
+        _items = []
+        if self.histogram:
+            for _item_histogram in self.histogram:
+                _items.append(_item_histogram.to_dict() if _item_histogram is not None else None)
+            _dict['histogram'] = _items
+        # set to None if next_cursor (nullable) is None
+        # and model_fields_set contains the field
+        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
+            _dict['nextCursor'] = None
+
         return _dict
 
     @classmethod
@@ -81,7 +107,10 @@ class ListWebhookDeliveries200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "deliveries": obj.get("deliveries")
+            "deliveries": [ListWebhookDeliveries200ResponseDeliveriesInner.from_dict(_item) for _item in obj["deliveries"]] if obj.get("deliveries") is not None else None,
+            "nextCursor": obj.get("nextCursor"),
+            "facets": ListWebhookDeliveries200ResponseFacets.from_dict(obj["facets"]) if obj.get("facets") is not None else None,
+            "histogram": [ListWebhookDeliveries200ResponseHistogramInner.from_dict(_item) for _item in obj["histogram"]] if obj.get("histogram") is not None else None
         })
         return _obj
 

@@ -19,6 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, StrictStr
 from typing import Any, ClassVar, Dict, List
+from onepostly.models.list_comments200_response_comments_subjects_inner import ListComments200ResponseCommentsSubjectsInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,7 +29,7 @@ class ListComments200ResponseComments(BaseModel):
     ListComments200ResponseComments
     """ # noqa: E501
     post: StrictStr
-    subjects: List[Any]
+    subjects: List[ListComments200ResponseCommentsSubjectsInner]
     __properties: ClassVar[List[str]] = ["post", "subjects"]
 
     model_config = ConfigDict(
@@ -70,6 +71,12 @@ class ListComments200ResponseComments(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in subjects (list)
+        _items = []
+        if self.subjects:
+            for _item_subjects in self.subjects:
+                _items.append(_item_subjects.to_dict() if _item_subjects is not None else None)
+            _dict['subjects'] = _items
         return _dict
 
     @classmethod
@@ -83,7 +90,7 @@ class ListComments200ResponseComments(BaseModel):
 
         _obj = cls.model_validate({
             "post": obj.get("post"),
-            "subjects": obj.get("subjects")
+            "subjects": [ListComments200ResponseCommentsSubjectsInner.from_dict(_item) for _item in obj["subjects"]] if obj.get("subjects") is not None else None
         })
         return _obj
 

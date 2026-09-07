@@ -22,6 +22,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from onepostly.models.create_post_body_destinations_inner import CreatePostBodyDestinationsInner
 from onepostly.models.media_kind import MediaKind
+from onepostly.models.thread_item import ThreadItem
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -31,13 +32,13 @@ class CreatePostBody(BaseModel):
     CreatePostBody
     """ # noqa: E501
     text: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = ''
-    thread: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=5000)]], Field(min_length=2, max_length=25)]] = None
+    thread_items: Optional[Annotated[List[ThreadItem], Field(min_length=1, max_length=25)]] = Field(default=None, alias="threadItems")
     media_urls: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=2048)]], Field(max_length=35)]] = Field(default=None, alias="mediaUrls")
     media_kind: MediaKind = Field(alias="mediaKind")
     scheduled_for: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = Field(default=None, alias="scheduledFor")
-    timezone: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = None
+    timezone: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="IANA zone for scheduledFor. No example on purpose, see scheduledFor.")
     destinations: Annotated[List[CreatePostBodyDestinationsInner], Field(min_length=1, max_length=50)]
-    __properties: ClassVar[List[str]] = ["text", "thread", "mediaUrls", "mediaKind", "scheduledFor", "timezone", "destinations"]
+    __properties: ClassVar[List[str]] = ["text", "threadItems", "mediaUrls", "mediaKind", "scheduledFor", "timezone", "destinations"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -78,6 +79,12 @@ class CreatePostBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in thread_items (list)
+        _items = []
+        if self.thread_items:
+            for _item_thread_items in self.thread_items:
+                _items.append(_item_thread_items.to_dict() if _item_thread_items is not None else None)
+            _dict['threadItems'] = _items
         # override the default output from pydantic by calling `to_dict()` of each item in destinations (list)
         _items = []
         if self.destinations:
@@ -97,7 +104,7 @@ class CreatePostBody(BaseModel):
 
         _obj = cls.model_validate({
             "text": obj.get("text") if obj.get("text") is not None else '',
-            "thread": obj.get("thread"),
+            "threadItems": [ThreadItem.from_dict(_item) for _item in obj["threadItems"]] if obj.get("threadItems") is not None else None,
             "mediaUrls": obj.get("mediaUrls"),
             "mediaKind": obj.get("mediaKind"),
             "scheduledFor": obj.get("scheduledFor"),

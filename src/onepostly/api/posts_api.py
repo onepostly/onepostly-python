@@ -615,7 +615,6 @@ class PostsApi:
     @validate_call
     async def delete_post_destination(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         destination_id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
@@ -634,8 +633,6 @@ class PostsApi:
 
         Deletes the published post on the platform (e.g. X). For X threads, all thread tweet ids are deleted.
 
-        :param id: (required)
-        :type id: str
         :param destination_id: (required)
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -661,7 +658,6 @@ class PostsApi:
         """ # noqa: E501
 
         _param = self._delete_post_destination_serialize(
-            id=id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -693,7 +689,6 @@ class PostsApi:
     @validate_call
     async def delete_post_destination_with_http_info(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         destination_id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
@@ -712,8 +707,6 @@ class PostsApi:
 
         Deletes the published post on the platform (e.g. X). For X threads, all thread tweet ids are deleted.
 
-        :param id: (required)
-        :type id: str
         :param destination_id: (required)
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -739,7 +732,6 @@ class PostsApi:
         """ # noqa: E501
 
         _param = self._delete_post_destination_serialize(
-            id=id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -771,7 +763,6 @@ class PostsApi:
     @validate_call
     async def delete_post_destination_without_preload_content(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
         destination_id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
@@ -790,8 +781,6 @@ class PostsApi:
 
         Deletes the published post on the platform (e.g. X). For X threads, all thread tweet ids are deleted.
 
-        :param id: (required)
-        :type id: str
         :param destination_id: (required)
         :type destination_id: str
         :param _request_timeout: timeout setting for this request. If one
@@ -817,7 +806,6 @@ class PostsApi:
         """ # noqa: E501
 
         _param = self._delete_post_destination_serialize(
-            id=id,
             destination_id=destination_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -844,7 +832,6 @@ class PostsApi:
 
     def _delete_post_destination_serialize(
         self,
-        id,
         destination_id,
         _request_auth,
         _content_type,
@@ -867,8 +854,6 @@ class PostsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if id is not None:
-            _path_params['id'] = id
         if destination_id is not None:
             _path_params['destinationId'] = destination_id
         # process the query parameters
@@ -894,7 +879,7 @@ class PostsApi:
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/posts/{id}/destinations/{destinationId}',
+            resource_path='/v1/destinations/{destinationId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

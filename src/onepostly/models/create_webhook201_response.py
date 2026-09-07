@@ -19,7 +19,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
-from onepostly.models.webhook import Webhook
+from onepostly.models.create_webhook201_response_webhook import CreateWebhook201ResponseWebhook
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,7 +28,7 @@ class CreateWebhook201Response(BaseModel):
     """
     CreateWebhook201Response
     """ # noqa: E501
-    webhook: Webhook
+    webhook: CreateWebhook201ResponseWebhook
     __properties: ClassVar[List[str]] = ["webhook"]
 
     model_config = ConfigDict(
@@ -85,7 +85,7 @@ class CreateWebhook201Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "webhook": Webhook.from_dict(obj["webhook"]) if obj.get("webhook") is not None else None
+            "webhook": CreateWebhook201ResponseWebhook.from_dict(obj["webhook"]) if obj.get("webhook") is not None else None
         })
         return _obj
 

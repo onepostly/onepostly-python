@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from onepostly.models.create_post_body_destinations_inner_user_tags_inner import CreatePostBodyDestinationsInnerUserTagsInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -31,6 +32,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
     account_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="accountId")
     text: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = None
     quote_tweet_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = Field(default=None, alias="quoteTweetId")
+    reply_to_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = Field(default=None, description="Bluesky and Threads only. Post to reply to: at:// URI on Bluesky, post id on Threads.", alias="replyToId")
     privacy_status: Optional[StrictStr] = Field(default=None, alias="privacyStatus")
     privacy_level: Optional[StrictStr] = Field(default=None, alias="privacyLevel")
     disable_comment: Optional[StrictBool] = Field(default=None, alias="disableComment")
@@ -49,7 +51,26 @@ class CreatePostBodyDestinationsInner(BaseModel):
     nsfw: Optional[StrictBool] = None
     spoiler: Optional[StrictBool] = None
     thumbnail_url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, alias="thumbnailUrl")
-    __properties: ClassVar[List[str]] = ["accountId", "text", "quoteTweetId", "privacyStatus", "privacyLevel", "disableComment", "disableDuet", "disableStitch", "brandOrganicToggle", "brandContentToggle", "aiGenerated", "description", "boardId", "link", "title", "subreddit", "flairId", "flairText", "nsfw", "spoiler", "thumbnailUrl"]
+    first_comment: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=2200)]] = Field(default=None, description="Instagram, Facebook, LinkedIn, and YouTube only. Comment posted right after publish.", alias="firstComment")
+    tags: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=100)]], Field(max_length=30)]] = Field(default=None, description="YouTube only. Video tags; combined length must stay under 500 characters.")
+    category_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=3)]] = Field(default=None, description="YouTube only. Video category id (e.g. \"22\", \"10\", \"20\").", alias="categoryId")
+    made_for_kids: Optional[StrictBool] = Field(default=None, description="YouTube only. COPPA self-declared made-for-kids flag.", alias="madeForKids")
+    contains_synthetic_media: Optional[StrictBool] = Field(default=None, description="YouTube only. Disclose realistic AI-generated or altered content.", alias="containsSyntheticMedia")
+    user_tags: Optional[Annotated[List[CreatePostBodyDestinationsInnerUserTagsInner], Field(max_length=20)]] = Field(default=None, description="Instagram only. Tagged users; x/y required for image posts.", alias="userTags")
+    collaborators: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(max_length=3)]] = Field(default=None, description="Instagram only. Up to 3 collaborator usernames (feed images, reels, carousels).")
+    thumb_offset: Optional[Annotated[int, Field(le=60000, strict=True, ge=0)]] = Field(default=None, description="Instagram reels only. Cover frame offset in ms.", alias="thumbOffset")
+    cover_url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="Instagram reels only. Custom cover image URL.", alias="coverUrl")
+    audio_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=200)]] = Field(default=None, description="Instagram reels only. Rename the original audio once.", alias="audioName")
+    share_to_feed: Optional[StrictBool] = Field(default=None, description="Instagram reels only. true = feed + reels tab, false = reels tab only.", alias="shareToFeed")
+    location_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="Instagram only. Facebook Page id that has location data.", alias="locationId")
+    is_paid_partnership: Optional[StrictBool] = Field(default=None, description="Instagram only. Paid partnership label (Facebook Login connections).", alias="isPaidPartnership")
+    video_cover_timestamp_ms: Optional[Annotated[int, Field(le=600000, strict=True, ge=0)]] = Field(default=None, description="TikTok videos only. Cover frame timestamp in ms.", alias="videoCoverTimestampMs")
+    photo_cover_index: Optional[Annotated[int, Field(le=34, strict=True, ge=0)]] = Field(default=None, description="TikTok photo posts only. Cover photo index (0-based).", alias="photoCoverIndex")
+    auto_add_music: Optional[StrictBool] = Field(default=None, description="TikTok photo posts only. Auto-add recommended music.", alias="autoAddMusic")
+    force_self: Optional[StrictBool] = Field(default=None, description="Reddit only. Submit a self post even when link is present.", alias="forceSelf")
+    video_gif: Optional[StrictBool] = Field(default=None, description="Reddit only. Submit the native video as a videogif.", alias="videoGif")
+    geo_restriction: Optional[Annotated[List[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(min_length=1, max_length=25)]] = Field(default=None, description="X only. Allowlist of up to 25 uppercase ISO 3166-1 alpha-2 country codes. Media is hidden outside these countries; the tweet text stays visible globally. Ignored for text-only tweets.", alias="geoRestriction")
+    __properties: ClassVar[List[str]] = ["accountId", "text", "quoteTweetId", "replyToId", "privacyStatus", "privacyLevel", "disableComment", "disableDuet", "disableStitch", "brandOrganicToggle", "brandContentToggle", "aiGenerated", "description", "boardId", "link", "title", "subreddit", "flairId", "flairText", "nsfw", "spoiler", "thumbnailUrl", "firstComment", "tags", "categoryId", "madeForKids", "containsSyntheticMedia", "userTags", "collaborators", "thumbOffset", "coverUrl", "audioName", "shareToFeed", "locationId", "isPaidPartnership", "videoCoverTimestampMs", "photoCoverIndex", "autoAddMusic", "forceSelf", "videoGif", "geoRestriction"]
 
     @field_validator('privacy_status')
     def privacy_status_validate_enum(cls, value):
@@ -120,6 +141,12 @@ class CreatePostBodyDestinationsInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in user_tags (list)
+        _items = []
+        if self.user_tags:
+            for _item_user_tags in self.user_tags:
+                _items.append(_item_user_tags.to_dict() if _item_user_tags is not None else None)
+            _dict['userTags'] = _items
         return _dict
 
     @classmethod
@@ -135,6 +162,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
             "accountId": obj.get("accountId"),
             "text": obj.get("text"),
             "quoteTweetId": obj.get("quoteTweetId"),
+            "replyToId": obj.get("replyToId"),
             "privacyStatus": obj.get("privacyStatus"),
             "privacyLevel": obj.get("privacyLevel"),
             "disableComment": obj.get("disableComment"),
@@ -152,7 +180,26 @@ class CreatePostBodyDestinationsInner(BaseModel):
             "flairText": obj.get("flairText"),
             "nsfw": obj.get("nsfw"),
             "spoiler": obj.get("spoiler"),
-            "thumbnailUrl": obj.get("thumbnailUrl")
+            "thumbnailUrl": obj.get("thumbnailUrl"),
+            "firstComment": obj.get("firstComment"),
+            "tags": obj.get("tags"),
+            "categoryId": obj.get("categoryId"),
+            "madeForKids": obj.get("madeForKids"),
+            "containsSyntheticMedia": obj.get("containsSyntheticMedia"),
+            "userTags": [CreatePostBodyDestinationsInnerUserTagsInner.from_dict(_item) for _item in obj["userTags"]] if obj.get("userTags") is not None else None,
+            "collaborators": obj.get("collaborators"),
+            "thumbOffset": obj.get("thumbOffset"),
+            "coverUrl": obj.get("coverUrl"),
+            "audioName": obj.get("audioName"),
+            "shareToFeed": obj.get("shareToFeed"),
+            "locationId": obj.get("locationId"),
+            "isPaidPartnership": obj.get("isPaidPartnership"),
+            "videoCoverTimestampMs": obj.get("videoCoverTimestampMs"),
+            "photoCoverIndex": obj.get("photoCoverIndex"),
+            "autoAddMusic": obj.get("autoAddMusic"),
+            "forceSelf": obj.get("forceSelf"),
+            "videoGif": obj.get("videoGif"),
+            "geoRestriction": obj.get("geoRestriction")
         })
         return _obj
 
