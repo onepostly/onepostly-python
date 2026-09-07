@@ -69,7 +69,15 @@ async def test_undo_retweet_sends_post_query():
     def handler(request: httpx.Request) -> httpx.Response:
         seen["url"] = str(request.url)
         seen["method"] = request.method
-        return httpx.Response(200, json={"retweet": {}})
+        return httpx.Response(
+            200,
+            json={
+                "postId": "p1",
+                "destinationId": "d1",
+                "platform": "x",
+                "retweeted": False,
+            },
+        )
 
     api = EngagementApi(_client(handler))
     await api.undo_retweet(post="p1")
@@ -79,10 +87,28 @@ async def test_undo_retweet_sends_post_query():
 
 
 @pytest.mark.asyncio
-async def test_upload_media_sends_multipart():
+async def test_get_media_presigned_url_posts_filename_and_type():
+    seen = {}
+
     def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(201, json={"media": {"id": "1699f415-7fb6-43f4-9d2a-c447491f32a8", "url": "https://cdn.example.com/a.png", "contentType": "image/png", "sizeBytes": 3}})
+        seen["url"] = str(request.url)
+        seen["method"] = request.method
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "uploadUrl": "https://cdn.example.com/upload?sig=1",
+                "publicUrl": "https://cdn.example.com/temp/a.png",
+                "key": "temp/a.png",
+                "expiresIn": 3600,
+            },
+        )
 
     api = MediaApi(_client(handler))
-    response = await api.upload_media(file=b"123")
-    assert str(response.media.id) == "1699f415-7fb6-43f4-9d2a-c447491f32a8"
+    response = await api.get_media_presigned_url(
+        presign_media_body={"filename": "a.png", "contentType": "image/png"}
+    )
+    assert "/v1/media/presign" in seen["url"]
+    assert seen["method"] == "POST"
+    assert seen["body"] == {"filename": "a.png", "contentType": "image/png"}
+    assert str(response.public_url) == "https://cdn.example.com/temp/a.png"
