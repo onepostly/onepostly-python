@@ -22,6 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from uuid import UUID
 from onepostly.models.destination_status import DestinationStatus
+from onepostly.models.post_metrics import PostMetrics
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -39,7 +40,8 @@ class PostDestination(BaseModel):
     error_code: Optional[StrictStr] = Field(alias="errorCode")
     error_message: Optional[StrictStr] = Field(alias="errorMessage")
     published_at: Optional[datetime] = Field(alias="publishedAt")
-    __properties: ClassVar[List[str]] = ["id", "accountId", "platform", "status", "externalPostId", "externalUrl", "errorCode", "errorMessage", "publishedAt"]
+    metrics: Optional[PostMetrics]
+    __properties: ClassVar[List[str]] = ["id", "accountId", "platform", "status", "externalPostId", "externalUrl", "errorCode", "errorMessage", "publishedAt", "metrics"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -80,6 +82,9 @@ class PostDestination(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of metrics
+        if self.metrics:
+            _dict['metrics'] = self.metrics.to_dict()
         # set to None if external_post_id (nullable) is None
         # and model_fields_set contains the field
         if self.external_post_id is None and "external_post_id" in self.model_fields_set:
@@ -105,6 +110,11 @@ class PostDestination(BaseModel):
         if self.published_at is None and "published_at" in self.model_fields_set:
             _dict['publishedAt'] = None
 
+        # set to None if metrics (nullable) is None
+        # and model_fields_set contains the field
+        if self.metrics is None and "metrics" in self.model_fields_set:
+            _dict['metrics'] = None
+
         return _dict
 
     @classmethod
@@ -125,7 +135,8 @@ class PostDestination(BaseModel):
             "externalUrl": obj.get("externalUrl"),
             "errorCode": obj.get("errorCode"),
             "errorMessage": obj.get("errorMessage"),
-            "publishedAt": obj.get("publishedAt")
+            "publishedAt": obj.get("publishedAt"),
+            "metrics": PostMetrics.from_dict(obj["metrics"]) if obj.get("metrics") is not None else None
         })
         return _obj
 

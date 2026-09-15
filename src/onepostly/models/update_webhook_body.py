@@ -30,7 +30,7 @@ class UpdateWebhookBody(BaseModel):
     """ # noqa: E501
     name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=120)]] = None
     url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    events: Optional[Annotated[List[StrictStr], Field(min_length=1, max_length=26)]] = None
+    events: Optional[Annotated[List[StrictStr], Field(min_length=1, max_length=31)]] = None
     enabled: Optional[StrictBool] = None
     __properties: ClassVar[List[str]] = ["name", "url", "events", "enabled"]
 

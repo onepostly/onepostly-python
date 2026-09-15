@@ -11,6 +11,7 @@ from onepostly.api.media_api import MediaApi
 from onepostly.api.posts_api import PostsApi
 from onepostly.api.analytics_api import AnalyticsApi
 from onepostly.api.comments_api import CommentsApi
+from onepostly.api.inbox_api import InboxApi
 from onepostly.api.engagement_api import EngagementApi
 from onepostly.api.webhooks_api import WebhooksApi
 
@@ -20,14 +21,22 @@ from onepostly.api.webhooks_api import WebhooksApi
     [
         (ConnectionsApi, "connect_bluesky"),
         (ConnectionsApi, "create_pinterest_board"),
+        (ConnectionsApi, "create_profile"),
+        (ConnectionsApi, "delete_profile"),
+        (ConnectionsApi, "get_bluesky_settings"),
         (ConnectionsApi, "get_connection_stats"),
         (ConnectionsApi, "get_tik_tok_creator_info"),
         (ConnectionsApi, "list_connection_media"),
         (ConnectionsApi, "list_connections"),
         (ConnectionsApi, "list_facebook_pages"),
+        (ConnectionsApi, "list_instagram_accounts"),
         (ConnectionsApi, "list_pinterest_boards"),
+        (ConnectionsApi, "list_profiles"),
         (ConnectionsApi, "select_facebook_page"),
+        (ConnectionsApi, "select_instagram_account"),
+        (ConnectionsApi, "set_connection_messenger_profile"),
         (ConnectionsApi, "start_o_auth"),
+        (ConnectionsApi, "update_bluesky_settings"),
         (MediaApi, "delete_media"),
         (MediaApi, "get_media_presigned_url"),
         (MediaApi, "list_media"),
@@ -40,10 +49,21 @@ from onepostly.api.webhooks_api import WebhooksApi
         (AnalyticsApi, "get_analytics"),
         (AnalyticsApi, "get_analytics_timeline"),
         (CommentsApi, "create_comment"),
+        (CommentsApi, "create_private_reply"),
         (CommentsApi, "delete_comment"),
+        (CommentsApi, "hide_comment"),
+        (CommentsApi, "like_comment"),
         (CommentsApi, "list_comments"),
+        (CommentsApi, "unlike_comment"),
+        (InboxApi, "create_inbox_conversation"),
+        (InboxApi, "list_inbox_conversations"),
+        (InboxApi, "list_inbox_messages"),
+        (InboxApi, "send_inbox_message"),
         (EngagementApi, "bookmark"),
+        (EngagementApi, "create_automation"),
+        (EngagementApi, "delete_automations"),
         (EngagementApi, "like"),
+        (EngagementApi, "list_automations"),
         (EngagementApi, "list_retweeters"),
         (EngagementApi, "quote"),
         (EngagementApi, "remove_bookmark"),
@@ -53,6 +73,7 @@ from onepostly.api.webhooks_api import WebhooksApi
         (WebhooksApi, "create_webhook"),
         (WebhooksApi, "delete_webhook"),
         (WebhooksApi, "get_webhook"),
+        (WebhooksApi, "get_webhook_delivery_summary"),
         (WebhooksApi, "list_webhook_deliveries"),
         (WebhooksApi, "list_webhook_event_types"),
         (WebhooksApi, "list_webhooks"),

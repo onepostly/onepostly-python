@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from onepostly.models.connection import Connection
 from typing import Optional, Set
@@ -29,8 +29,8 @@ class SelectFacebookPage200Response(BaseModel):
     SelectFacebookPage200Response
     """ # noqa: E501
     connection: Connection
-    redirect_url: StrictStr
-    __properties: ClassVar[List[str]] = ["connection", "redirect_url"]
+    redirect_url: StrictStr = Field(alias="redirectUrl")
+    __properties: ClassVar[List[str]] = ["connection", "redirectUrl"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -87,7 +87,7 @@ class SelectFacebookPage200Response(BaseModel):
 
         _obj = cls.model_validate({
             "connection": Connection.from_dict(obj["connection"]) if obj.get("connection") is not None else None,
-            "redirect_url": obj.get("redirect_url")
+            "redirectUrl": obj.get("redirectUrl")
         })
         return _obj
 

@@ -31,7 +31,7 @@ class QuoteBody(BaseModel):
     post: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")
     account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, alias="accountId")
     destination_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.", alias="destinationId")
-    text: Annotated[str, Field(min_length=1, strict=True, max_length=5000)]
+    text: Annotated[str, Field(min_length=1, strict=True, max_length=63206)]
     __properties: ClassVar[List[str]] = ["post", "accountId", "destinationId", "text"]
 
     model_config = ConfigDict(

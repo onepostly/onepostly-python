@@ -132,15 +132,23 @@ All methods take named keyword arguments.
 | Method | Description |
 | --- | --- |
 | `connections.list_connections()` | List connections |
-| `connections.get_connection_stats()` | Get connection account stats |
-| `connections.list_connection_media()` | List creator media |
-| `connections.get_tik_tok_creator_info()` | Get TikTok creator info |
-| `connections.list_pinterest_boards()` | List Pinterest boards |
-| `connections.create_pinterest_board()` | Create Pinterest board |
 | `connections.connect_bluesky()` | Connect Bluesky via App Password |
 | `connections.start_o_auth()` | Start OAuth connect |
 | `connections.list_facebook_pages()` | List Facebook Pages for pending connect |
 | `connections.select_facebook_page()` | Select Facebook Page and finish connect |
+| `connections.list_instagram_accounts()` | List linked Instagram accounts for pending connect |
+| `connections.select_instagram_account()` | Select Instagram account and finish connect |
+| `connections.get_connection_stats()` | Get connection account stats |
+| `connections.set_connection_messenger_profile()` | Set Messenger profile |
+| `connections.list_connection_media()` | List creator media |
+| `connections.get_tik_tok_creator_info()` | Get TikTok creator info |
+| `connections.list_pinterest_boards()` | List Pinterest boards |
+| `connections.create_pinterest_board()` | Create Pinterest board |
+| `connections.get_bluesky_settings()` | Get Bluesky account settings |
+| `connections.update_bluesky_settings()` | Update Bluesky account settings |
+| `connections.list_profiles()` | List profiles |
+| `connections.create_profile()` | Create profile |
+| `connections.delete_profile()` | Delete profile |
 
 ### MediaApi
 
@@ -175,19 +183,35 @@ All methods take named keyword arguments.
 | `comments.list_comments()` | List comments |
 | `comments.create_comment()` | Create reply |
 | `comments.delete_comment()` | Delete own comment |
+| `comments.hide_comment()` | Hide or unhide comment |
+| `comments.like_comment()` | Like comment |
+| `comments.unlike_comment()` | Unlike comment |
+| `comments.create_private_reply()` | Send private reply |
 
 ### EngagementApi
 
 | Method | Description |
 | --- | --- |
-| `engagement.list_retweeters()` | List retweeters |
-| `engagement.retweet()` | Retweet |
-| `engagement.undo_retweet()` | Undo retweet |
+| `engagement.list_automations()` | List inbox automations |
+| `engagement.create_automation()` | Create inbox automation |
+| `engagement.delete_automations()` | Delete inbox automations |
 | `engagement.like()` | Like |
 | `engagement.unlike()` | Unlike |
 | `engagement.bookmark()` | Bookmark |
 | `engagement.remove_bookmark()` | Remove bookmark |
+| `engagement.list_retweeters()` | List retweeters |
+| `engagement.retweet()` | Retweet |
+| `engagement.undo_retweet()` | Undo retweet |
 | `engagement.quote()` | Quote tweet |
+
+### InboxApi
+
+| Method | Description |
+| --- | --- |
+| `inbox.list_inbox_conversations()` | List inbox conversations |
+| `inbox.create_inbox_conversation()` | Create inbox conversation |
+| `inbox.list_inbox_messages()` | List inbox messages |
+| `inbox.send_inbox_message()` | Send inbox message |
 
 ### WebhooksApi
 
@@ -196,6 +220,7 @@ All methods take named keyword arguments.
 | `webhooks.list_webhook_event_types()` | List webhook event types |
 | `webhooks.list_webhooks()` | List webhooks |
 | `webhooks.create_webhook()` | Create webhook |
+| `webhooks.get_webhook_delivery_summary()` | Get webhook delivery summary |
 | `webhooks.get_webhook()` | Get webhook |
 | `webhooks.delete_webhook()` | Delete webhook |
 | `webhooks.update_webhook()` | Update webhook |

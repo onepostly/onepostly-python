@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt
+from typing import Any, ClassVar, Dict, List, Union
+from onepostly.models.list_posts200_response_facets import ListPosts200ResponseFacets
 from onepostly.models.post import Post
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,7 +30,11 @@ class ListPosts200Response(BaseModel):
     ListPosts200Response
     """ # noqa: E501
     posts: List[Post]
-    __properties: ClassVar[List[str]] = ["posts"]
+    total: Union[StrictFloat, StrictInt] = Field(description="Total posts matching the filters, across every page.")
+    page: StrictInt = Field(description="The 1-based page this response carries.")
+    has_more: StrictBool = Field(description="True when at least one more post follows this page. Request `page + 1` while it is true.", alias="hasMore")
+    facets: ListPosts200ResponseFacets
+    __properties: ClassVar[List[str]] = ["posts", "total", "page", "hasMore", "facets"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -76,6 +81,9 @@ class ListPosts200Response(BaseModel):
             for _item_posts in self.posts:
                 _items.append(_item_posts.to_dict() if _item_posts is not None else None)
             _dict['posts'] = _items
+        # override the default output from pydantic by calling `to_dict()` of facets
+        if self.facets:
+            _dict['facets'] = self.facets.to_dict()
         return _dict
 
     @classmethod
@@ -88,7 +96,11 @@ class ListPosts200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "posts": [Post.from_dict(_item) for _item in obj["posts"]] if obj.get("posts") is not None else None
+            "posts": [Post.from_dict(_item) for _item in obj["posts"]] if obj.get("posts") is not None else None,
+            "total": obj.get("total"),
+            "page": obj.get("page"),
+            "hasMore": obj.get("hasMore"),
+            "facets": ListPosts200ResponseFacets.from_dict(obj["facets"]) if obj.get("facets") is not None else None
         })
         return _obj
 

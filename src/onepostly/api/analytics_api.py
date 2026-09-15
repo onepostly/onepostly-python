@@ -15,7 +15,7 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from onepostly.models.get_analytics200_response import GetAnalytics200Response
@@ -43,8 +43,15 @@ class AnalyticsApi:
     async def get_analytics(
         self,
         post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.")] = None,
         destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Account-only: comma-separated metric names. Defaults per platform.")] = None,
+        period: Optional[StrictStr] = None,
+        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Account-only, Instagram: follower_type, media_product_type, age, city, country.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Account-only, Instagram demographics: this_week, this_month, last_30_days.")] = None,
+        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -60,14 +67,28 @@ class AnalyticsApi:
     ) -> GetAnalytics200Response:
         """Get analytics
 
-        Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes.
+        Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes. Account-only (accountId without post/destinationId): live account-level insights for Instagram and Facebook, including demographics.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
-        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.
         :type account_id: str
         :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
+        :param metrics: Account-only: comma-separated metric names. Defaults per platform.
+        :type metrics: str
+        :param period:
+        :type period: str
+        :param since:
+        :type since: int
+        :param until:
+        :type until: int
+        :param breakdown: Account-only, Instagram: follower_type, media_product_type, age, city, country.
+        :type breakdown: str
+        :param timeframe: Account-only, Instagram demographics: this_week, this_month, last_30_days.
+        :type timeframe: str
+        :param metric_type:
+        :type metric_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -94,6 +115,13 @@ class AnalyticsApi:
             post=post,
             account_id=account_id,
             destination_id=destination_id,
+            metrics=metrics,
+            period=period,
+            since=since,
+            until=until,
+            breakdown=breakdown,
+            timeframe=timeframe,
+            metric_type=metric_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -121,8 +149,15 @@ class AnalyticsApi:
     async def get_analytics_with_http_info(
         self,
         post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.")] = None,
         destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Account-only: comma-separated metric names. Defaults per platform.")] = None,
+        period: Optional[StrictStr] = None,
+        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Account-only, Instagram: follower_type, media_product_type, age, city, country.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Account-only, Instagram demographics: this_week, this_month, last_30_days.")] = None,
+        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -138,14 +173,28 @@ class AnalyticsApi:
     ) -> ApiResponse[GetAnalytics200Response]:
         """Get analytics
 
-        Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes.
+        Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes. Account-only (accountId without post/destinationId): live account-level insights for Instagram and Facebook, including demographics.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
-        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.
         :type account_id: str
         :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
+        :param metrics: Account-only: comma-separated metric names. Defaults per platform.
+        :type metrics: str
+        :param period:
+        :type period: str
+        :param since:
+        :type since: int
+        :param until:
+        :type until: int
+        :param breakdown: Account-only, Instagram: follower_type, media_product_type, age, city, country.
+        :type breakdown: str
+        :param timeframe: Account-only, Instagram demographics: this_week, this_month, last_30_days.
+        :type timeframe: str
+        :param metric_type:
+        :type metric_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -172,6 +221,13 @@ class AnalyticsApi:
             post=post,
             account_id=account_id,
             destination_id=destination_id,
+            metrics=metrics,
+            period=period,
+            since=since,
+            until=until,
+            breakdown=breakdown,
+            timeframe=timeframe,
+            metric_type=metric_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -199,8 +255,15 @@ class AnalyticsApi:
     async def get_analytics_without_preload_content(
         self,
         post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.")] = None,
         destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Account-only: comma-separated metric names. Defaults per platform.")] = None,
+        period: Optional[StrictStr] = None,
+        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Account-only, Instagram: follower_type, media_product_type, age, city, country.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Account-only, Instagram demographics: this_week, this_month, last_30_days.")] = None,
+        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -216,14 +279,28 @@ class AnalyticsApi:
     ) -> RESTResponseType:
         """Get analytics
 
-        Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes.
+        Normalized metrics collected automatically for a post published through Onepostly or a platform-native post id. Posts younger than 30 days refresh about hourly, older subjects about weekly. Native post ids sync on first read; each subject carries fetchedAt. If it looks stale on an older subject, read again in a few minutes. Account-only (accountId without post/destinationId): live account-level insights for Instagram and Facebook, including demographics.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
-        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.
         :type account_id: str
         :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
+        :param metrics: Account-only: comma-separated metric names. Defaults per platform.
+        :type metrics: str
+        :param period:
+        :type period: str
+        :param since:
+        :type since: int
+        :param until:
+        :type until: int
+        :param breakdown: Account-only, Instagram: follower_type, media_product_type, age, city, country.
+        :type breakdown: str
+        :param timeframe: Account-only, Instagram demographics: this_week, this_month, last_30_days.
+        :type timeframe: str
+        :param metric_type:
+        :type metric_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -250,6 +327,13 @@ class AnalyticsApi:
             post=post,
             account_id=account_id,
             destination_id=destination_id,
+            metrics=metrics,
+            period=period,
+            since=since,
+            until=until,
+            breakdown=breakdown,
+            timeframe=timeframe,
+            metric_type=metric_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -274,6 +358,13 @@ class AnalyticsApi:
         post,
         account_id,
         destination_id,
+        metrics,
+        period,
+        since,
+        until,
+        breakdown,
+        timeframe,
+        metric_type,
         _request_auth,
         _content_type,
         _headers,
@@ -307,6 +398,34 @@ class AnalyticsApi:
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
+            
+        if metrics is not None:
+            
+            _query_params.append(('metrics', metrics))
+            
+        if period is not None:
+            
+            _query_params.append(('period', period))
+            
+        if since is not None:
+            
+            _query_params.append(('since', since))
+            
+        if until is not None:
+            
+            _query_params.append(('until', until))
+            
+        if breakdown is not None:
+            
+            _query_params.append(('breakdown', breakdown))
+            
+        if timeframe is not None:
+            
+            _query_params.append(('timeframe', timeframe))
+            
+        if metric_type is not None:
+            
+            _query_params.append(('metricType', metric_type))
             
         # process the header parameters
         # process the form parameters
@@ -350,8 +469,15 @@ class AnalyticsApi:
     async def get_analytics_timeline(
         self,
         post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.")] = None,
         destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Account-only: comma-separated metric names. Defaults per platform.")] = None,
+        period: Optional[StrictStr] = None,
+        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Account-only, Instagram: follower_type, media_product_type, age, city, country.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Account-only, Instagram demographics: this_week, this_month, last_30_days.")] = None,
+        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
         var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive start date (YYYY-MM-DD).")] = None,
         to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive end date (YYYY-MM-DD).")] = None,
         _request_timeout: Union[
@@ -369,14 +495,28 @@ class AnalyticsApi:
     ) -> GetAnalyticsTimeline200Response:
         """Get daily analytics timeline
 
-        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 366 days.
+        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 90 days.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
-        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.
         :type account_id: str
         :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
+        :param metrics: Account-only: comma-separated metric names. Defaults per platform.
+        :type metrics: str
+        :param period:
+        :type period: str
+        :param since:
+        :type since: int
+        :param until:
+        :type until: int
+        :param breakdown: Account-only, Instagram: follower_type, media_product_type, age, city, country.
+        :type breakdown: str
+        :param timeframe: Account-only, Instagram demographics: this_week, this_month, last_30_days.
+        :type timeframe: str
+        :param metric_type:
+        :type metric_type: str
         :param var_from: Inclusive start date (YYYY-MM-DD).
         :type var_from: str
         :param to: Inclusive end date (YYYY-MM-DD).
@@ -407,6 +547,13 @@ class AnalyticsApi:
             post=post,
             account_id=account_id,
             destination_id=destination_id,
+            metrics=metrics,
+            period=period,
+            since=since,
+            until=until,
+            breakdown=breakdown,
+            timeframe=timeframe,
+            metric_type=metric_type,
             var_from=var_from,
             to=to,
             _request_auth=_request_auth,
@@ -436,8 +583,15 @@ class AnalyticsApi:
     async def get_analytics_timeline_with_http_info(
         self,
         post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.")] = None,
         destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Account-only: comma-separated metric names. Defaults per platform.")] = None,
+        period: Optional[StrictStr] = None,
+        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Account-only, Instagram: follower_type, media_product_type, age, city, country.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Account-only, Instagram demographics: this_week, this_month, last_30_days.")] = None,
+        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
         var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive start date (YYYY-MM-DD).")] = None,
         to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive end date (YYYY-MM-DD).")] = None,
         _request_timeout: Union[
@@ -455,14 +609,28 @@ class AnalyticsApi:
     ) -> ApiResponse[GetAnalyticsTimeline200Response]:
         """Get daily analytics timeline
 
-        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 366 days.
+        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 90 days.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
-        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.
         :type account_id: str
         :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
+        :param metrics: Account-only: comma-separated metric names. Defaults per platform.
+        :type metrics: str
+        :param period:
+        :type period: str
+        :param since:
+        :type since: int
+        :param until:
+        :type until: int
+        :param breakdown: Account-only, Instagram: follower_type, media_product_type, age, city, country.
+        :type breakdown: str
+        :param timeframe: Account-only, Instagram demographics: this_week, this_month, last_30_days.
+        :type timeframe: str
+        :param metric_type:
+        :type metric_type: str
         :param var_from: Inclusive start date (YYYY-MM-DD).
         :type var_from: str
         :param to: Inclusive end date (YYYY-MM-DD).
@@ -493,6 +661,13 @@ class AnalyticsApi:
             post=post,
             account_id=account_id,
             destination_id=destination_id,
+            metrics=metrics,
+            period=period,
+            since=since,
+            until=until,
+            breakdown=breakdown,
+            timeframe=timeframe,
+            metric_type=metric_type,
             var_from=var_from,
             to=to,
             _request_auth=_request_auth,
@@ -522,8 +697,15 @@ class AnalyticsApi:
     async def get_analytics_timeline_without_preload_content(
         self,
         post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.")] = None,
         destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.")] = None,
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Account-only: comma-separated metric names. Defaults per platform.")] = None,
+        period: Optional[StrictStr] = None,
+        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Account-only, Instagram: follower_type, media_product_type, age, city, country.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Account-only, Instagram demographics: this_week, this_month, last_30_days.")] = None,
+        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
         var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive start date (YYYY-MM-DD).")] = None,
         to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Inclusive end date (YYYY-MM-DD).")] = None,
         _request_timeout: Union[
@@ -541,14 +723,28 @@ class AnalyticsApi:
     ) -> RESTResponseType:
         """Get daily analytics timeline
 
-        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 366 days.
+        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 90 days.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
-        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations.
+        :param account_id: Required for platform-native post ids; disambiguates internal posts with several destinations. Alone (no post/destinationId) returns live account insights for Instagram and Facebook.
         :type account_id: str
         :param destination_id: Globally unique destination id. Resolves on its own; post and accountId are optional alongside it.
         :type destination_id: str
+        :param metrics: Account-only: comma-separated metric names. Defaults per platform.
+        :type metrics: str
+        :param period:
+        :type period: str
+        :param since:
+        :type since: int
+        :param until:
+        :type until: int
+        :param breakdown: Account-only, Instagram: follower_type, media_product_type, age, city, country.
+        :type breakdown: str
+        :param timeframe: Account-only, Instagram demographics: this_week, this_month, last_30_days.
+        :type timeframe: str
+        :param metric_type:
+        :type metric_type: str
         :param var_from: Inclusive start date (YYYY-MM-DD).
         :type var_from: str
         :param to: Inclusive end date (YYYY-MM-DD).
@@ -579,6 +775,13 @@ class AnalyticsApi:
             post=post,
             account_id=account_id,
             destination_id=destination_id,
+            metrics=metrics,
+            period=period,
+            since=since,
+            until=until,
+            breakdown=breakdown,
+            timeframe=timeframe,
+            metric_type=metric_type,
             var_from=var_from,
             to=to,
             _request_auth=_request_auth,
@@ -605,6 +808,13 @@ class AnalyticsApi:
         post,
         account_id,
         destination_id,
+        metrics,
+        period,
+        since,
+        until,
+        breakdown,
+        timeframe,
+        metric_type,
         var_from,
         to,
         _request_auth,
@@ -640,6 +850,34 @@ class AnalyticsApi:
         if destination_id is not None:
             
             _query_params.append(('destinationId', destination_id))
+            
+        if metrics is not None:
+            
+            _query_params.append(('metrics', metrics))
+            
+        if period is not None:
+            
+            _query_params.append(('period', period))
+            
+        if since is not None:
+            
+            _query_params.append(('since', since))
+            
+        if until is not None:
+            
+            _query_params.append(('until', until))
+            
+        if breakdown is not None:
+            
+            _query_params.append(('breakdown', breakdown))
+            
+        if timeframe is not None:
+            
+            _query_params.append(('timeframe', timeframe))
+            
+        if metric_type is not None:
+            
+            _query_params.append(('metricType', metric_type))
             
         if var_from is not None:
             

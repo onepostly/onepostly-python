@@ -15,7 +15,8 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field
+from datetime import datetime
+from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from onepostly.models.create_post_body import CreatePostBody
@@ -1164,7 +1165,13 @@ class PostsApi:
     async def list_posts(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
-        offset: Annotated[Optional[Annotated[int, Field(strict=True, ge=0)]], Field(description="Offset for list endpoints.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses (e.g. `scheduled,published`). Omit for all.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this platform.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this account.")] = None,
+        date_after: Annotated[Optional[datetime], Field(description="ISO instant; lower bound for the post's content date.")] = None,
+        date_before: Annotated[Optional[datetime], Field(description="ISO instant; upper bound for the post's content date.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Ordering. Defaults to `created_desc`. `metric:*` ranks by summed lifetime metrics and restricts to measured posts.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1183,8 +1190,20 @@ class PostsApi:
 
         :param limit: Page size (default varies by endpoint).
         :type limit: int
-        :param offset: Offset for list endpoints.
-        :type offset: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
+        :param status: Comma-separated statuses (e.g. `scheduled,published`). Omit for all.
+        :type status: str
+        :param platform: Only posts with at least one destination on this platform.
+        :type platform: str
+        :param account_id: Only posts with at least one destination on this account.
+        :type account_id: str
+        :param date_after: ISO instant; lower bound for the post's content date.
+        :type date_after: datetime
+        :param date_before: ISO instant; upper bound for the post's content date.
+        :type date_before: datetime
+        :param sort: Ordering. Defaults to `created_desc`. `metric:*` ranks by summed lifetime metrics and restricts to measured posts.
+        :type sort: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1209,7 +1228,13 @@ class PostsApi:
 
         _param = self._list_posts_serialize(
             limit=limit,
-            offset=offset,
+            page=page,
+            status=status,
+            platform=platform,
+            account_id=account_id,
+            date_after=date_after,
+            date_before=date_before,
+            sort=sort,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1235,7 +1260,13 @@ class PostsApi:
     async def list_posts_with_http_info(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
-        offset: Annotated[Optional[Annotated[int, Field(strict=True, ge=0)]], Field(description="Offset for list endpoints.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses (e.g. `scheduled,published`). Omit for all.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this platform.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this account.")] = None,
+        date_after: Annotated[Optional[datetime], Field(description="ISO instant; lower bound for the post's content date.")] = None,
+        date_before: Annotated[Optional[datetime], Field(description="ISO instant; upper bound for the post's content date.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Ordering. Defaults to `created_desc`. `metric:*` ranks by summed lifetime metrics and restricts to measured posts.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1254,8 +1285,20 @@ class PostsApi:
 
         :param limit: Page size (default varies by endpoint).
         :type limit: int
-        :param offset: Offset for list endpoints.
-        :type offset: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
+        :param status: Comma-separated statuses (e.g. `scheduled,published`). Omit for all.
+        :type status: str
+        :param platform: Only posts with at least one destination on this platform.
+        :type platform: str
+        :param account_id: Only posts with at least one destination on this account.
+        :type account_id: str
+        :param date_after: ISO instant; lower bound for the post's content date.
+        :type date_after: datetime
+        :param date_before: ISO instant; upper bound for the post's content date.
+        :type date_before: datetime
+        :param sort: Ordering. Defaults to `created_desc`. `metric:*` ranks by summed lifetime metrics and restricts to measured posts.
+        :type sort: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1280,7 +1323,13 @@ class PostsApi:
 
         _param = self._list_posts_serialize(
             limit=limit,
-            offset=offset,
+            page=page,
+            status=status,
+            platform=platform,
+            account_id=account_id,
+            date_after=date_after,
+            date_before=date_before,
+            sort=sort,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1306,7 +1355,13 @@ class PostsApi:
     async def list_posts_without_preload_content(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
-        offset: Annotated[Optional[Annotated[int, Field(strict=True, ge=0)]], Field(description="Offset for list endpoints.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses (e.g. `scheduled,published`). Omit for all.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this platform.")] = None,
+        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this account.")] = None,
+        date_after: Annotated[Optional[datetime], Field(description="ISO instant; lower bound for the post's content date.")] = None,
+        date_before: Annotated[Optional[datetime], Field(description="ISO instant; upper bound for the post's content date.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Ordering. Defaults to `created_desc`. `metric:*` ranks by summed lifetime metrics and restricts to measured posts.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1325,8 +1380,20 @@ class PostsApi:
 
         :param limit: Page size (default varies by endpoint).
         :type limit: int
-        :param offset: Offset for list endpoints.
-        :type offset: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
+        :param status: Comma-separated statuses (e.g. `scheduled,published`). Omit for all.
+        :type status: str
+        :param platform: Only posts with at least one destination on this platform.
+        :type platform: str
+        :param account_id: Only posts with at least one destination on this account.
+        :type account_id: str
+        :param date_after: ISO instant; lower bound for the post's content date.
+        :type date_after: datetime
+        :param date_before: ISO instant; upper bound for the post's content date.
+        :type date_before: datetime
+        :param sort: Ordering. Defaults to `created_desc`. `metric:*` ranks by summed lifetime metrics and restricts to measured posts.
+        :type sort: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1351,7 +1418,13 @@ class PostsApi:
 
         _param = self._list_posts_serialize(
             limit=limit,
-            offset=offset,
+            page=page,
+            status=status,
+            platform=platform,
+            account_id=account_id,
+            date_after=date_after,
+            date_before=date_before,
+            sort=sort,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1372,7 +1445,13 @@ class PostsApi:
     def _list_posts_serialize(
         self,
         limit,
-        offset,
+        page,
+        status,
+        platform,
+        account_id,
+        date_after,
+        date_before,
+        sort,
         _request_auth,
         _content_type,
         _headers,
@@ -1399,9 +1478,51 @@ class PostsApi:
             
             _query_params.append(('limit', limit))
             
-        if offset is not None:
+        if page is not None:
             
-            _query_params.append(('offset', offset))
+            _query_params.append(('page', page))
+            
+        if status is not None:
+            
+            _query_params.append(('status', status))
+            
+        if platform is not None:
+            
+            _query_params.append(('platform', platform))
+            
+        if account_id is not None:
+            
+            _query_params.append(('accountId', account_id))
+            
+        if date_after is not None:
+            if isinstance(date_after, datetime):
+                _query_params.append(
+                    (
+                        'dateAfter',
+                        date_after.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('dateAfter', date_after))
+            
+        if date_before is not None:
+            if isinstance(date_before, datetime):
+                _query_params.append(
+                    (
+                        'dateBefore',
+                        date_before.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('dateBefore', date_before))
+            
+        if sort is not None:
+            
+            _query_params.append(('sort', sort))
             
         # process the header parameters
         # process the form parameters

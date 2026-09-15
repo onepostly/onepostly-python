@@ -30,6 +30,7 @@ class MediaKind(str, Enum):
     IMAGE = 'image'
     MULTI_MINUS_IMAGE = 'multi-image'
     VIDEO = 'video'
+    REEL = 'reel'
     DOCUMENT = 'document'
     STORIES = 'stories'
 

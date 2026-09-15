@@ -15,22 +15,32 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr
+from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from onepostly.models.connect_bluesky200_response import ConnectBluesky200Response
 from onepostly.models.connect_bluesky_request import ConnectBlueskyRequest
 from onepostly.models.create_pinterest_board201_response import CreatePinterestBoard201Response
 from onepostly.models.create_pinterest_board_request import CreatePinterestBoardRequest
+from onepostly.models.create_profile201_response import CreateProfile201Response
+from onepostly.models.create_profile_request import CreateProfileRequest
+from onepostly.models.get_bluesky_settings200_response import GetBlueskySettings200Response
 from onepostly.models.get_connection_stats200_response import GetConnectionStats200Response
 from onepostly.models.get_tik_tok_creator_info200_response import GetTikTokCreatorInfo200Response
 from onepostly.models.list_connection_media200_response import ListConnectionMedia200Response
 from onepostly.models.list_connections200_response import ListConnections200Response
 from onepostly.models.list_facebook_pages200_response import ListFacebookPages200Response
+from onepostly.models.list_instagram_accounts200_response import ListInstagramAccounts200Response
 from onepostly.models.list_pinterest_boards200_response import ListPinterestBoards200Response
+from onepostly.models.list_profiles200_response import ListProfiles200Response
 from onepostly.models.select_facebook_page200_response import SelectFacebookPage200Response
 from onepostly.models.select_facebook_page_request import SelectFacebookPageRequest
+from onepostly.models.select_instagram_account_request import SelectInstagramAccountRequest
+from onepostly.models.set_connection_messenger_profile200_response import SetConnectionMessengerProfile200Response
+from onepostly.models.set_messenger_profile_body import SetMessengerProfileBody
 from onepostly.models.start_o_auth200_response import StartOAuth200Response
+from onepostly.models.update_bluesky_settings200_response import UpdateBlueskySettings200Response
+from onepostly.models.update_bluesky_settings_request import UpdateBlueskySettingsRequest
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -643,7 +653,294 @@ class ConnectionsApi:
 
 
     @validate_call
-    async def get_connection_stats(
+    async def create_profile(
+        self,
+        create_profile_request: CreateProfileRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CreateProfile201Response:
+        """Create profile
+
+        Creates a connection profile. The palette tone is assigned by the server so new profiles stay visually distinct.
+
+        :param create_profile_request: (required)
+        :type create_profile_request: CreateProfileRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_profile_serialize(
+            create_profile_request=create_profile_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreateProfile201Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "ListProfiles403Response",
+            '409': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def create_profile_with_http_info(
+        self,
+        create_profile_request: CreateProfileRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CreateProfile201Response]:
+        """Create profile
+
+        Creates a connection profile. The palette tone is assigned by the server so new profiles stay visually distinct.
+
+        :param create_profile_request: (required)
+        :type create_profile_request: CreateProfileRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_profile_serialize(
+            create_profile_request=create_profile_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreateProfile201Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "ListProfiles403Response",
+            '409': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def create_profile_without_preload_content(
+        self,
+        create_profile_request: CreateProfileRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create profile
+
+        Creates a connection profile. The palette tone is assigned by the server so new profiles stay visually distinct.
+
+        :param create_profile_request: (required)
+        :type create_profile_request: CreateProfileRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_profile_serialize(
+            create_profile_request=create_profile_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreateProfile201Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "ListProfiles403Response",
+            '409': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_profile_serialize(
+        self,
+        create_profile_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if create_profile_request is not None:
+            _body_params = create_profile_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/profiles',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def delete_profile(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
@@ -658,10 +955,10 @@ class ConnectionsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> GetConnectionStats200Response:
-        """Get connection account stats
+    ) -> None:
+        """Delete profile
 
-        Live follower / following / likes / video counts when the platform supports it (e.g. TikTok).
+        Deletes a profile. Its connections are kept and become unassigned rather than being disconnected.
 
         :param id: (required)
         :type id: str
@@ -687,8 +984,558 @@ class ConnectionsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
+        _param = self._delete_profile_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '403': "ListProfiles403Response",
+            '404': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def delete_profile_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Delete profile
+
+        Deletes a profile. Its connections are kept and become unassigned rather than being disconnected.
+
+        :param id: (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_profile_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '403': "ListProfiles403Response",
+            '404': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def delete_profile_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete profile
+
+        Deletes a profile. Its connections are kept and become unassigned rather than being disconnected.
+
+        :param id: (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_profile_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '401': "Error",
+            '403': "ListProfiles403Response",
+            '404': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_profile_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v1/profiles/{id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def get_bluesky_settings(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> GetBlueskySettings200Response:
+        """Get Bluesky account settings
+
+        Bluesky-only. Returns the account default post languages applied when a post omits langs.
+
+        :param id: (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_bluesky_settings_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "GetBlueskySettings200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_bluesky_settings_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[GetBlueskySettings200Response]:
+        """Get Bluesky account settings
+
+        Bluesky-only. Returns the account default post languages applied when a post omits langs.
+
+        :param id: (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_bluesky_settings_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "GetBlueskySettings200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_bluesky_settings_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get Bluesky account settings
+
+        Bluesky-only. Returns the account default post languages applied when a post omits langs.
+
+        :param id: (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_bluesky_settings_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "GetBlueskySettings200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_bluesky_settings_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/connections/{id}/bluesky/settings',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def get_connection_stats(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        include: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Facebook only, comma-separated: messenger-profile, reviews.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Page size for included reviews (default 20).")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> GetConnectionStats200Response:
+        """Get connection account stats
+
+        Live follower / following / likes / video counts when the platform supports it (e.g. TikTok, Instagram, Facebook). Facebook Pages additionally expose messenger-profile (ice breakers + persistent menu) and reviews via ?include=.
+
+        :param id: (required)
+        :type id: str
+        :param include: Facebook only, comma-separated: messenger-profile, reviews.
+        :type include: str
+        :param limit: Page size for included reviews (default 20).
+        :type limit: int
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
         _param = self._get_connection_stats_serialize(
             id=id,
+            include=include,
+            limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -717,6 +1564,8 @@ class ConnectionsApi:
     async def get_connection_stats_with_http_info(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
+        include: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Facebook only, comma-separated: messenger-profile, reviews.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Page size for included reviews (default 20).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -732,10 +1581,14 @@ class ConnectionsApi:
     ) -> ApiResponse[GetConnectionStats200Response]:
         """Get connection account stats
 
-        Live follower / following / likes / video counts when the platform supports it (e.g. TikTok).
+        Live follower / following / likes / video counts when the platform supports it (e.g. TikTok, Instagram, Facebook). Facebook Pages additionally expose messenger-profile (ice breakers + persistent menu) and reviews via ?include=.
 
         :param id: (required)
         :type id: str
+        :param include: Facebook only, comma-separated: messenger-profile, reviews.
+        :type include: str
+        :param limit: Page size for included reviews (default 20).
+        :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -760,6 +1613,8 @@ class ConnectionsApi:
 
         _param = self._get_connection_stats_serialize(
             id=id,
+            include=include,
+            limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -788,6 +1643,8 @@ class ConnectionsApi:
     async def get_connection_stats_without_preload_content(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
+        include: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Facebook only, comma-separated: messenger-profile, reviews.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Page size for included reviews (default 20).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -803,10 +1660,14 @@ class ConnectionsApi:
     ) -> RESTResponseType:
         """Get connection account stats
 
-        Live follower / following / likes / video counts when the platform supports it (e.g. TikTok).
+        Live follower / following / likes / video counts when the platform supports it (e.g. TikTok, Instagram, Facebook). Facebook Pages additionally expose messenger-profile (ice breakers + persistent menu) and reviews via ?include=.
 
         :param id: (required)
         :type id: str
+        :param include: Facebook only, comma-separated: messenger-profile, reviews.
+        :type include: str
+        :param limit: Page size for included reviews (default 20).
+        :type limit: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -831,6 +1692,8 @@ class ConnectionsApi:
 
         _param = self._get_connection_stats_serialize(
             id=id,
+            include=include,
+            limit=limit,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -854,6 +1717,8 @@ class ConnectionsApi:
     def _get_connection_stats_serialize(
         self,
         id,
+        include,
+        limit,
         _request_auth,
         _content_type,
         _headers,
@@ -878,6 +1743,14 @@ class ConnectionsApi:
         if id is not None:
             _path_params['id'] = id
         # process the query parameters
+        if include is not None:
+            
+            _query_params.append(('include', include))
+            
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1196,6 +2069,9 @@ class ConnectionsApi:
         id: Annotated[str, Field(min_length=1, strict=True)],
         limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Page size (1–20, default 10).")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Pagination cursor from the previous response.")] = None,
+        kind: Annotated[Optional[StrictStr], Field(description="Instagram only: stories lists active stories, audio searches catalog audio.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=200)]], Field(description="Audio search query (kind=audio). Omitted = trending.")] = None,
+        audio_type: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1211,7 +2087,7 @@ class ConnectionsApi:
     ) -> ListConnectionMedia200Response:
         """List creator media
 
-        Paginated public creator media for platforms that support it (e.g. TikTok).
+        Paginated public creator media for platforms that support it (e.g. TikTok). Instagram additionally supports kind=stories (active 24h stories) and kind=audio (catalog audio search via q, Facebook Login only).
 
         :param id: (required)
         :type id: str
@@ -1219,6 +2095,12 @@ class ConnectionsApi:
         :type limit: int
         :param cursor: Pagination cursor from the previous response.
         :type cursor: str
+        :param kind: Instagram only: stories lists active stories, audio searches catalog audio.
+        :type kind: str
+        :param q: Audio search query (kind=audio). Omitted = trending.
+        :type q: str
+        :param audio_type:
+        :type audio_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1245,6 +2127,9 @@ class ConnectionsApi:
             id=id,
             limit=limit,
             cursor=cursor,
+            kind=kind,
+            q=q,
+            audio_type=audio_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1275,6 +2160,9 @@ class ConnectionsApi:
         id: Annotated[str, Field(min_length=1, strict=True)],
         limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Page size (1–20, default 10).")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Pagination cursor from the previous response.")] = None,
+        kind: Annotated[Optional[StrictStr], Field(description="Instagram only: stories lists active stories, audio searches catalog audio.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=200)]], Field(description="Audio search query (kind=audio). Omitted = trending.")] = None,
+        audio_type: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1290,7 +2178,7 @@ class ConnectionsApi:
     ) -> ApiResponse[ListConnectionMedia200Response]:
         """List creator media
 
-        Paginated public creator media for platforms that support it (e.g. TikTok).
+        Paginated public creator media for platforms that support it (e.g. TikTok). Instagram additionally supports kind=stories (active 24h stories) and kind=audio (catalog audio search via q, Facebook Login only).
 
         :param id: (required)
         :type id: str
@@ -1298,6 +2186,12 @@ class ConnectionsApi:
         :type limit: int
         :param cursor: Pagination cursor from the previous response.
         :type cursor: str
+        :param kind: Instagram only: stories lists active stories, audio searches catalog audio.
+        :type kind: str
+        :param q: Audio search query (kind=audio). Omitted = trending.
+        :type q: str
+        :param audio_type:
+        :type audio_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1324,6 +2218,9 @@ class ConnectionsApi:
             id=id,
             limit=limit,
             cursor=cursor,
+            kind=kind,
+            q=q,
+            audio_type=audio_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1354,6 +2251,9 @@ class ConnectionsApi:
         id: Annotated[str, Field(min_length=1, strict=True)],
         limit: Annotated[Optional[Annotated[int, Field(le=20, strict=True, ge=1)]], Field(description="Page size (1–20, default 10).")] = None,
         cursor: Annotated[Optional[StrictStr], Field(description="Pagination cursor from the previous response.")] = None,
+        kind: Annotated[Optional[StrictStr], Field(description="Instagram only: stories lists active stories, audio searches catalog audio.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=200)]], Field(description="Audio search query (kind=audio). Omitted = trending.")] = None,
+        audio_type: Optional[StrictStr] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1369,7 +2269,7 @@ class ConnectionsApi:
     ) -> RESTResponseType:
         """List creator media
 
-        Paginated public creator media for platforms that support it (e.g. TikTok).
+        Paginated public creator media for platforms that support it (e.g. TikTok). Instagram additionally supports kind=stories (active 24h stories) and kind=audio (catalog audio search via q, Facebook Login only).
 
         :param id: (required)
         :type id: str
@@ -1377,6 +2277,12 @@ class ConnectionsApi:
         :type limit: int
         :param cursor: Pagination cursor from the previous response.
         :type cursor: str
+        :param kind: Instagram only: stories lists active stories, audio searches catalog audio.
+        :type kind: str
+        :param q: Audio search query (kind=audio). Omitted = trending.
+        :type q: str
+        :param audio_type:
+        :type audio_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1403,6 +2309,9 @@ class ConnectionsApi:
             id=id,
             limit=limit,
             cursor=cursor,
+            kind=kind,
+            q=q,
+            audio_type=audio_type,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1428,6 +2337,9 @@ class ConnectionsApi:
         id,
         limit,
         cursor,
+        kind,
+        q,
+        audio_type,
         _request_auth,
         _content_type,
         _headers,
@@ -1459,6 +2371,18 @@ class ConnectionsApi:
         if cursor is not None:
             
             _query_params.append(('cursor', cursor))
+            
+        if kind is not None:
+            
+            _query_params.append(('kind', kind))
+            
+        if q is not None:
+            
+            _query_params.append(('q', q))
+            
+        if audio_type is not None:
+            
+            _query_params.append(('audioType', audio_type))
             
         # process the header parameters
         # process the form parameters
@@ -1501,6 +2425,13 @@ class ConnectionsApi:
     @validate_call
     async def list_connections(
         self,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Connections per page. Defaults to 500 for this endpoint.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=200)]], Field(description="Case-insensitive search over display name, handle, and platform.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Only accounts filed under this profile name. Unknown names match nothing.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(strict=True, max_length=64)]], Field(description="Only accounts on this platform.")] = None,
+        added_within_days: Annotated[Optional[Annotated[int, Field(le=3650, strict=True, gt=0)]], Field(description="Only accounts connected within the last N days.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Result order. Defaults to `newest`.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1516,7 +2447,22 @@ class ConnectionsApi:
     ) -> ListConnections200Response:
         """List connections
 
+        Lists the organization's connections, newest first. Responses are paginated: `limit` controls how many connections a page carries (default 500, max 500) and `page` selects the page starting at 1. Use `total` and `hasMore` to walk every page.
 
+        :param limit: Connections per page. Defaults to 500 for this endpoint.
+        :type limit: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
+        :param q: Case-insensitive search over display name, handle, and platform.
+        :type q: str
+        :param profile: Only accounts filed under this profile name. Unknown names match nothing.
+        :type profile: str
+        :param platform: Only accounts on this platform.
+        :type platform: str
+        :param added_within_days: Only accounts connected within the last N days.
+        :type added_within_days: int
+        :param sort: Result order. Defaults to `newest`.
+        :type sort: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1540,6 +2486,13 @@ class ConnectionsApi:
         """ # noqa: E501
 
         _param = self._list_connections_serialize(
+            limit=limit,
+            page=page,
+            q=q,
+            profile=profile,
+            platform=platform,
+            added_within_days=added_within_days,
+            sort=sort,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1564,6 +2517,13 @@ class ConnectionsApi:
     @validate_call
     async def list_connections_with_http_info(
         self,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Connections per page. Defaults to 500 for this endpoint.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=200)]], Field(description="Case-insensitive search over display name, handle, and platform.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Only accounts filed under this profile name. Unknown names match nothing.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(strict=True, max_length=64)]], Field(description="Only accounts on this platform.")] = None,
+        added_within_days: Annotated[Optional[Annotated[int, Field(le=3650, strict=True, gt=0)]], Field(description="Only accounts connected within the last N days.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Result order. Defaults to `newest`.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1579,7 +2539,22 @@ class ConnectionsApi:
     ) -> ApiResponse[ListConnections200Response]:
         """List connections
 
+        Lists the organization's connections, newest first. Responses are paginated: `limit` controls how many connections a page carries (default 500, max 500) and `page` selects the page starting at 1. Use `total` and `hasMore` to walk every page.
 
+        :param limit: Connections per page. Defaults to 500 for this endpoint.
+        :type limit: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
+        :param q: Case-insensitive search over display name, handle, and platform.
+        :type q: str
+        :param profile: Only accounts filed under this profile name. Unknown names match nothing.
+        :type profile: str
+        :param platform: Only accounts on this platform.
+        :type platform: str
+        :param added_within_days: Only accounts connected within the last N days.
+        :type added_within_days: int
+        :param sort: Result order. Defaults to `newest`.
+        :type sort: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1603,6 +2578,13 @@ class ConnectionsApi:
         """ # noqa: E501
 
         _param = self._list_connections_serialize(
+            limit=limit,
+            page=page,
+            q=q,
+            profile=profile,
+            platform=platform,
+            added_within_days=added_within_days,
+            sort=sort,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1627,6 +2609,13 @@ class ConnectionsApi:
     @validate_call
     async def list_connections_without_preload_content(
         self,
+        limit: Annotated[Optional[Annotated[int, Field(le=500, strict=True, ge=1)]], Field(description="Connections per page. Defaults to 500 for this endpoint.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=200)]], Field(description="Case-insensitive search over display name, handle, and platform.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Only accounts filed under this profile name. Unknown names match nothing.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(strict=True, max_length=64)]], Field(description="Only accounts on this platform.")] = None,
+        added_within_days: Annotated[Optional[Annotated[int, Field(le=3650, strict=True, gt=0)]], Field(description="Only accounts connected within the last N days.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Result order. Defaults to `newest`.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1642,7 +2631,22 @@ class ConnectionsApi:
     ) -> RESTResponseType:
         """List connections
 
+        Lists the organization's connections, newest first. Responses are paginated: `limit` controls how many connections a page carries (default 500, max 500) and `page` selects the page starting at 1. Use `total` and `hasMore` to walk every page.
 
+        :param limit: Connections per page. Defaults to 500 for this endpoint.
+        :type limit: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
+        :param q: Case-insensitive search over display name, handle, and platform.
+        :type q: str
+        :param profile: Only accounts filed under this profile name. Unknown names match nothing.
+        :type profile: str
+        :param platform: Only accounts on this platform.
+        :type platform: str
+        :param added_within_days: Only accounts connected within the last N days.
+        :type added_within_days: int
+        :param sort: Result order. Defaults to `newest`.
+        :type sort: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1666,6 +2670,13 @@ class ConnectionsApi:
         """ # noqa: E501
 
         _param = self._list_connections_serialize(
+            limit=limit,
+            page=page,
+            q=q,
+            profile=profile,
+            platform=platform,
+            added_within_days=added_within_days,
+            sort=sort,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1685,6 +2696,13 @@ class ConnectionsApi:
 
     def _list_connections_serialize(
         self,
+        limit,
+        page,
+        q,
+        profile,
+        platform,
+        added_within_days,
+        sort,
         _request_auth,
         _content_type,
         _headers,
@@ -1707,6 +2725,34 @@ class ConnectionsApi:
 
         # process the path parameters
         # process the query parameters
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if page is not None:
+            
+            _query_params.append(('page', page))
+            
+        if q is not None:
+            
+            _query_params.append(('q', q))
+            
+        if profile is not None:
+            
+            _query_params.append(('profile', profile))
+            
+        if platform is not None:
+            
+            _query_params.append(('platform', platform))
+            
+        if added_within_days is not None:
+            
+            _query_params.append(('addedWithinDays', added_within_days))
+            
+        if sort is not None:
+            
+            _query_params.append(('sort', sort))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -2019,6 +3065,279 @@ class ConnectionsApi:
 
 
     @validate_call
+    async def list_instagram_accounts(
+        self,
+        temp_token: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListInstagramAccounts200Response:
+        """List linked Instagram accounts for pending connect
+
+        After Instagram OAuth with loginMethod=facebook_login, list the Instagram professional accounts linked to the user's Pages. Requires tempToken from the callback.
+
+        :param temp_token: (required)
+        :type temp_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_instagram_accounts_serialize(
+            temp_token=temp_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListInstagramAccounts200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_instagram_accounts_with_http_info(
+        self,
+        temp_token: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListInstagramAccounts200Response]:
+        """List linked Instagram accounts for pending connect
+
+        After Instagram OAuth with loginMethod=facebook_login, list the Instagram professional accounts linked to the user's Pages. Requires tempToken from the callback.
+
+        :param temp_token: (required)
+        :type temp_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_instagram_accounts_serialize(
+            temp_token=temp_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListInstagramAccounts200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_instagram_accounts_without_preload_content(
+        self,
+        temp_token: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List linked Instagram accounts for pending connect
+
+        After Instagram OAuth with loginMethod=facebook_login, list the Instagram professional accounts linked to the user's Pages. Requires tempToken from the callback.
+
+        :param temp_token: (required)
+        :type temp_token: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_instagram_accounts_serialize(
+            temp_token=temp_token,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListInstagramAccounts200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_instagram_accounts_serialize(
+        self,
+        temp_token,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if temp_token is not None:
+            
+            _query_params.append(('tempToken', temp_token))
+            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/connections/oauth/instagram/accounts',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     async def list_pinterest_boards(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
@@ -2277,6 +3596,259 @@ class ConnectionsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v1/connections/{id}/pinterest/boards',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_profiles(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListProfiles200Response:
+        """List profiles
+
+        Lists the workspace's connection profiles (the groupings connections are filed under), oldest first.
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_profiles_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListProfiles200Response",
+            '401': "Error",
+            '403': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_profiles_with_http_info(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListProfiles200Response]:
+        """List profiles
+
+        Lists the workspace's connection profiles (the groupings connections are filed under), oldest first.
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_profiles_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListProfiles200Response",
+            '401': "Error",
+            '403': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_profiles_without_preload_content(
+        self,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List profiles
+
+        Lists the workspace's connection profiles (the groupings connections are filed under), oldest first.
+
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_profiles_serialize(
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListProfiles200Response",
+            '401': "Error",
+            '403': "ListProfiles403Response",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_profiles_serialize(
+        self,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/profiles',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2577,12 +4149,603 @@ class ConnectionsApi:
 
 
     @validate_call
+    async def select_instagram_account(
+        self,
+        select_instagram_account_request: SelectInstagramAccountRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SelectFacebookPage200Response:
+        """Select Instagram account and finish connect
+
+
+        :param select_instagram_account_request: (required)
+        :type select_instagram_account_request: SelectInstagramAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._select_instagram_account_serialize(
+            select_instagram_account_request=select_instagram_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SelectFacebookPage200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def select_instagram_account_with_http_info(
+        self,
+        select_instagram_account_request: SelectInstagramAccountRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SelectFacebookPage200Response]:
+        """Select Instagram account and finish connect
+
+
+        :param select_instagram_account_request: (required)
+        :type select_instagram_account_request: SelectInstagramAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._select_instagram_account_serialize(
+            select_instagram_account_request=select_instagram_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SelectFacebookPage200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def select_instagram_account_without_preload_content(
+        self,
+        select_instagram_account_request: SelectInstagramAccountRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Select Instagram account and finish connect
+
+
+        :param select_instagram_account_request: (required)
+        :type select_instagram_account_request: SelectInstagramAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._select_instagram_account_serialize(
+            select_instagram_account_request=select_instagram_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SelectFacebookPage200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _select_instagram_account_serialize(
+        self,
+        select_instagram_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if select_instagram_account_request is not None:
+            _body_params = select_instagram_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/connections/oauth/instagram/select',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def set_connection_messenger_profile(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        set_messenger_profile_body: SetMessengerProfileBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> SetConnectionMessengerProfile200Response:
+        """Set Messenger profile
+
+        Facebook Page only. Set ice breakers (max 4) and/or persistent menu (max 3).
+
+        :param id: (required)
+        :type id: str
+        :param set_messenger_profile_body: (required)
+        :type set_messenger_profile_body: SetMessengerProfileBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._set_connection_messenger_profile_serialize(
+            id=id,
+            set_messenger_profile_body=set_messenger_profile_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SetConnectionMessengerProfile200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def set_connection_messenger_profile_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        set_messenger_profile_body: SetMessengerProfileBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[SetConnectionMessengerProfile200Response]:
+        """Set Messenger profile
+
+        Facebook Page only. Set ice breakers (max 4) and/or persistent menu (max 3).
+
+        :param id: (required)
+        :type id: str
+        :param set_messenger_profile_body: (required)
+        :type set_messenger_profile_body: SetMessengerProfileBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._set_connection_messenger_profile_serialize(
+            id=id,
+            set_messenger_profile_body=set_messenger_profile_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SetConnectionMessengerProfile200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def set_connection_messenger_profile_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        set_messenger_profile_body: SetMessengerProfileBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Set Messenger profile
+
+        Facebook Page only. Set ice breakers (max 4) and/or persistent menu (max 3).
+
+        :param id: (required)
+        :type id: str
+        :param set_messenger_profile_body: (required)
+        :type set_messenger_profile_body: SetMessengerProfileBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._set_connection_messenger_profile_serialize(
+            id=id,
+            set_messenger_profile_body=set_messenger_profile_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "SetConnectionMessengerProfile200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _set_connection_messenger_profile_serialize(
+        self,
+        id,
+        set_messenger_profile_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if set_messenger_profile_body is not None:
+            _body_params = set_messenger_profile_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/connections/{id}/stats',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     async def start_o_auth(
         self,
         platform: Annotated[str, Field(min_length=1, strict=True)],
         redirect_url: Annotated[Optional[StrictStr], Field(description="Required for API-key starts. Browser returns here after OAuth.")] = None,
         reconnect: Annotated[Optional[StrictStr], Field(description="Existing connection id to re-authorize without consuming a plan slot.")] = None,
-        headless: Annotated[Optional[StrictStr], Field(description="Facebook only. When true/1, skip hosted page picker and return tempToken to redirect_url.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Workspace profile name to file the new connection under — created if it does not exist. API-key starts that omit it fall back to the workspace default profile. Ignored on reconnect.")] = None,
+        headless: Annotated[Optional[StrictStr], Field(description="Selection platforms only (Facebook, Instagram via Facebook Login). When true/1, skip hosted picker and return tempToken to redirectUrl.")] = None,
+        login_method: Annotated[Optional[StrictStr], Field(description="Instagram only. instagram_login (default, direct Business Login) or facebook_login (Page-linked account via Facebook Login, with a second account-selection step).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2598,7 +4761,7 @@ class ConnectionsApi:
     ) -> StartOAuth200Response:
         """Start OAuth connect
 
-        Returns a platform authorization URL. API keys require `redirect_url`. Dashboard session may omit it.
+        Returns a platform authorization URL. API keys require `redirectUrl`. Dashboard session may omit it.
 
         :param platform: (required)
         :type platform: str
@@ -2606,8 +4769,12 @@ class ConnectionsApi:
         :type redirect_url: str
         :param reconnect: Existing connection id to re-authorize without consuming a plan slot.
         :type reconnect: str
-        :param headless: Facebook only. When true/1, skip hosted page picker and return tempToken to redirect_url.
+        :param profile: Workspace profile name to file the new connection under — created if it does not exist. API-key starts that omit it fall back to the workspace default profile. Ignored on reconnect.
+        :type profile: str
+        :param headless: Selection platforms only (Facebook, Instagram via Facebook Login). When true/1, skip hosted picker and return tempToken to redirectUrl.
         :type headless: str
+        :param login_method: Instagram only. instagram_login (default, direct Business Login) or facebook_login (Page-linked account via Facebook Login, with a second account-selection step).
+        :type login_method: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2634,7 +4801,9 @@ class ConnectionsApi:
             platform=platform,
             redirect_url=redirect_url,
             reconnect=reconnect,
+            profile=profile,
             headless=headless,
+            login_method=login_method,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2666,7 +4835,9 @@ class ConnectionsApi:
         platform: Annotated[str, Field(min_length=1, strict=True)],
         redirect_url: Annotated[Optional[StrictStr], Field(description="Required for API-key starts. Browser returns here after OAuth.")] = None,
         reconnect: Annotated[Optional[StrictStr], Field(description="Existing connection id to re-authorize without consuming a plan slot.")] = None,
-        headless: Annotated[Optional[StrictStr], Field(description="Facebook only. When true/1, skip hosted page picker and return tempToken to redirect_url.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Workspace profile name to file the new connection under — created if it does not exist. API-key starts that omit it fall back to the workspace default profile. Ignored on reconnect.")] = None,
+        headless: Annotated[Optional[StrictStr], Field(description="Selection platforms only (Facebook, Instagram via Facebook Login). When true/1, skip hosted picker and return tempToken to redirectUrl.")] = None,
+        login_method: Annotated[Optional[StrictStr], Field(description="Instagram only. instagram_login (default, direct Business Login) or facebook_login (Page-linked account via Facebook Login, with a second account-selection step).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2682,7 +4853,7 @@ class ConnectionsApi:
     ) -> ApiResponse[StartOAuth200Response]:
         """Start OAuth connect
 
-        Returns a platform authorization URL. API keys require `redirect_url`. Dashboard session may omit it.
+        Returns a platform authorization URL. API keys require `redirectUrl`. Dashboard session may omit it.
 
         :param platform: (required)
         :type platform: str
@@ -2690,8 +4861,12 @@ class ConnectionsApi:
         :type redirect_url: str
         :param reconnect: Existing connection id to re-authorize without consuming a plan slot.
         :type reconnect: str
-        :param headless: Facebook only. When true/1, skip hosted page picker and return tempToken to redirect_url.
+        :param profile: Workspace profile name to file the new connection under — created if it does not exist. API-key starts that omit it fall back to the workspace default profile. Ignored on reconnect.
+        :type profile: str
+        :param headless: Selection platforms only (Facebook, Instagram via Facebook Login). When true/1, skip hosted picker and return tempToken to redirectUrl.
         :type headless: str
+        :param login_method: Instagram only. instagram_login (default, direct Business Login) or facebook_login (Page-linked account via Facebook Login, with a second account-selection step).
+        :type login_method: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2718,7 +4893,9 @@ class ConnectionsApi:
             platform=platform,
             redirect_url=redirect_url,
             reconnect=reconnect,
+            profile=profile,
             headless=headless,
+            login_method=login_method,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2750,7 +4927,9 @@ class ConnectionsApi:
         platform: Annotated[str, Field(min_length=1, strict=True)],
         redirect_url: Annotated[Optional[StrictStr], Field(description="Required for API-key starts. Browser returns here after OAuth.")] = None,
         reconnect: Annotated[Optional[StrictStr], Field(description="Existing connection id to re-authorize without consuming a plan slot.")] = None,
-        headless: Annotated[Optional[StrictStr], Field(description="Facebook only. When true/1, skip hosted page picker and return tempToken to redirect_url.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Workspace profile name to file the new connection under — created if it does not exist. API-key starts that omit it fall back to the workspace default profile. Ignored on reconnect.")] = None,
+        headless: Annotated[Optional[StrictStr], Field(description="Selection platforms only (Facebook, Instagram via Facebook Login). When true/1, skip hosted picker and return tempToken to redirectUrl.")] = None,
+        login_method: Annotated[Optional[StrictStr], Field(description="Instagram only. instagram_login (default, direct Business Login) or facebook_login (Page-linked account via Facebook Login, with a second account-selection step).")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2766,7 +4945,7 @@ class ConnectionsApi:
     ) -> RESTResponseType:
         """Start OAuth connect
 
-        Returns a platform authorization URL. API keys require `redirect_url`. Dashboard session may omit it.
+        Returns a platform authorization URL. API keys require `redirectUrl`. Dashboard session may omit it.
 
         :param platform: (required)
         :type platform: str
@@ -2774,8 +4953,12 @@ class ConnectionsApi:
         :type redirect_url: str
         :param reconnect: Existing connection id to re-authorize without consuming a plan slot.
         :type reconnect: str
-        :param headless: Facebook only. When true/1, skip hosted page picker and return tempToken to redirect_url.
+        :param profile: Workspace profile name to file the new connection under — created if it does not exist. API-key starts that omit it fall back to the workspace default profile. Ignored on reconnect.
+        :type profile: str
+        :param headless: Selection platforms only (Facebook, Instagram via Facebook Login). When true/1, skip hosted picker and return tempToken to redirectUrl.
         :type headless: str
+        :param login_method: Instagram only. instagram_login (default, direct Business Login) or facebook_login (Page-linked account via Facebook Login, with a second account-selection step).
+        :type login_method: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2802,7 +4985,9 @@ class ConnectionsApi:
             platform=platform,
             redirect_url=redirect_url,
             reconnect=reconnect,
+            profile=profile,
             headless=headless,
+            login_method=login_method,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2829,7 +5014,9 @@ class ConnectionsApi:
         platform,
         redirect_url,
         reconnect,
+        profile,
         headless,
+        login_method,
         _request_auth,
         _content_type,
         _headers,
@@ -2856,15 +5043,23 @@ class ConnectionsApi:
         # process the query parameters
         if redirect_url is not None:
             
-            _query_params.append(('redirect_url', redirect_url))
+            _query_params.append(('redirectUrl', redirect_url))
             
         if reconnect is not None:
             
             _query_params.append(('reconnect', reconnect))
             
+        if profile is not None:
+            
+            _query_params.append(('profile', profile))
+            
         if headless is not None:
             
             _query_params.append(('headless', headless))
+            
+        if login_method is not None:
+            
+            _query_params.append(('loginMethod', login_method))
             
         # process the header parameters
         # process the form parameters
@@ -2889,6 +5084,308 @@ class ConnectionsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v1/connections/oauth/{platform}/start',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def update_bluesky_settings(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        update_bluesky_settings_request: UpdateBlueskySettingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> UpdateBlueskySettings200Response:
+        """Update Bluesky account settings
+
+        Bluesky-only. Sets or clears the account default post languages (1-3 BCP-47 codes). Explicit null clears the default.
+
+        :param id: (required)
+        :type id: str
+        :param update_bluesky_settings_request: (required)
+        :type update_bluesky_settings_request: UpdateBlueskySettingsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_bluesky_settings_serialize(
+            id=id,
+            update_bluesky_settings_request=update_bluesky_settings_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "UpdateBlueskySettings200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def update_bluesky_settings_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        update_bluesky_settings_request: UpdateBlueskySettingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[UpdateBlueskySettings200Response]:
+        """Update Bluesky account settings
+
+        Bluesky-only. Sets or clears the account default post languages (1-3 BCP-47 codes). Explicit null clears the default.
+
+        :param id: (required)
+        :type id: str
+        :param update_bluesky_settings_request: (required)
+        :type update_bluesky_settings_request: UpdateBlueskySettingsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_bluesky_settings_serialize(
+            id=id,
+            update_bluesky_settings_request=update_bluesky_settings_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "UpdateBlueskySettings200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def update_bluesky_settings_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        update_bluesky_settings_request: UpdateBlueskySettingsRequest,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Update Bluesky account settings
+
+        Bluesky-only. Sets or clears the account default post languages (1-3 BCP-47 codes). Explicit null clears the default.
+
+        :param id: (required)
+        :type id: str
+        :param update_bluesky_settings_request: (required)
+        :type update_bluesky_settings_request: UpdateBlueskySettingsRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_bluesky_settings_serialize(
+            id=id,
+            update_bluesky_settings_request=update_bluesky_settings_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "UpdateBlueskySettings200Response",
+            '400': "Error",
+            '401': "Error",
+            '403': "Error",
+            '404': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _update_bluesky_settings_serialize(
+        self,
+        id,
+        update_bluesky_settings_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if update_bluesky_settings_request is not None:
+            _body_params = update_bluesky_settings_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'ApiKeyHeader', 
+            'ApiKeyBearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PATCH',
+            resource_path='/v1/connections/{id}/bluesky/settings',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

@@ -599,7 +599,7 @@ class MediaApi:
     async def list_media(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
-        offset: Annotated[Optional[Annotated[int, Field(strict=True, ge=0)]], Field(description="Offset for list endpoints.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -618,8 +618,8 @@ class MediaApi:
 
         :param limit: Page size (default varies by endpoint).
         :type limit: int
-        :param offset: Offset for list endpoints.
-        :type offset: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -644,7 +644,7 @@ class MediaApi:
 
         _param = self._list_media_serialize(
             limit=limit,
-            offset=offset,
+            page=page,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -670,7 +670,7 @@ class MediaApi:
     async def list_media_with_http_info(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
-        offset: Annotated[Optional[Annotated[int, Field(strict=True, ge=0)]], Field(description="Offset for list endpoints.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -689,8 +689,8 @@ class MediaApi:
 
         :param limit: Page size (default varies by endpoint).
         :type limit: int
-        :param offset: Offset for list endpoints.
-        :type offset: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -715,7 +715,7 @@ class MediaApi:
 
         _param = self._list_media_serialize(
             limit=limit,
-            offset=offset,
+            page=page,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -741,7 +741,7 @@ class MediaApi:
     async def list_media_without_preload_content(
         self,
         limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Page size (default varies by endpoint).")] = None,
-        offset: Annotated[Optional[Annotated[int, Field(strict=True, ge=0)]], Field(description="Offset for list endpoints.")] = None,
+        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -760,8 +760,8 @@ class MediaApi:
 
         :param limit: Page size (default varies by endpoint).
         :type limit: int
-        :param offset: Offset for list endpoints.
-        :type offset: int
+        :param page: Page to return, starting at 1. Defaults to 1.
+        :type page: int
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -786,7 +786,7 @@ class MediaApi:
 
         _param = self._list_media_serialize(
             limit=limit,
-            offset=offset,
+            page=page,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -807,7 +807,7 @@ class MediaApi:
     def _list_media_serialize(
         self,
         limit,
-        offset,
+        page,
         _request_auth,
         _content_type,
         _headers,
@@ -834,9 +834,9 @@ class MediaApi:
             
             _query_params.append(('limit', limit))
             
-        if offset is not None:
+        if page is not None:
             
-            _query_params.append(('offset', offset))
+            _query_params.append(('page', page))
             
         # process the header parameters
         # process the form parameters

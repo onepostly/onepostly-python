@@ -31,7 +31,8 @@ class ConnectBlueskyRequest(BaseModel):
     identifier: Annotated[str, Field(min_length=1, strict=True, max_length=253)] = Field(description="Handle, email, or DID (e.g. alice.bsky.social).")
     app_password: Annotated[str, Field(min_length=1, strict=True, max_length=200)] = Field(description="App Password (xxxx-xxxx-xxxx-xxxx).", alias="appPassword")
     reconnect_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = Field(default=None, description="Existing connection id to re-authorize without consuming a plan slot.", alias="reconnectId")
-    __properties: ClassVar[List[str]] = ["identifier", "appPassword", "reconnectId"]
+    profile_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=60)]] = Field(default=None, description="Workspace profile name to file the new connection under — created if it does not exist. API-key calls that omit it fall back to the workspace default profile. Ignored on reconnect.", alias="profileName")
+    __properties: ClassVar[List[str]] = ["identifier", "appPassword", "reconnectId", "profileName"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -86,7 +87,8 @@ class ConnectBlueskyRequest(BaseModel):
         _obj = cls.model_validate({
             "identifier": obj.get("identifier"),
             "appPassword": obj.get("appPassword"),
-            "reconnectId": obj.get("reconnectId")
+            "reconnectId": obj.get("reconnectId"),
+            "profileName": obj.get("profileName")
         })
         return _obj
 

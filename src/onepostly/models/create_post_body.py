@@ -31,7 +31,7 @@ class CreatePostBody(BaseModel):
     """
     CreatePostBody
     """ # noqa: E501
-    text: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = ''
+    text: Optional[Annotated[str, Field(strict=True, max_length=63206)]] = ''
     thread_items: Optional[Annotated[List[ThreadItem], Field(min_length=1, max_length=25)]] = Field(default=None, alias="threadItems")
     media_urls: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=2048)]], Field(max_length=35)]] = Field(default=None, alias="mediaUrls")
     media_kind: MediaKind = Field(alias="mediaKind")

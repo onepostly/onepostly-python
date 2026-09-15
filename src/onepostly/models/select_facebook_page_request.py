@@ -30,8 +30,8 @@ class SelectFacebookPageRequest(BaseModel):
     """ # noqa: E501
     temp_token: Annotated[str, Field(min_length=1, strict=True)] = Field(alias="tempToken")
     page_id: Annotated[str, Field(min_length=1, strict=True)] = Field(alias="pageId")
-    redirect_url: Optional[StrictStr] = None
-    __properties: ClassVar[List[str]] = ["tempToken", "pageId", "redirect_url"]
+    redirect_url: Optional[StrictStr] = Field(default=None, alias="redirectUrl")
+    __properties: ClassVar[List[str]] = ["tempToken", "pageId", "redirectUrl"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -86,7 +86,7 @@ class SelectFacebookPageRequest(BaseModel):
         _obj = cls.model_validate({
             "tempToken": obj.get("tempToken"),
             "pageId": obj.get("pageId"),
-            "redirect_url": obj.get("redirect_url")
+            "redirectUrl": obj.get("redirectUrl")
         })
         return _obj
 

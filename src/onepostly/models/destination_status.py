@@ -26,6 +26,7 @@ class DestinationStatus(str, Enum):
     """
     allowed enum values
     """
+    DRAFT = 'draft'
     QUEUED = 'queued'
     PROCESSING = 'processing'
     PUBLISHED = 'published'

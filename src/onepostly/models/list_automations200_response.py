@@ -17,19 +17,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
+from onepostly.models.list_automations200_response_rules_inner import ListAutomations200ResponseRulesInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class ListWebhookDeliveries200ResponseFacetsStatusInner(BaseModel):
+class ListAutomations200Response(BaseModel):
     """
-    ListWebhookDeliveries200ResponseFacetsStatusInner
+    ListAutomations200Response
     """ # noqa: E501
-    status: StrictStr
-    count: StrictInt
-    __properties: ClassVar[List[str]] = ["status", "count"]
+    rules: List[ListAutomations200ResponseRulesInner]
+    __properties: ClassVar[List[str]] = ["rules"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -49,7 +49,7 @@ class ListWebhookDeliveries200ResponseFacetsStatusInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ListWebhookDeliveries200ResponseFacetsStatusInner from a JSON string"""
+        """Create an instance of ListAutomations200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -70,11 +70,17 @@ class ListWebhookDeliveries200ResponseFacetsStatusInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in rules (list)
+        _items = []
+        if self.rules:
+            for _item_rules in self.rules:
+                _items.append(_item_rules.to_dict() if _item_rules is not None else None)
+            _dict['rules'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ListWebhookDeliveries200ResponseFacetsStatusInner from a dict"""
+        """Create an instance of ListAutomations200Response from a dict"""
         if obj is None:
             return None
 
@@ -82,8 +88,7 @@ class ListWebhookDeliveries200ResponseFacetsStatusInner(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "status": obj.get("status"),
-            "count": obj.get("count")
+            "rules": [ListAutomations200ResponseRulesInner.from_dict(_item) for _item in obj["rules"]] if obj.get("rules") is not None else None
         })
         return _obj
 

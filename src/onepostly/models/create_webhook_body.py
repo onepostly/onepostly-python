@@ -31,7 +31,7 @@ class CreateWebhookBody(BaseModel):
     name: Annotated[str, Field(min_length=1, strict=True, max_length=120)]
     url: Annotated[str, Field(strict=True, max_length=2048)]
     secret: Optional[Annotated[str, Field(min_length=16, strict=True, max_length=128)]] = None
-    events: Annotated[List[StrictStr], Field(min_length=1, max_length=26)]
+    events: Annotated[List[StrictStr], Field(min_length=1, max_length=31)]
     enabled: Optional[StrictBool] = True
     __properties: ClassVar[List[str]] = ["name", "url", "secret", "events", "enabled"]
 

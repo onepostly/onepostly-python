@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from onepostly.models.create_post_body_destinations_inner_carousel_cards_inner import CreatePostBodyDestinationsInnerCarouselCardsInner
 from onepostly.models.create_post_body_destinations_inner_user_tags_inner import CreatePostBodyDestinationsInnerUserTagsInner
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,29 +30,26 @@ class CreatePostBodyDestinationsInner(BaseModel):
     """
     CreatePostBodyDestinationsInner
     """ # noqa: E501
-    account_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="accountId")
-    text: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = None
-    quote_tweet_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = Field(default=None, alias="quoteTweetId")
+    account_id: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="Connection id from POST /v1/connections.", alias="accountId")
+    text: Optional[Annotated[str, Field(strict=True, max_length=63206)]] = Field(default=None, description="Per-destination text override. Falls back to the root text.")
+    quote_tweet_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=256)]] = Field(default=None, description="X or Bluesky only. Post id to quote. Bluesky uses an at:// URI.", alias="quoteTweetId")
+    langs: Optional[Annotated[List[Annotated[str, Field(min_length=2, strict=True, max_length=16)]], Field(max_length=10)]] = Field(default=None, description="Bluesky only. Language tags for the post (e.g. [\"en\", \"pt\"]).")
     reply_to_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=512)]] = Field(default=None, description="Bluesky and Threads only. Post to reply to: at:// URI on Bluesky, post id on Threads.", alias="replyToId")
-    privacy_status: Optional[StrictStr] = Field(default=None, alias="privacyStatus")
-    privacy_level: Optional[StrictStr] = Field(default=None, alias="privacyLevel")
-    disable_comment: Optional[StrictBool] = Field(default=None, alias="disableComment")
-    disable_duet: Optional[StrictBool] = Field(default=None, alias="disableDuet")
-    disable_stitch: Optional[StrictBool] = Field(default=None, alias="disableStitch")
-    brand_organic_toggle: Optional[StrictBool] = Field(default=None, alias="brandOrganicToggle")
-    brand_content_toggle: Optional[StrictBool] = Field(default=None, alias="brandContentToggle")
-    ai_generated: Optional[StrictBool] = Field(default=None, alias="aiGenerated")
-    description: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = None
+    privacy_status: Optional[StrictStr] = Field(default=None, description="YouTube only. Video privacy status. Defaults to public.", alias="privacyStatus")
+    privacy_level: Optional[StrictStr] = Field(default=None, description="TikTok only. Required for TikTok destinations.", alias="privacyLevel")
+    disable_comment: Optional[StrictBool] = Field(default=None, description="TikTok only. True disables comments.", alias="disableComment")
+    disable_duet: Optional[StrictBool] = Field(default=None, description="TikTok only. True disables duets.", alias="disableDuet")
+    disable_stitch: Optional[StrictBool] = Field(default=None, description="TikTok only. True disables stitches.", alias="disableStitch")
+    brand_organic_toggle: Optional[StrictBool] = Field(default=None, description="TikTok only. Declares the content promotes the creator's own brand.", alias="brandOrganicToggle")
+    brand_content_toggle: Optional[StrictBool] = Field(default=None, description="TikTok only. Declares a paid partnership with a third party.", alias="brandContentToggle")
+    ai_generated: Optional[StrictBool] = Field(default=None, description="TikTok only. Discloses AI-generated content.", alias="aiGenerated")
+    description: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = Field(default=None, description="YouTube, Pinterest, and TikTok only. Video or pin description. Falls back to the post text.")
     board_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="Pinterest only. Required for Pinterest destinations.", alias="boardId")
-    link: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    title: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=300)]] = None
-    subreddit: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = None
-    flair_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, alias="flairId")
-    flair_text: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, alias="flairText")
-    nsfw: Optional[StrictBool] = None
-    spoiler: Optional[StrictBool] = None
-    thumbnail_url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, alias="thumbnailUrl")
-    first_comment: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=2200)]] = Field(default=None, description="Instagram, Facebook, LinkedIn, and YouTube only. Comment posted right after publish.", alias="firstComment")
+    cover_image_url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="Pinterest only. Video Pin cover image URL.", alias="coverImageUrl")
+    link: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="Pinterest, Bluesky, and Facebook only. Destination link URL. Must be HTTPS; link shorteners are rejected.")
+    title: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=100)]] = Field(default=None, description="YouTube, Pinterest, and Facebook only. Title override. YouTube and Pinterest cap it at 100 characters.")
+    first_comment: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=10000)]] = Field(default=None, description="Instagram, Facebook, LinkedIn, YouTube, and Threads only. Comment posted right after publish (on Threads, as a reply to the root post, max 500 characters).", alias="firstComment")
+    topic_tag: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=50)]] = Field(default=None, description="Threads only. Topic tag (1-50 characters, no periods or ampersands). Overrides auto-extraction from content hashtags.", alias="topicTag")
     tags: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=100)]], Field(max_length=30)]] = Field(default=None, description="YouTube only. Video tags; combined length must stay under 500 characters.")
     category_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=3)]] = Field(default=None, description="YouTube only. Video category id (e.g. \"22\", \"10\", \"20\").", alias="categoryId")
     made_for_kids: Optional[StrictBool] = Field(default=None, description="YouTube only. COPPA self-declared made-for-kids flag.", alias="madeForKids")
@@ -62,15 +60,27 @@ class CreatePostBodyDestinationsInner(BaseModel):
     cover_url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="Instagram reels only. Custom cover image URL.", alias="coverUrl")
     audio_name: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=200)]] = Field(default=None, description="Instagram reels only. Rename the original audio once.", alias="audioName")
     share_to_feed: Optional[StrictBool] = Field(default=None, description="Instagram reels only. true = feed + reels tab, false = reels tab only.", alias="shareToFeed")
+    trial_reel: Optional[StrictBool] = Field(default=None, description="Instagram reels only. true publishes as a trial reel (non-followers).", alias="trialReel")
+    trial_graduation_strategy: Optional[StrictStr] = Field(default=None, description="Instagram reels only. Trial reel graduation strategy (default MANUAL). Requires trialReel.", alias="trialGraduationStrategy")
+    audio_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, description="Instagram reels only (single video, Facebook Login). Catalog audio id from audio search.", alias="audioId")
+    audio_volume: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(default=None, description="Instagram reels only. Attached audio volume 1-100 (default 100). Requires audioId.", alias="audioVolume")
+    video_volume: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = Field(default=None, description="Instagram reels only. Original video volume 1-100 (default 100). Requires audioId.", alias="videoVolume")
+    is_ai_generated: Optional[StrictBool] = Field(default=None, description="Instagram and Pinterest only. Self-disclosure of AI usage. Instagram sends is_ai_generated; Pinterest adds the AI-modified label. Instagram: not supported for stories.", alias="isAiGenerated")
     location_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="Instagram only. Facebook Page id that has location data.", alias="locationId")
     is_paid_partnership: Optional[StrictBool] = Field(default=None, description="Instagram only. Paid partnership label (Facebook Login connections).", alias="isPaidPartnership")
+    branded_content_sponsors: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(max_length=2)]] = Field(default=None, description="Instagram only. Up to 2 sponsor usernames (leading @ optional) or numeric user ids. Implies the paid partnership label. Feed, reels, and carousels; not stories.", alias="brandedContentSponsors")
+    comments_enabled: Optional[StrictBool] = Field(default=None, description="Instagram only. false turns comments off right after publish (best-effort). Ignored for stories.", alias="commentsEnabled")
+    draft: Optional[StrictBool] = Field(default=None, description="Facebook only. true creates an unpublished draft in Publishing Tools instead of publishing. Not supported for stories; firstComment is skipped for drafts.")
+    carousel_cards: Optional[Annotated[List[CreatePostBodyDestinationsInnerCarouselCardsInner], Field(min_length=2, max_length=10)]] = Field(default=None, description="Facebook only. Multi-link carousel cards (2-10, one per image in order). Requires multi-image with the same number of images.", alias="carouselCards")
+    carousel_link: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="Facebook only. Top-level See more link for the carousel end card. Only used with carouselCards.", alias="carouselLink")
+    text_format_preset_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="Facebook only. Preset id for large-text background posts (text-only feed posts).", alias="textFormatPresetId")
+    reel_title: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=100)]] = Field(default=None, description="Facebook only. Reel title, separate from the caption. Only valid with mediaKind reel.", alias="reelTitle")
+    page_id: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="Facebook only. Post to a specific Page id managed by the same organization (resolves to the matching connection).", alias="pageId")
     video_cover_timestamp_ms: Optional[Annotated[int, Field(le=600000, strict=True, ge=0)]] = Field(default=None, description="TikTok videos only. Cover frame timestamp in ms.", alias="videoCoverTimestampMs")
     photo_cover_index: Optional[Annotated[int, Field(le=34, strict=True, ge=0)]] = Field(default=None, description="TikTok photo posts only. Cover photo index (0-based).", alias="photoCoverIndex")
     auto_add_music: Optional[StrictBool] = Field(default=None, description="TikTok photo posts only. Auto-add recommended music.", alias="autoAddMusic")
-    force_self: Optional[StrictBool] = Field(default=None, description="Reddit only. Submit a self post even when link is present.", alias="forceSelf")
-    video_gif: Optional[StrictBool] = Field(default=None, description="Reddit only. Submit the native video as a videogif.", alias="videoGif")
     geo_restriction: Optional[Annotated[List[Annotated[str, Field(min_length=2, strict=True, max_length=2)]], Field(min_length=1, max_length=25)]] = Field(default=None, description="X only. Allowlist of up to 25 uppercase ISO 3166-1 alpha-2 country codes. Media is hidden outside these countries; the tweet text stays visible globally. Ignored for text-only tweets.", alias="geoRestriction")
-    __properties: ClassVar[List[str]] = ["accountId", "text", "quoteTweetId", "replyToId", "privacyStatus", "privacyLevel", "disableComment", "disableDuet", "disableStitch", "brandOrganicToggle", "brandContentToggle", "aiGenerated", "description", "boardId", "link", "title", "subreddit", "flairId", "flairText", "nsfw", "spoiler", "thumbnailUrl", "firstComment", "tags", "categoryId", "madeForKids", "containsSyntheticMedia", "userTags", "collaborators", "thumbOffset", "coverUrl", "audioName", "shareToFeed", "locationId", "isPaidPartnership", "videoCoverTimestampMs", "photoCoverIndex", "autoAddMusic", "forceSelf", "videoGif", "geoRestriction"]
+    __properties: ClassVar[List[str]] = ["accountId", "text", "quoteTweetId", "langs", "replyToId", "privacyStatus", "privacyLevel", "disableComment", "disableDuet", "disableStitch", "brandOrganicToggle", "brandContentToggle", "aiGenerated", "description", "boardId", "coverImageUrl", "link", "title", "firstComment", "topicTag", "tags", "categoryId", "madeForKids", "containsSyntheticMedia", "userTags", "collaborators", "thumbOffset", "coverUrl", "audioName", "shareToFeed", "trialReel", "trialGraduationStrategy", "audioId", "audioVolume", "videoVolume", "isAiGenerated", "locationId", "isPaidPartnership", "brandedContentSponsors", "commentsEnabled", "draft", "carouselCards", "carouselLink", "textFormatPresetId", "reelTitle", "pageId", "videoCoverTimestampMs", "photoCoverIndex", "autoAddMusic", "geoRestriction"]
 
     @field_validator('privacy_status')
     def privacy_status_validate_enum(cls, value):
@@ -92,14 +102,14 @@ class CreatePostBodyDestinationsInner(BaseModel):
             raise ValueError("must be one of enum values ('PUBLIC_TO_EVERYONE', 'MUTUAL_FOLLOW_FRIENDS', 'FOLLOWER_OF_CREATOR', 'SELF_ONLY')")
         return value
 
-    @field_validator('subreddit', mode="before")
-    def subreddit_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
+    @field_validator('trial_graduation_strategy')
+    def trial_graduation_strategy_validate_enum(cls, value):
+        """Validates the enum"""
         if value is None:
             return value
 
-        if isinstance(value, str) and not re.match(r"^[A-Za-z0-9_]+$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9_]+$/")
+        if value not in set(['MANUAL', 'SS_PERFORMANCE']):
+            raise ValueError("must be one of enum values ('MANUAL', 'SS_PERFORMANCE')")
         return value
 
     model_config = ConfigDict(
@@ -147,6 +157,12 @@ class CreatePostBodyDestinationsInner(BaseModel):
             for _item_user_tags in self.user_tags:
                 _items.append(_item_user_tags.to_dict() if _item_user_tags is not None else None)
             _dict['userTags'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in carousel_cards (list)
+        _items = []
+        if self.carousel_cards:
+            for _item_carousel_cards in self.carousel_cards:
+                _items.append(_item_carousel_cards.to_dict() if _item_carousel_cards is not None else None)
+            _dict['carouselCards'] = _items
         return _dict
 
     @classmethod
@@ -162,6 +178,7 @@ class CreatePostBodyDestinationsInner(BaseModel):
             "accountId": obj.get("accountId"),
             "text": obj.get("text"),
             "quoteTweetId": obj.get("quoteTweetId"),
+            "langs": obj.get("langs"),
             "replyToId": obj.get("replyToId"),
             "privacyStatus": obj.get("privacyStatus"),
             "privacyLevel": obj.get("privacyLevel"),
@@ -173,15 +190,11 @@ class CreatePostBodyDestinationsInner(BaseModel):
             "aiGenerated": obj.get("aiGenerated"),
             "description": obj.get("description"),
             "boardId": obj.get("boardId"),
+            "coverImageUrl": obj.get("coverImageUrl"),
             "link": obj.get("link"),
             "title": obj.get("title"),
-            "subreddit": obj.get("subreddit"),
-            "flairId": obj.get("flairId"),
-            "flairText": obj.get("flairText"),
-            "nsfw": obj.get("nsfw"),
-            "spoiler": obj.get("spoiler"),
-            "thumbnailUrl": obj.get("thumbnailUrl"),
             "firstComment": obj.get("firstComment"),
+            "topicTag": obj.get("topicTag"),
             "tags": obj.get("tags"),
             "categoryId": obj.get("categoryId"),
             "madeForKids": obj.get("madeForKids"),
@@ -192,13 +205,25 @@ class CreatePostBodyDestinationsInner(BaseModel):
             "coverUrl": obj.get("coverUrl"),
             "audioName": obj.get("audioName"),
             "shareToFeed": obj.get("shareToFeed"),
+            "trialReel": obj.get("trialReel"),
+            "trialGraduationStrategy": obj.get("trialGraduationStrategy"),
+            "audioId": obj.get("audioId"),
+            "audioVolume": obj.get("audioVolume"),
+            "videoVolume": obj.get("videoVolume"),
+            "isAiGenerated": obj.get("isAiGenerated"),
             "locationId": obj.get("locationId"),
             "isPaidPartnership": obj.get("isPaidPartnership"),
+            "brandedContentSponsors": obj.get("brandedContentSponsors"),
+            "commentsEnabled": obj.get("commentsEnabled"),
+            "draft": obj.get("draft"),
+            "carouselCards": [CreatePostBodyDestinationsInnerCarouselCardsInner.from_dict(_item) for _item in obj["carouselCards"]] if obj.get("carouselCards") is not None else None,
+            "carouselLink": obj.get("carouselLink"),
+            "textFormatPresetId": obj.get("textFormatPresetId"),
+            "reelTitle": obj.get("reelTitle"),
+            "pageId": obj.get("pageId"),
             "videoCoverTimestampMs": obj.get("videoCoverTimestampMs"),
             "photoCoverIndex": obj.get("photoCoverIndex"),
             "autoAddMusic": obj.get("autoAddMusic"),
-            "forceSelf": obj.get("forceSelf"),
-            "videoGif": obj.get("videoGif"),
             "geoRestriction": obj.get("geoRestriction")
         })
         return _obj

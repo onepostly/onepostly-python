@@ -28,8 +28,8 @@ class ThreadItem(BaseModel):
     """
     ThreadItem
     """ # noqa: E501
-    content: Optional[Annotated[str, Field(strict=True, max_length=5000)]] = ''
-    media_items: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=2048)]], Field(max_length=20)]] = Field(default=None, alias="mediaItems")
+    content: Optional[Annotated[str, Field(strict=True, max_length=63206)]] = Field(default='', description="Reply text. May be empty only when mediaItems is provided.")
+    media_items: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=2048)]], Field(max_length=20)]] = Field(default=None, description="Media URLs attached to this reply only.", alias="mediaItems")
     __properties: ClassVar[List[str]] = ["content", "mediaItems"]
 
     model_config = ConfigDict(

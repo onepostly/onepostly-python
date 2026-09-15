@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
 from typing import Any, ClassVar, Dict, List
 from onepostly.models.connection import Connection
 from typing import Optional, Set
@@ -29,7 +29,10 @@ class ListConnections200Response(BaseModel):
     ListConnections200Response
     """ # noqa: E501
     connections: List[Connection]
-    __properties: ClassVar[List[str]] = ["connections"]
+    total: StrictInt = Field(description="Connections matching the filters, across every page.")
+    page: StrictInt = Field(description="The 1-based page this response carries.")
+    has_more: StrictBool = Field(description="True when at least one more connection follows this page. Request `page + 1` while it is true.", alias="hasMore")
+    __properties: ClassVar[List[str]] = ["connections", "total", "page", "hasMore"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -88,7 +91,10 @@ class ListConnections200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "connections": [Connection.from_dict(_item) for _item in obj["connections"]] if obj.get("connections") is not None else None
+            "connections": [Connection.from_dict(_item) for _item in obj["connections"]] if obj.get("connections") is not None else None,
+            "total": obj.get("total"),
+            "page": obj.get("page"),
+            "hasMore": obj.get("hasMore")
         })
         return _obj
 
