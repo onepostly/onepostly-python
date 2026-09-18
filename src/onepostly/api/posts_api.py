@@ -295,8 +295,8 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKeyHeader', 
-            'ApiKeyBearer'
+            'ApiKey', 
+            'Bearer'
         ]
 
         return self.api_client.param_serialize(
@@ -591,8 +591,8 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKeyHeader', 
-            'ApiKeyBearer'
+            'ApiKey', 
+            'Bearer'
         ]
 
         return self.api_client.param_serialize(
@@ -874,8 +874,8 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKeyHeader', 
-            'ApiKeyBearer'
+            'ApiKey', 
+            'Bearer'
         ]
 
         return self.api_client.param_serialize(
@@ -1139,8 +1139,8 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKeyHeader', 
-            'ApiKeyBearer'
+            'ApiKey', 
+            'Bearer'
         ]
 
         return self.api_client.param_serialize(
@@ -1540,8 +1540,8 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKeyHeader', 
-            'ApiKeyBearer'
+            'ApiKey', 
+            'Bearer'
         ]
 
         return self.api_client.param_serialize(
@@ -1830,8 +1830,8 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKeyHeader', 
-            'ApiKeyBearer'
+            'ApiKey', 
+            'Bearer'
         ]
 
         return self.api_client.param_serialize(

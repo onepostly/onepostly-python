@@ -110,8 +110,8 @@ HTTPSignatureAuthSetting = TypedDict(
 AuthSettings = TypedDict(
     "AuthSettings",
     {
-        "ApiKeyHeader": APIKeyAuthSetting,
-        "ApiKeyBearer": BearerFormatAuthSetting,
+        "ApiKey": APIKeyAuthSetting,
+        "Bearer": BearerFormatAuthSetting,
     },
     total=False,
 )
@@ -534,17 +534,17 @@ conf = onepostly.Configuration(
         :return: The Auth Settings information dict.
         """
         auth: AuthSettings = {}
-        if 'ApiKeyHeader' in self.api_key:
-            auth['ApiKeyHeader'] = {
+        if 'ApiKey' in self.api_key:
+            auth['ApiKey'] = {
                 'type': 'api_key',
                 'in': 'header',
                 'key': 'x-api-key',
                 'value': self.get_api_key_with_prefix(
-                    'ApiKeyHeader',
+                    'ApiKey',
                 ),
             }
         if self.access_token is not None:
-            auth['ApiKeyBearer'] = {
+            auth['Bearer'] = {
                 'type': 'bearer',
                 'in': 'header',
                 'format': 'op_',
@@ -562,7 +562,7 @@ conf = onepostly.Configuration(
                "OS: {env}\n"\
                "Python Version: {pyversion}\n"\
                "Version of the API: 1.0.0\n"\
-               "SDK Package Version: 0.2.14".\
+               "SDK Package Version: 0.2.15".\
                format(env=sys.platform, pyversion=sys.version)
 
     def get_host_settings(self) -> List[HostSetting]:
