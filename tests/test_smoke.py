@@ -12,9 +12,27 @@ from onepostly.api.media_api import MediaApi
 from onepostly.api.posts_api import PostsApi
 
 
-def _client(handler) -> ApiClient:
-    config = Configuration(host="https://api.onepostly.com")
-    config.api_key["ApiKeyHeader"] = "op_test"
+POST_PAYLOAD = {
+    "post": {
+        "id": "1699f415-7fb6-43f4-9d2a-c447491f32a8",
+        "text": "Hello",
+        "mediaUrls": [],
+        "mediaKind": "text",
+        "status": "queued",
+        "scheduledFor": None,
+        "timezone": None,
+        "destinations": [],
+        "createdAt": "2026-08-31T00:00:00Z",
+        "updatedAt": "2026-08-31T00:00:00Z",
+    }
+}
+
+
+def _client(handler, config=None) -> ApiClient:
+    """Defaults to the API-key form; pass a Configuration for another auth form."""
+    if config is None:
+        config = Configuration(host="https://api.onepostly.com")
+        config.api_key["ApiKey"] = "op_test"
     api_client = ApiClient(configuration=config)
     api_client.rest_client.pool_manager = httpx.AsyncClient(
         transport=httpx.MockTransport(handler)
@@ -30,23 +48,7 @@ async def test_create_post_sends_body_and_api_key():
         seen["url"] = str(request.url)
         seen["body"] = json.loads(request.content)
         seen["api_key"] = request.headers.get("x-api-key")
-        return httpx.Response(
-            202,
-            json={
-                "post": {
-                    "id": "1699f415-7fb6-43f4-9d2a-c447491f32a8",
-                    "text": "Hello",
-                    "mediaUrls": [],
-                    "mediaKind": "text",
-                    "status": "queued",
-                    "scheduledFor": None,
-                    "timezone": None,
-                    "destinations": [],
-                    "createdAt": "2026-08-31T00:00:00Z",
-                    "updatedAt": "2026-08-31T00:00:00Z",
-                }
-            },
-        )
+        return httpx.Response(202, json=POST_PAYLOAD)
 
     api = PostsApi(_client(handler))
     response = await api.create_post(
@@ -60,6 +62,28 @@ async def test_create_post_sends_body_and_api_key():
     assert seen["url"].endswith("/v1/posts")
     assert seen["api_key"] == "op_test"
     assert seen["body"]["destinations"] == [{"accountId": "c1"}]
+
+
+@pytest.mark.asyncio
+async def test_access_token_sends_bearer_authorization():
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["authorization"] = request.headers.get("authorization")
+        seen["api_key"] = request.headers.get("x-api-key")
+        return httpx.Response(202, json=POST_PAYLOAD)
+
+    config = Configuration(host="https://api.onepostly.com", access_token="op_test")
+    api = PostsApi(_client(handler, config))
+    await api.create_post(
+        create_post_body={
+            "text": "Hello",
+            "mediaKind": "text",
+            "destinations": [{"accountId": "c1"}],
+        }
+    )
+    assert seen["authorization"] == "Bearer op_test"
+    assert seen["api_key"] is None
 
 
 @pytest.mark.asyncio

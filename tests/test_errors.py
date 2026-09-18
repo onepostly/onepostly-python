@@ -24,7 +24,7 @@ def _client(status: int, body: dict) -> ApiClient:
         return httpx.Response(status, json=body, headers={"content-type": "application/json"})
 
     config = Configuration(host="https://api.onepostly.com")
-    config.api_key["ApiKeyHeader"] = "op_test"
+    config.api_key["ApiKey"] = "op_test"
     api_client = ApiClient(configuration=config)
     api_client.rest_client.pool_manager = httpx.AsyncClient(transport=httpx.MockTransport(handler))
     return api_client
