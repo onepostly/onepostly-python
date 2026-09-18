@@ -4,11 +4,6 @@ on:
   repository_dispatch:
     types: [openapi-updated]
 
-  # Fallback: reconcile the committed SDK against the live spec twice a day,
-  # even if no dispatch arrives.
-  schedule:
-    - cron: "41 5,17 * * *"
-
   workflow_dispatch:
 
 concurrency:
