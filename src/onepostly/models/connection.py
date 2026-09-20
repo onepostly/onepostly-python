@@ -39,9 +39,10 @@ class Connection(BaseModel):
     can_auto_renew: StrictBool = Field(alias="canAutoRenew")
     auth_health: StrictStr = Field(alias="authHealth")
     profile_name: Optional[StrictStr] = Field(alias="profileName")
+    x_subscription_type: Optional[StrictStr] = Field(alias="xSubscriptionType")
     created_at: datetime = Field(alias="createdAt")
     updated_at: datetime = Field(alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["id", "platform", "displayName", "handle", "avatarUrl", "status", "tokenExpiresAt", "canAutoRenew", "authHealth", "profileName", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["id", "platform", "displayName", "handle", "avatarUrl", "status", "tokenExpiresAt", "canAutoRenew", "authHealth", "profileName", "xSubscriptionType", "createdAt", "updatedAt"]
 
     @field_validator('auth_health')
     def auth_health_validate_enum(cls, value):
@@ -104,6 +105,11 @@ class Connection(BaseModel):
         if self.profile_name is None and "profile_name" in self.model_fields_set:
             _dict['profileName'] = None
 
+        # set to None if x_subscription_type (nullable) is None
+        # and model_fields_set contains the field
+        if self.x_subscription_type is None and "x_subscription_type" in self.model_fields_set:
+            _dict['xSubscriptionType'] = None
+
         return _dict
 
     @classmethod
@@ -126,6 +132,7 @@ class Connection(BaseModel):
             "canAutoRenew": obj.get("canAutoRenew"),
             "authHealth": obj.get("authHealth"),
             "profileName": obj.get("profileName"),
+            "xSubscriptionType": obj.get("xSubscriptionType"),
             "createdAt": obj.get("createdAt"),
             "updatedAt": obj.get("updatedAt")
         })
