@@ -39,7 +39,7 @@ class Connection(BaseModel):
     can_auto_renew: StrictBool = Field(alias="canAutoRenew")
     auth_health: StrictStr = Field(alias="authHealth")
     profile_name: Optional[StrictStr] = Field(alias="profileName")
-    x_subscription_type: Optional[StrictStr] = Field(alias="xSubscriptionType")
+    x_subscription_type: Optional[StrictStr] = Field(default=None, alias="xSubscriptionType")
     created_at: datetime = Field(alias="createdAt")
     updated_at: datetime = Field(alias="updatedAt")
     __properties: ClassVar[List[str]] = ["id", "platform", "displayName", "handle", "avatarUrl", "status", "tokenExpiresAt", "canAutoRenew", "authHealth", "profileName", "xSubscriptionType", "createdAt", "updatedAt"]
