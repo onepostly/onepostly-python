@@ -109,6 +109,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -183,6 +184,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -257,6 +259,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -982,6 +985,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1056,6 +1060,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1130,6 +1135,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1912,6 +1918,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1986,6 +1993,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2060,6 +2068,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2216,6 +2225,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2298,6 +2308,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2380,6 +2391,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2527,6 +2539,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2601,6 +2614,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2675,6 +2689,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2831,6 +2846,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2913,6 +2929,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2995,6 +3012,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -3150,6 +3168,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -3232,6 +3251,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -3314,6 +3334,7 @@ class EngagementApi:
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
