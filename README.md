@@ -163,7 +163,7 @@ All methods take named keyword arguments.
 | Method | Description |
 | --- | --- |
 | `posts.list_posts()` | List posts |
-| `posts.create_post()` | Create post. |
+| `posts.create_post()` | Create post |
 | `posts.get_post()` | Get post |
 | `posts.cancel_post()` | Cancel post |
 | `posts.delete_post_destination()` | Remote-delete destination |
@@ -199,10 +199,10 @@ All methods take named keyword arguments.
 | `engagement.unlike()` | Unlike |
 | `engagement.bookmark()` | Bookmark |
 | `engagement.remove_bookmark()` | Remove bookmark |
-| `engagement.list_retweeters()` | List retweeters |
-| `engagement.retweet()` | Retweet |
-| `engagement.undo_retweet()` | Undo retweet |
-| `engagement.quote()` | Quote tweet |
+| `engagement.list_retweeters()` | List reposters |
+| `engagement.retweet()` | Repost |
+| `engagement.undo_retweet()` | Undo repost |
+| `engagement.quote()` | Quote post |
 
 ### InboxApi
 
