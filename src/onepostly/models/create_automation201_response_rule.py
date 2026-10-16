@@ -30,7 +30,7 @@ class CreateAutomation201ResponseRule(BaseModel):
     id: StrictStr
     name: StrictStr
     kind: StrictStr
-    keywords: List[StrictStr] = Field(description="Case-insensitive substring triggers. Empty means every comment or message matches.")
+    keywords: List[StrictStr] = Field(description="Case-insensitive substring triggers. The rule fires when a comment or message contains any of them.")
     exclude_keywords: List[StrictStr] = Field(description="Skip the rule when the comment or message contains any of these.", alias="excludeKeywords")
     dm_message: StrictStr = Field(alias="dmMessage")
     enabled: StrictBool

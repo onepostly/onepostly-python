@@ -27,11 +27,11 @@ class DestinationStatus(str, Enum):
     allowed enum values
     """
     DRAFT = 'draft'
+    SCHEDULED = 'scheduled'
     QUEUED = 'queued'
     PROCESSING = 'processing'
     PUBLISHED = 'published'
     FAILED = 'failed'
-    SCHEDULED = 'scheduled'
     CANCELLED = 'cancelled'
     DELETED = 'deleted'
 

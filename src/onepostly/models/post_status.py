@@ -27,11 +27,12 @@ class PostStatus(str, Enum):
     allowed enum values
     """
     DRAFT = 'draft'
+    SCHEDULED = 'scheduled'
     QUEUED = 'queued'
     PROCESSING = 'processing'
+    PARTIAL = 'partial'
     PUBLISHED = 'published'
     FAILED = 'failed'
-    SCHEDULED = 'scheduled'
     CANCELLED = 'cancelled'
     DELETED = 'deleted'
 

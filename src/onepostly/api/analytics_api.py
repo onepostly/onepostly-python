@@ -495,7 +495,7 @@ class AnalyticsApi:
     ) -> GetAnalyticsTimeline200Response:
         """Get daily analytics timeline
 
-        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 90 days.
+        Daily cumulative metrics per subject, captured automatically. Range defaults to the last 90 days.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
@@ -609,7 +609,7 @@ class AnalyticsApi:
     ) -> ApiResponse[GetAnalyticsTimeline200Response]:
         """Get daily analytics timeline
 
-        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 90 days.
+        Daily cumulative metrics per subject, captured automatically. Range defaults to the last 90 days.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
@@ -723,7 +723,7 @@ class AnalyticsApi:
     ) -> RESTResponseType:
         """Get daily analytics timeline
 
-        Daily cumulative metrics per subject, captured automatically by the Onepostly pipeline. Range defaults to the last 90 days.
+        Daily cumulative metrics per subject, captured automatically. Range defaults to the last 90 days.
 
         :param post: Internal post id or platform-native post id. Native ids require accountId. Omit only when destinationId is passed on its own.
         :type post: str
