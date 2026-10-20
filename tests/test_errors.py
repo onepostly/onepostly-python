@@ -18,13 +18,19 @@ from onepostly.exceptions import (
     UnauthorizedException,
 )
 
+VALIDATION_ERROR = {
+    "error": "Invalid request: accounts must contain at least 1 item.",
+    "code": "VALIDATION_ERROR",
+    "param": "accounts",
+    "requestId": "req_8f2a64c1d3b94e0f9a7c5e2b1d0f3a6c",
+}
+
 
 def _client(status: int, body: dict) -> ApiClient:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(status, json=body, headers={"content-type": "application/json"})
 
-    config = Configuration(host="https://api.onepostly.com")
-    config.api_key["ApiKey"] = "op_test"
+    config = Configuration(host="https://api.onepostly.com", access_token="op_test")
     api_client = ApiClient(configuration=config)
     api_client.rest_client.pool_manager = httpx.AsyncClient(transport=httpx.MockTransport(handler))
     return api_client
@@ -42,11 +48,11 @@ def _client(status: int, body: dict) -> ApiClient:
     ],
 )
 async def test_status_families_map_to_dedicated_exceptions(status, expected_exception):
-    api_client = _client(status, {"error": {"code": "X", "message": "boom"}})
+    api_client = _client(status, {"error": "boom", "code": "X"})
     posts = PostsApi(api_client)
 
     with pytest.raises(expected_exception) as exc_info:
-        await posts.get_post(id="p1")
+        await posts.get_post(id="pst_1")
 
     error = exc_info.value
     assert isinstance(error, ApiException)
@@ -55,19 +61,17 @@ async def test_status_families_map_to_dedicated_exceptions(status, expected_exce
 
 @pytest.mark.asyncio
 async def test_error_body_is_preserved_for_callers():
-    body = {"error": {"code": "INSUFFICIENT_WALLET", "message": "Wallet balance too low"}}
-    api_client = _client(402, body)
+    api_client = _client(400, VALIDATION_ERROR)
     posts = PostsApi(api_client)
 
     with pytest.raises(ApiException) as exc_info:
         await posts.create_post(
             create_post_body={
                 "text": "Hello",
-                "mediaKind": "text",
-                "destinations": [{"accountId": "c1"}],
+                "accounts": [{"accountId": "acc_1"}],
             }
         )
 
     error = exc_info.value
-    assert error.status == 402
-    assert json.loads(error.body) == body
+    assert error.status == 400
+    assert json.loads(error.body) == VALIDATION_ERROR

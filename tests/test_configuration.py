@@ -24,27 +24,18 @@ def _auth_headers(config: Configuration) -> dict:
     }
 
 
-def test_api_key_is_kept_under_the_spec_security_scheme_name():
-    config = Configuration(host="https://api.onepostly.com")
-    config.api_key["ApiKey"] = "op_test"
-    assert config.api_key["ApiKey"] == "op_test"
-    assert config.get_api_key_with_prefix("ApiKey") == "op_test"
-
-
-def test_api_key_resolves_to_the_x_api_key_header():
-    config = Configuration(host="https://api.onepostly.com")
-    config.api_key["ApiKey"] = "op_test"
-    assert _auth_headers(config) == {"x-api-key": "op_test"}
-
-
 def test_access_token_resolves_to_a_bearer_authorization_header():
     config = Configuration(host="https://api.onepostly.com", access_token="op_test")
     assert _auth_headers(config) == {"Authorization": "Bearer op_test"}
 
 
-def test_one_configuration_safely_backs_multiple_api_classes():
+def test_no_auth_header_without_an_access_token():
     config = Configuration(host="https://api.onepostly.com")
-    config.api_key["ApiKey"] = "op_shared"
+    assert _auth_headers(config) == {}
+
+
+def test_one_configuration_safely_backs_multiple_api_classes():
+    config = Configuration(host="https://api.onepostly.com", access_token="op_shared")
 
     posts = PostsApi(ApiClient(configuration=config))
     webhooks = WebhooksApi(ApiClient(configuration=config))

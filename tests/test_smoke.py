@@ -12,27 +12,34 @@ from onepostly.api.media_api import MediaApi
 from onepostly.api.posts_api import PostsApi
 
 
-POST_PAYLOAD = {
-    "post": {
-        "id": "1699f415-7fb6-43f4-9d2a-c447491f32a8",
-        "text": "Hello",
-        "mediaUrls": [],
-        "mediaKind": "text",
-        "status": "queued",
-        "scheduledFor": None,
-        "timezone": None,
-        "destinations": [],
-        "createdAt": "2026-08-31T00:00:00Z",
-        "updatedAt": "2026-08-31T00:00:00Z",
-    }
+POST = {
+    "id": "pst_1",
+    "groupId": "grp_1",
+    "accountId": "acc_1",
+    "platform": "linkedin",
+    "source": "onepostly",
+    "status": "publishing",
+    "text": "Hello",
+    "mediaKind": "text",
+    "media": [],
+    "thread": [],
+    "scheduledFor": None,
+    "timezone": None,
+    "options": {},
+    "platformPostId": None,
+    "url": None,
+    "error": None,
+    "publishedAt": None,
+    "metrics": None,
+    "createdAt": "2027-03-15T09:00:00Z",
+    "updatedAt": "2027-03-15T09:00:00Z",
 }
 
+CREATED_POSTS = {"groupId": "grp_1", "data": [POST]}
 
-def _client(handler, config=None) -> ApiClient:
-    """Defaults to the API-key form; pass a Configuration for another auth form."""
-    if config is None:
-        config = Configuration(host="https://api.onepostly.com")
-        config.api_key["ApiKey"] = "op_test"
+
+def _client(handler, access_token: str | None = "op_test") -> ApiClient:
+    config = Configuration(host="https://api.onepostly.com", access_token=access_token)
     api_client = ApiClient(configuration=config)
     api_client.rest_client.pool_manager = httpx.AsyncClient(
         transport=httpx.MockTransport(handler)
@@ -41,53 +48,46 @@ def _client(handler, config=None) -> ApiClient:
 
 
 @pytest.mark.asyncio
-async def test_create_post_sends_body_and_api_key():
+async def test_create_post_sends_body_and_bearer_authorization():
     seen = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen["url"] = str(request.url)
+        seen["method"] = request.method
         seen["body"] = json.loads(request.content)
-        seen["api_key"] = request.headers.get("x-api-key")
-        return httpx.Response(202, json=POST_PAYLOAD)
+        seen["authorization"] = request.headers.get("authorization")
+        return httpx.Response(201, json=CREATED_POSTS)
 
     api = PostsApi(_client(handler))
     response = await api.create_post(
         create_post_body={
             "text": "Hello",
-            "mediaKind": "text",
-            "destinations": [{"accountId": "c1"}],
+            "accounts": [{"accountId": "acc_1"}],
         }
     )
-    assert str(response.post.id) == "1699f415-7fb6-43f4-9d2a-c447491f32a8"
+    assert response.group_id == "grp_1"
+    assert response.data[0].id == "pst_1"
     assert seen["url"].endswith("/v1/posts")
-    assert seen["api_key"] == "op_test"
-    assert seen["body"]["destinations"] == [{"accountId": "c1"}]
+    assert seen["method"] == "POST"
+    assert seen["authorization"] == "Bearer op_test"
+    assert seen["body"] == {"text": "Hello", "accounts": [{"accountId": "acc_1"}]}
 
 
 @pytest.mark.asyncio
-async def test_access_token_sends_bearer_authorization():
+async def test_no_authorization_without_an_access_token():
     seen = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen["authorization"] = request.headers.get("authorization")
-        seen["api_key"] = request.headers.get("x-api-key")
-        return httpx.Response(202, json=POST_PAYLOAD)
+        return httpx.Response(200, json=POST)
 
-    config = Configuration(host="https://api.onepostly.com", access_token="op_test")
-    api = PostsApi(_client(handler, config))
-    await api.create_post(
-        create_post_body={
-            "text": "Hello",
-            "mediaKind": "text",
-            "destinations": [{"accountId": "c1"}],
-        }
-    )
-    assert seen["authorization"] == "Bearer op_test"
-    assert seen["api_key"] is None
+    api = PostsApi(_client(handler, access_token=None))
+    await api.get_post(id="pst_1")
+    assert seen["authorization"] is None
 
 
 @pytest.mark.asyncio
-async def test_undo_retweet_sends_post_query():
+async def test_unrepost_post_puts_both_path_parameters_in_the_url():
     seen = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -96,22 +96,23 @@ async def test_undo_retweet_sends_post_query():
         return httpx.Response(
             200,
             json={
-                "postId": "p1",
-                "destinationId": "d1",
-                "platform": "x",
-                "retweeted": False,
+                "postId": "pst_1",
+                "accountId": "acc_1",
+                "platform": "threads",
+                "reposted": False,
+                "platformRepostId": None,
             },
         )
 
     api = EngagementApi(_client(handler))
-    await api.undo_retweet(post="p1")
-    assert "/v1/retweets" in seen["url"]
-    assert "post=p1" in seen["url"]
+    response = await api.unrepost_post(id="acc_1", post_id="pst_1")
+    assert seen["url"].endswith("/v1/accounts/acc_1/reposts/pst_1")
     assert seen["method"] == "DELETE"
+    assert response.reposted is False
 
 
 @pytest.mark.asyncio
-async def test_get_media_presigned_url_posts_filename_and_type():
+async def test_create_media_posts_the_file_details_and_returns_the_upload_url():
     seen = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -119,20 +120,26 @@ async def test_get_media_presigned_url_posts_filename_and_type():
         seen["method"] = request.method
         seen["body"] = json.loads(request.content)
         return httpx.Response(
-            200,
+            201,
             json={
-                "uploadUrl": "https://cdn.example.com/upload?sig=1",
-                "publicUrl": "https://cdn.example.com/temp/a.png",
-                "key": "temp/a.png",
-                "expiresIn": 3600,
+                "id": "med_1",
+                "url": "https://cdn.example.com/media/a.png",
+                "contentType": "image/png",
+                "sizeBytes": None,
+                "filename": "a.png",
+                "status": "pending",
+                "createdAt": "2027-03-15T09:00:00Z",
+                "uploadUrl": "https://uploads.example.com/temp/a.png?sig=1",
+                "uploadExpiresIn": 3600,
             },
         )
 
     api = MediaApi(_client(handler))
-    response = await api.get_media_presigned_url(
-        presign_media_body={"filename": "a.png", "contentType": "image/png"}
+    response = await api.create_media(
+        create_media_body={"filename": "a.png", "contentType": "image/png", "size": 1024}
     )
-    assert "/v1/media/presign" in seen["url"]
+    assert seen["url"].endswith("/v1/media")
     assert seen["method"] == "POST"
-    assert seen["body"] == {"filename": "a.png", "contentType": "image/png"}
-    assert str(response.public_url) == "https://cdn.example.com/temp/a.png"
+    assert seen["body"] == {"filename": "a.png", "contentType": "image/png", "size": 1024}
+    assert response.id == "med_1"
+    assert str(response.upload_url) == "https://uploads.example.com/temp/a.png?sig=1"
