@@ -17,9 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
-from onepostly.models.connection_profile import ConnectionProfile
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.profile import Profile
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,8 +28,10 @@ class ListProfiles200Response(BaseModel):
     """
     ListProfiles200Response
     """ # noqa: E501
-    profiles: List[ConnectionProfile]
-    __properties: ClassVar[List[str]] = ["profiles"]
+    data: List[Profile]
+    next_cursor: Optional[StrictStr] = Field(description="Cursor for the next page, or null on the last page.", alias="nextCursor")
+    has_more: StrictBool = Field(description="True when another page follows this one.", alias="hasMore")
+    __properties: ClassVar[List[str]] = ["data", "nextCursor", "hasMore"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -70,12 +72,17 @@ class ListProfiles200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in profiles (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
         _items = []
-        if self.profiles:
-            for _item_profiles in self.profiles:
-                _items.append(_item_profiles.to_dict() if _item_profiles is not None else None)
-            _dict['profiles'] = _items
+        if self.data:
+            for _item_data in self.data:
+                _items.append(_item_data.to_dict() if _item_data is not None else None)
+            _dict['data'] = _items
+        # set to None if next_cursor (nullable) is None
+        # and model_fields_set contains the field
+        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
+            _dict['nextCursor'] = None
+
         return _dict
 
     @classmethod
@@ -88,7 +95,9 @@ class ListProfiles200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "profiles": [ConnectionProfile.from_dict(_item) for _item in obj["profiles"]] if obj.get("profiles") is not None else None
+            "data": [Profile.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
+            "nextCursor": obj.get("nextCursor"),
+            "hasMore": obj.get("hasMore")
         })
         return _obj
 

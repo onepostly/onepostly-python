@@ -17,9 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
-from onepostly.models.list_comments200_response_comments import ListComments200ResponseComments
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.comment import Comment
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,8 +28,10 @@ class ListComments200Response(BaseModel):
     """
     ListComments200Response
     """ # noqa: E501
-    comments: ListComments200ResponseComments
-    __properties: ClassVar[List[str]] = ["comments"]
+    data: List[Comment]
+    next_cursor: Optional[StrictStr] = Field(description="Cursor for the next page, or null on the last page.", alias="nextCursor")
+    has_more: StrictBool = Field(description="True when another page follows this one.", alias="hasMore")
+    __properties: ClassVar[List[str]] = ["data", "nextCursor", "hasMore"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -70,9 +72,17 @@ class ListComments200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of comments
-        if self.comments:
-            _dict['comments'] = self.comments.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
+        _items = []
+        if self.data:
+            for _item_data in self.data:
+                _items.append(_item_data.to_dict() if _item_data is not None else None)
+            _dict['data'] = _items
+        # set to None if next_cursor (nullable) is None
+        # and model_fields_set contains the field
+        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
+            _dict['nextCursor'] = None
+
         return _dict
 
     @classmethod
@@ -85,7 +95,9 @@ class ListComments200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "comments": ListComments200ResponseComments.from_dict(obj["comments"]) if obj.get("comments") is not None else None
+            "data": [Comment.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
+            "nextCursor": obj.get("nextCursor"),
+            "hasMore": obj.get("hasMore")
         })
         return _obj
 

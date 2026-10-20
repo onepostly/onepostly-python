@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictBool, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,9 +31,11 @@ class Webhook(BaseModel):
     id: StrictStr
     name: StrictStr
     url: StrictStr
-    enabled: Optional[StrictBool] = None
-    events: Optional[List[StrictStr]] = None
-    __properties: ClassVar[List[str]] = ["id", "name", "url", "enabled", "events"]
+    enabled: StrictBool = Field(description="false while the webhook is paused. A paused webhook receives no events.")
+    events: List[StrictStr] = Field(description="Event types the webhook receives, as you set them. [\"*\"] means every event type, including ones added later.")
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
+    __properties: ClassVar[List[str]] = ["id", "name", "url", "enabled", "events", "createdAt", "updatedAt"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -89,7 +92,9 @@ class Webhook(BaseModel):
             "name": obj.get("name"),
             "url": obj.get("url"),
             "enabled": obj.get("enabled"),
-            "events": obj.get("events")
+            "events": obj.get("events"),
+            "createdAt": obj.get("createdAt"),
+            "updatedAt": obj.get("updatedAt")
         })
         return _obj
 

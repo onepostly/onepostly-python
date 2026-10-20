@@ -30,8 +30,8 @@ class SetMessengerProfileBody(BaseModel):
     """
     SetMessengerProfileBody
     """ # noqa: E501
-    ice_breakers: Optional[Annotated[List[SetMessengerProfileBodyIceBreakersInner], Field(max_length=4)]] = Field(default=None, alias="iceBreakers")
-    persistent_menu: Optional[Annotated[List[SetMessengerProfileBodyPersistentMenuInner], Field(max_length=3)]] = Field(default=None, alias="persistentMenu")
+    ice_breakers: Optional[Annotated[List[SetMessengerProfileBodyIceBreakersInner], Field(max_length=4)]] = Field(default=None, description="Up to 4 questions shown when a conversation starts.", alias="iceBreakers")
+    persistent_menu: Optional[Annotated[List[SetMessengerProfileBodyPersistentMenuInner], Field(max_length=3)]] = Field(default=None, description="Up to 3 menu items. web_url items need url, postback items need payload.", alias="persistentMenu")
     __properties: ClassVar[List[str]] = ["iceBreakers", "persistentMenu"]
 
     model_config = ConfigDict(

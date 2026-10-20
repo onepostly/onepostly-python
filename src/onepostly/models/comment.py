@@ -17,8 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.platform import Platform
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,14 +29,18 @@ class Comment(BaseModel):
     """
     Comment
     """ # noqa: E501
-    id: StrictStr
+    id: StrictStr = Field(description="The comment's id. Use it to reply to, hide, like or delete the comment.")
+    post_id: StrictStr = Field(description="The post the comment is on.", alias="postId")
+    account_id: StrictStr = Field(description="The account that published the post.", alias="accountId")
+    platform: Platform
+    platform_comment_id: StrictStr = Field(description="The platform's own id for the comment.", alias="platformCommentId")
+    parent_id: Optional[StrictStr] = Field(description="The comment this one replies to, or null for a comment on the post.", alias="parentId")
     text: StrictStr
-    username: Optional[StrictStr] = None
-    like_count: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, alias="likeCount")
-    timestamp: Optional[StrictStr] = None
-    parent_id: Optional[StrictStr] = Field(default=None, alias="parentId")
-    replies: Optional[List[Comment]] = None
-    __properties: ClassVar[List[str]] = ["id", "text", "username", "likeCount", "timestamp", "parentId", "replies"]
+    username: Optional[StrictStr] = Field(description="The author's username, without a leading @. Null when the platform does not share it.")
+    like_count: Optional[StrictInt] = Field(description="Likes on the comment. Null when the platform does not report it.", alias="likeCount")
+    created_at: Optional[datetime] = Field(description="When the comment was posted. Null when the platform does not report it.", alias="createdAt")
+    replies: List[Comment] = Field(description="Replies, on platforms that return them with the comment.")
+    __properties: ClassVar[List[str]] = ["id", "postId", "accountId", "platform", "platformCommentId", "parentId", "text", "username", "likeCount", "createdAt", "replies"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -75,12 +81,20 @@ class Comment(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of platform
+        if self.platform:
+            _dict['platform'] = self.platform.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in replies (list)
         _items = []
         if self.replies:
             for _item_replies in self.replies:
                 _items.append(_item_replies.to_dict() if _item_replies is not None else None)
             _dict['replies'] = _items
+        # set to None if parent_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.parent_id is None and "parent_id" in self.model_fields_set:
+            _dict['parentId'] = None
+
         # set to None if username (nullable) is None
         # and model_fields_set contains the field
         if self.username is None and "username" in self.model_fields_set:
@@ -91,15 +105,10 @@ class Comment(BaseModel):
         if self.like_count is None and "like_count" in self.model_fields_set:
             _dict['likeCount'] = None
 
-        # set to None if timestamp (nullable) is None
+        # set to None if created_at (nullable) is None
         # and model_fields_set contains the field
-        if self.timestamp is None and "timestamp" in self.model_fields_set:
-            _dict['timestamp'] = None
-
-        # set to None if parent_id (nullable) is None
-        # and model_fields_set contains the field
-        if self.parent_id is None and "parent_id" in self.model_fields_set:
-            _dict['parentId'] = None
+        if self.created_at is None and "created_at" in self.model_fields_set:
+            _dict['createdAt'] = None
 
         return _dict
 
@@ -114,11 +123,15 @@ class Comment(BaseModel):
 
         _obj = cls.model_validate({
             "id": obj.get("id"),
+            "postId": obj.get("postId"),
+            "accountId": obj.get("accountId"),
+            "platform": Platform.from_dict(obj["platform"]) if obj.get("platform") is not None else None,
+            "platformCommentId": obj.get("platformCommentId"),
+            "parentId": obj.get("parentId"),
             "text": obj.get("text"),
             "username": obj.get("username"),
             "likeCount": obj.get("likeCount"),
-            "timestamp": obj.get("timestamp"),
-            "parentId": obj.get("parentId"),
+            "createdAt": obj.get("createdAt"),
             "replies": [Comment.from_dict(_item) for _item in obj["replies"]] if obj.get("replies") is not None else None
         })
         return _obj

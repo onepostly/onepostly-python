@@ -27,10 +27,10 @@ class Actor(BaseModel):
     """
     Actor
     """ # noqa: E501
-    id: StrictStr
-    username: Optional[StrictStr] = None
-    display_name: Optional[StrictStr] = Field(default=None, alias="displayName")
-    avatar_url: Optional[StrictStr] = Field(default=None, alias="avatarUrl")
+    id: StrictStr = Field(description="The platform's id for the user.")
+    username: Optional[StrictStr] = Field(description="The user's username, without a leading @. Null when the platform does not share it.")
+    display_name: Optional[StrictStr] = Field(alias="displayName")
+    avatar_url: Optional[StrictStr] = Field(alias="avatarUrl")
     __properties: ClassVar[List[str]] = ["id", "username", "displayName", "avatarUrl"]
 
     model_config = ConfigDict(

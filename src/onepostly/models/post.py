@@ -18,12 +18,16 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from uuid import UUID
+from onepostly.models.media_file import MediaFile
 from onepostly.models.media_kind import MediaKind
-from onepostly.models.post_destination import PostDestination
+from onepostly.models.platform import Platform
+from onepostly.models.post_error import PostError
+from onepostly.models.post_metrics import PostMetrics
+from onepostly.models.post_options import PostOptions
 from onepostly.models.post_status import PostStatus
+from onepostly.models.post_thread_inner import PostThreadInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -32,17 +36,34 @@ class Post(BaseModel):
     """
     Post
     """ # noqa: E501
-    id: UUID
-    text: StrictStr
-    media_urls: List[StrictStr] = Field(alias="mediaUrls")
-    media_kind: MediaKind = Field(alias="mediaKind")
+    id: StrictStr
+    group_id: Optional[StrictStr] = Field(description="Shared by the posts one Create Post request made. Null for posts published outside Onepostly.", alias="groupId")
+    account_id: StrictStr = Field(alias="accountId")
+    platform: Platform
+    source: StrictStr = Field(description="external for a post the account published outside Onepostly.")
     status: PostStatus
-    scheduled_for: Optional[StrictStr] = Field(description="Local date and time of the schedule in the post's timezone, such as 2027-03-15T09:00:00. Null when the post is not scheduled.", alias="scheduledFor")
-    timezone: Optional[StrictStr] = Field(description="IANA timezone of scheduledFor.")
-    destinations: List[PostDestination]
+    text: Optional[StrictStr] = Field(description="The post's text. Null for posts published outside Onepostly.")
+    media_kind: MediaKind = Field(description="What the post is. An Instagram video post reads reel, because Instagram publishes it as a reel.", alias="mediaKind")
+    media: List[MediaFile] = Field(description="The post's media files, in order.")
+    thread: List[PostThreadInner] = Field(description="Replies published under the first post, in order.")
+    scheduled_for: Optional[StrictStr] = Field(description="Local date and time of the schedule in timezone. Null when not scheduled.", alias="scheduledFor")
+    timezone: Optional[StrictStr] = Field(description="IANA timezone of scheduledFor. Null when not scheduled.")
+    options: PostOptions
+    platform_post_id: Optional[StrictStr] = Field(description="The platform's own id for the post. Null until it is published.", alias="platformPostId")
+    url: Optional[StrictStr] = Field(description="Public link to the post on the platform.")
+    error: Optional[PostError]
+    published_at: Optional[datetime] = Field(description="When the post went live on the platform. Null until then.", alias="publishedAt")
+    metrics: Optional[PostMetrics] = Field(description="Lifetime metrics, or null before the first reading.")
     created_at: datetime = Field(alias="createdAt")
     updated_at: datetime = Field(alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["id", "text", "mediaUrls", "mediaKind", "status", "scheduledFor", "timezone", "destinations", "createdAt", "updatedAt"]
+    __properties: ClassVar[List[str]] = ["id", "groupId", "accountId", "platform", "source", "status", "text", "mediaKind", "media", "thread", "scheduledFor", "timezone", "options", "platformPostId", "url", "error", "publishedAt", "metrics", "createdAt", "updatedAt"]
+
+    @field_validator('source')
+    def source_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['onepostly', 'external']):
+            raise ValueError("must be one of enum values ('onepostly', 'external')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -83,12 +104,46 @@ class Post(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in destinations (list)
+        # override the default output from pydantic by calling `to_dict()` of platform
+        if self.platform:
+            _dict['platform'] = self.platform.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of status
+        if self.status:
+            _dict['status'] = self.status.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of media_kind
+        if self.media_kind:
+            _dict['mediaKind'] = self.media_kind.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in media (list)
         _items = []
-        if self.destinations:
-            for _item_destinations in self.destinations:
-                _items.append(_item_destinations.to_dict() if _item_destinations is not None else None)
-            _dict['destinations'] = _items
+        if self.media:
+            for _item_media in self.media:
+                _items.append(_item_media.to_dict() if _item_media is not None else None)
+            _dict['media'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in thread (list)
+        _items = []
+        if self.thread:
+            for _item_thread in self.thread:
+                _items.append(_item_thread.to_dict() if _item_thread is not None else None)
+            _dict['thread'] = _items
+        # override the default output from pydantic by calling `to_dict()` of options
+        if self.options:
+            _dict['options'] = self.options.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of error
+        if self.error:
+            _dict['error'] = self.error.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of metrics
+        if self.metrics:
+            _dict['metrics'] = self.metrics.to_dict()
+        # set to None if group_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.group_id is None and "group_id" in self.model_fields_set:
+            _dict['groupId'] = None
+
+        # set to None if text (nullable) is None
+        # and model_fields_set contains the field
+        if self.text is None and "text" in self.model_fields_set:
+            _dict['text'] = None
+
         # set to None if scheduled_for (nullable) is None
         # and model_fields_set contains the field
         if self.scheduled_for is None and "scheduled_for" in self.model_fields_set:
@@ -98,6 +153,31 @@ class Post(BaseModel):
         # and model_fields_set contains the field
         if self.timezone is None and "timezone" in self.model_fields_set:
             _dict['timezone'] = None
+
+        # set to None if platform_post_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.platform_post_id is None and "platform_post_id" in self.model_fields_set:
+            _dict['platformPostId'] = None
+
+        # set to None if url (nullable) is None
+        # and model_fields_set contains the field
+        if self.url is None and "url" in self.model_fields_set:
+            _dict['url'] = None
+
+        # set to None if error (nullable) is None
+        # and model_fields_set contains the field
+        if self.error is None and "error" in self.model_fields_set:
+            _dict['error'] = None
+
+        # set to None if published_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.published_at is None and "published_at" in self.model_fields_set:
+            _dict['publishedAt'] = None
+
+        # set to None if metrics (nullable) is None
+        # and model_fields_set contains the field
+        if self.metrics is None and "metrics" in self.model_fields_set:
+            _dict['metrics'] = None
 
         return _dict
 
@@ -112,13 +192,23 @@ class Post(BaseModel):
 
         _obj = cls.model_validate({
             "id": obj.get("id"),
+            "groupId": obj.get("groupId"),
+            "accountId": obj.get("accountId"),
+            "platform": Platform.from_dict(obj["platform"]) if obj.get("platform") is not None else None,
+            "source": obj.get("source"),
+            "status": PostStatus.from_dict(obj["status"]) if obj.get("status") is not None else None,
             "text": obj.get("text"),
-            "mediaUrls": obj.get("mediaUrls"),
-            "mediaKind": obj.get("mediaKind"),
-            "status": obj.get("status"),
+            "mediaKind": MediaKind.from_dict(obj["mediaKind"]) if obj.get("mediaKind") is not None else None,
+            "media": [MediaFile.from_dict(_item) for _item in obj["media"]] if obj.get("media") is not None else None,
+            "thread": [PostThreadInner.from_dict(_item) for _item in obj["thread"]] if obj.get("thread") is not None else None,
             "scheduledFor": obj.get("scheduledFor"),
             "timezone": obj.get("timezone"),
-            "destinations": [PostDestination.from_dict(_item) for _item in obj["destinations"]] if obj.get("destinations") is not None else None,
+            "options": PostOptions.from_dict(obj["options"]) if obj.get("options") is not None else None,
+            "platformPostId": obj.get("platformPostId"),
+            "url": obj.get("url"),
+            "error": PostError.from_dict(obj["error"]) if obj.get("error") is not None else None,
+            "publishedAt": obj.get("publishedAt"),
+            "metrics": PostMetrics.from_dict(obj["metrics"]) if obj.get("metrics") is not None else None,
             "createdAt": obj.get("createdAt"),
             "updatedAt": obj.get("updatedAt")
         })

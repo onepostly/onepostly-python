@@ -15,19 +15,16 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr
+from pydantic import Field
 from typing import Optional
 from typing_extensions import Annotated
-from onepostly.models.comment_target_body import CommentTargetBody
-from onepostly.models.create_comment201_response import CreateComment201Response
-from onepostly.models.create_comment_body import CreateCommentBody
-from onepostly.models.create_private_reply201_response import CreatePrivateReply201Response
-from onepostly.models.create_private_reply_request import CreatePrivateReplyRequest
-from onepostly.models.delete_comment200_response import DeleteComment200Response
-from onepostly.models.hide_comment200_response import HideComment200Response
-from onepostly.models.hide_comment_request import HideCommentRequest
-from onepostly.models.like_comment200_response import LikeComment200Response
+from onepostly.models.comment import Comment
+from onepostly.models.comment_like import CommentLike
+from onepostly.models.comment_text_body import CommentTextBody
+from onepostly.models.comment_visibility import CommentVisibility
 from onepostly.models.list_comments200_response import ListComments200Response
+from onepostly.models.private_reply import PrivateReply
+from onepostly.models.private_reply_body import PrivateReplyBody
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -50,7 +47,9 @@ class CommentsApi:
     @validate_call
     async def create_comment(
         self,
-        create_comment_body: CreateCommentBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        comment_text_body: CommentTextBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -63,13 +62,17 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateComment201Response:
-        """Create reply
+    ) -> Comment:
+        """Comment on a post
 
-        Replies to one published destination or platform-native post.
+        Posts a comment on the post as the account that published it. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param create_comment_body: (required)
-        :type create_comment_body: CreateCommentBody
+        :param id: (required)
+        :type id: str
+        :param comment_text_body: (required)
+        :type comment_text_body: CommentTextBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -93,7 +96,9 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._create_comment_serialize(
-            create_comment_body=create_comment_body,
+            id=id,
+            comment_text_body=comment_text_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -101,14 +106,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateComment201Response",
+            '201': "Comment",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -125,7 +132,9 @@ class CommentsApi:
     @validate_call
     async def create_comment_with_http_info(
         self,
-        create_comment_body: CreateCommentBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        comment_text_body: CommentTextBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -138,13 +147,17 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateComment201Response]:
-        """Create reply
+    ) -> ApiResponse[Comment]:
+        """Comment on a post
 
-        Replies to one published destination or platform-native post.
+        Posts a comment on the post as the account that published it. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param create_comment_body: (required)
-        :type create_comment_body: CreateCommentBody
+        :param id: (required)
+        :type id: str
+        :param comment_text_body: (required)
+        :type comment_text_body: CommentTextBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -168,7 +181,9 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._create_comment_serialize(
-            create_comment_body=create_comment_body,
+            id=id,
+            comment_text_body=comment_text_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -176,14 +191,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateComment201Response",
+            '201': "Comment",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -200,7 +217,9 @@ class CommentsApi:
     @validate_call
     async def create_comment_without_preload_content(
         self,
-        create_comment_body: CreateCommentBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        comment_text_body: CommentTextBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -214,12 +233,16 @@ class CommentsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create reply
+        """Comment on a post
 
-        Replies to one published destination or platform-native post.
+        Posts a comment on the post as the account that published it. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param create_comment_body: (required)
-        :type create_comment_body: CreateCommentBody
+        :param id: (required)
+        :type id: str
+        :param comment_text_body: (required)
+        :type comment_text_body: CommentTextBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -243,7 +266,9 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._create_comment_serialize(
-            create_comment_body=create_comment_body,
+            id=id,
+            comment_text_body=comment_text_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -251,14 +276,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateComment201Response",
+            '201': "Comment",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -270,7 +297,9 @@ class CommentsApi:
 
     def _create_comment_serialize(
         self,
-        create_comment_body,
+        id,
+        comment_text_body,
+        idempotency_key,
         _request_auth,
         _content_type,
         _headers,
@@ -292,12 +321,16 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
         # process the form parameters
         # process the body parameter
-        if create_comment_body is not None:
-            _body_params = create_comment_body
+        if comment_text_body is not None:
+            _body_params = comment_text_body
 
 
         # set the HTTP header `Accept`
@@ -324,306 +357,12 @@ class CommentsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/comments',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def create_private_reply(
-        self,
-        create_private_reply_request: CreatePrivateReplyRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreatePrivateReply201Response:
-        """Send private reply
-
-        Sends a direct message to the author of a comment on Instagram or Facebook. You can send one private reply per comment, within 7 days of the comment.
-
-        :param create_private_reply_request: (required)
-        :type create_private_reply_request: CreatePrivateReplyRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_private_reply_serialize(
-            create_private_reply_request=create_private_reply_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreatePrivateReply201Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def create_private_reply_with_http_info(
-        self,
-        create_private_reply_request: CreatePrivateReplyRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreatePrivateReply201Response]:
-        """Send private reply
-
-        Sends a direct message to the author of a comment on Instagram or Facebook. You can send one private reply per comment, within 7 days of the comment.
-
-        :param create_private_reply_request: (required)
-        :type create_private_reply_request: CreatePrivateReplyRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_private_reply_serialize(
-            create_private_reply_request=create_private_reply_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreatePrivateReply201Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def create_private_reply_without_preload_content(
-        self,
-        create_private_reply_request: CreatePrivateReplyRequest,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Send private reply
-
-        Sends a direct message to the author of a comment on Instagram or Facebook. You can send one private reply per comment, within 7 days of the comment.
-
-        :param create_private_reply_request: (required)
-        :type create_private_reply_request: CreatePrivateReplyRequest
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_private_reply_serialize(
-            create_private_reply_request=create_private_reply_request,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreatePrivateReply201Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _create_private_reply_serialize(
-        self,
-        create_private_reply_request,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if create_private_reply_request is not None:
-            _body_params = create_private_reply_request
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKey', 
-            'Bearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/comments/private-reply',
+            resource_path='/v1/posts/{id}/comments',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -642,10 +381,7 @@ class CommentsApi:
     @validate_call
     async def delete_comment(
         self,
-        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -658,19 +394,13 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> DeleteComment200Response:
-        """Delete own comment
+    ) -> None:
+        """Delete comment
 
-        Deletes a comment written by the connected account.
+        Deletes a comment as the account that published the post. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param comment_id: Platform-native comment id. (required)
-        :type comment_id: str
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -694,10 +424,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            comment_id=comment_id,
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -705,14 +432,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DeleteComment200Response",
+            '204': None,
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -729,10 +458,7 @@ class CommentsApi:
     @validate_call
     async def delete_comment_with_http_info(
         self,
-        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -745,19 +471,13 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[DeleteComment200Response]:
-        """Delete own comment
+    ) -> ApiResponse[None]:
+        """Delete comment
 
-        Deletes a comment written by the connected account.
+        Deletes a comment as the account that published the post. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param comment_id: Platform-native comment id. (required)
-        :type comment_id: str
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -781,10 +501,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            comment_id=comment_id,
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -792,14 +509,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DeleteComment200Response",
+            '204': None,
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -816,10 +535,7 @@ class CommentsApi:
     @validate_call
     async def delete_comment_without_preload_content(
         self,
-        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -833,18 +549,12 @@ class CommentsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Delete own comment
+        """Delete comment
 
-        Deletes a comment written by the connected account.
+        Deletes a comment as the account that published the post. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param comment_id: Platform-native comment id. (required)
-        :type comment_id: str
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -868,10 +578,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._delete_comment_serialize(
-            comment_id=comment_id,
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -879,14 +586,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DeleteComment200Response",
+            '204': None,
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -898,10 +607,7 @@ class CommentsApi:
 
     def _delete_comment_serialize(
         self,
-        comment_id,
-        post,
-        account_id,
-        destination_id,
+        id,
         _request_auth,
         _content_type,
         _headers,
@@ -923,23 +629,9 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
-        if comment_id is not None:
-            
-            _query_params.append(('commentId', comment_id))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -956,13 +648,12 @@ class CommentsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/comments',
+            resource_path='/v1/comments/{id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -981,7 +672,7 @@ class CommentsApi:
     @validate_call
     async def hide_comment(
         self,
-        hide_comment_request: HideCommentRequest,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -994,13 +685,13 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> HideComment200Response:
-        """Hide or unhide comment
+    ) -> CommentVisibility:
+        """Hide comment
 
-        Hides or unhides a comment on Instagram, Facebook or Threads. A hidden comment stays visible to the person who wrote it.
+        Hides a comment on the account's post. The author still sees it. Supported on Instagram, Facebook and Threads.
 
-        :param hide_comment_request: (required)
-        :type hide_comment_request: HideCommentRequest
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1024,7 +715,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._hide_comment_serialize(
-            hide_comment_request=hide_comment_request,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1032,12 +723,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "HideComment200Response",
+            '200': "CommentVisibility",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1054,7 +749,7 @@ class CommentsApi:
     @validate_call
     async def hide_comment_with_http_info(
         self,
-        hide_comment_request: HideCommentRequest,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1067,13 +762,13 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[HideComment200Response]:
-        """Hide or unhide comment
+    ) -> ApiResponse[CommentVisibility]:
+        """Hide comment
 
-        Hides or unhides a comment on Instagram, Facebook or Threads. A hidden comment stays visible to the person who wrote it.
+        Hides a comment on the account's post. The author still sees it. Supported on Instagram, Facebook and Threads.
 
-        :param hide_comment_request: (required)
-        :type hide_comment_request: HideCommentRequest
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1097,7 +792,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._hide_comment_serialize(
-            hide_comment_request=hide_comment_request,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1105,12 +800,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "HideComment200Response",
+            '200': "CommentVisibility",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1127,7 +826,7 @@ class CommentsApi:
     @validate_call
     async def hide_comment_without_preload_content(
         self,
-        hide_comment_request: HideCommentRequest,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1141,12 +840,12 @@ class CommentsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Hide or unhide comment
+        """Hide comment
 
-        Hides or unhides a comment on Instagram, Facebook or Threads. A hidden comment stays visible to the person who wrote it.
+        Hides a comment on the account's post. The author still sees it. Supported on Instagram, Facebook and Threads.
 
-        :param hide_comment_request: (required)
-        :type hide_comment_request: HideCommentRequest
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1170,7 +869,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._hide_comment_serialize(
-            hide_comment_request=hide_comment_request,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1178,12 +877,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "HideComment200Response",
+            '200': "CommentVisibility",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1195,7 +898,7 @@ class CommentsApi:
 
     def _hide_comment_serialize(
         self,
-        hide_comment_request,
+        id,
         _request_auth,
         _content_type,
         _headers,
@@ -1217,12 +920,12 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if hide_comment_request is not None:
-            _body_params = hide_comment_request
 
 
         # set the HTTP header `Accept`
@@ -1233,29 +936,15 @@ class CommentsApi:
                 ]
             )
 
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/comments/hide',
+            method='PUT',
+            resource_path='/v1/comments/{id}/hidden',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1274,7 +963,7 @@ class CommentsApi:
     @validate_call
     async def like_comment(
         self,
-        comment_target_body: CommentTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1287,13 +976,13 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> LikeComment200Response:
+    ) -> CommentLike:
         """Like comment
 
-        Likes a comment as the connected account. Supported on Facebook.
+        Likes a comment as the account that published the post. Supported on Facebook.
 
-        :param comment_target_body: (required)
-        :type comment_target_body: CommentTargetBody
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1317,7 +1006,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._like_comment_serialize(
-            comment_target_body=comment_target_body,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1325,12 +1014,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LikeComment200Response",
+            '200': "CommentLike",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1347,7 +1040,7 @@ class CommentsApi:
     @validate_call
     async def like_comment_with_http_info(
         self,
-        comment_target_body: CommentTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1360,13 +1053,13 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[LikeComment200Response]:
+    ) -> ApiResponse[CommentLike]:
         """Like comment
 
-        Likes a comment as the connected account. Supported on Facebook.
+        Likes a comment as the account that published the post. Supported on Facebook.
 
-        :param comment_target_body: (required)
-        :type comment_target_body: CommentTargetBody
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1390,7 +1083,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._like_comment_serialize(
-            comment_target_body=comment_target_body,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1398,12 +1091,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LikeComment200Response",
+            '200': "CommentLike",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1420,7 +1117,7 @@ class CommentsApi:
     @validate_call
     async def like_comment_without_preload_content(
         self,
-        comment_target_body: CommentTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1436,10 +1133,10 @@ class CommentsApi:
     ) -> RESTResponseType:
         """Like comment
 
-        Likes a comment as the connected account. Supported on Facebook.
+        Likes a comment as the account that published the post. Supported on Facebook.
 
-        :param comment_target_body: (required)
-        :type comment_target_body: CommentTargetBody
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1463,7 +1160,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._like_comment_serialize(
-            comment_target_body=comment_target_body,
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1471,12 +1168,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LikeComment200Response",
+            '200': "CommentLike",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1488,7 +1189,7 @@ class CommentsApi:
 
     def _like_comment_serialize(
         self,
-        comment_target_body,
+        id,
         _request_auth,
         _content_type,
         _headers,
@@ -1510,12 +1211,12 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if comment_target_body is not None:
-            _body_params = comment_target_body
 
 
         # set the HTTP header `Accept`
@@ -1526,29 +1227,15 @@ class CommentsApi:
                 ]
             )
 
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/comments/like',
+            method='PUT',
+            resource_path='/v1/comments/{id}/like',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1567,11 +1254,9 @@ class CommentsApi:
     @validate_call
     async def list_comments(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Cursor from the previous response. Works only when the request points to a single destination.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 50.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1587,17 +1272,13 @@ class CommentsApi:
     ) -> ListComments200Response:
         """List comments
 
-        Lists comments on every destination of a post, or on one platform-native post.
+        Lists the comments on a post, read live from the platform. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 50.
         :type limit: int
-        :param cursor: Cursor from the previous response. Works only when the request points to a single destination.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1622,9 +1303,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._list_comments_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+            id=id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1637,7 +1316,14 @@ class CommentsApi:
             '200': "ListComments200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1653,11 +1339,9 @@ class CommentsApi:
     @validate_call
     async def list_comments_with_http_info(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Cursor from the previous response. Works only when the request points to a single destination.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 50.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1673,17 +1357,13 @@ class CommentsApi:
     ) -> ApiResponse[ListComments200Response]:
         """List comments
 
-        Lists comments on every destination of a post, or on one platform-native post.
+        Lists the comments on a post, read live from the platform. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 50.
         :type limit: int
-        :param cursor: Cursor from the previous response. Works only when the request points to a single destination.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1708,9 +1388,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._list_comments_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+            id=id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1723,7 +1401,14 @@ class CommentsApi:
             '200': "ListComments200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1739,11 +1424,9 @@ class CommentsApi:
     @validate_call
     async def list_comments_without_preload_content(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Cursor from the previous response. Works only when the request points to a single destination.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=50, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 50.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1759,17 +1442,13 @@ class CommentsApi:
     ) -> RESTResponseType:
         """List comments
 
-        Lists comments on every destination of a post, or on one platform-native post.
+        Lists the comments on a post, read live from the platform. Supported on X, Instagram, Facebook, Threads, YouTube and Bluesky.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 50.
         :type limit: int
-        :param cursor: Cursor from the previous response. Works only when the request points to a single destination.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1794,9 +1473,7 @@ class CommentsApi:
         """ # noqa: E501
 
         _param = self._list_comments_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+            id=id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1809,7 +1486,14 @@ class CommentsApi:
             '200': "ListComments200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1820,9 +1504,7 @@ class CommentsApi:
 
     def _list_comments_serialize(
         self,
-        post,
-        account_id,
-        destination_id,
+        id,
         limit,
         cursor,
         _request_auth,
@@ -1846,19 +1528,9 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
         if limit is not None:
             
             _query_params.append(('limit', limit))
@@ -1883,13 +1555,12 @@ class CommentsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/comments',
+            resource_path='/v1/posts/{id}/comments',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1906,12 +1577,11 @@ class CommentsApi:
 
 
     @validate_call
-    async def unlike_comment(
+    async def reply_to_comment(
         self,
-        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        comment_text_body: CommentTextBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1924,19 +1594,17 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> LikeComment200Response:
-        """Unlike comment
+    ) -> Comment:
+        """Reply to a comment
 
-        Removes the connected account's like from a comment.
+        Replies to a comment as the account that published the post.
 
-        :param comment_id: Platform-native comment id. (required)
-        :type comment_id: str
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param comment_text_body: (required)
+        :type comment_text_body: CommentTextBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1959,11 +1627,10 @@ class CommentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._unlike_comment_serialize(
-            comment_id=comment_id,
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._reply_to_comment_serialize(
+            id=id,
+            comment_text_body=comment_text_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1971,12 +1638,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LikeComment200Response",
+            '201': "Comment",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1991,12 +1662,11 @@ class CommentsApi:
 
 
     @validate_call
-    async def unlike_comment_with_http_info(
+    async def reply_to_comment_with_http_info(
         self,
-        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        comment_text_body: CommentTextBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2009,19 +1679,17 @@ class CommentsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[LikeComment200Response]:
-        """Unlike comment
+    ) -> ApiResponse[Comment]:
+        """Reply to a comment
 
-        Removes the connected account's like from a comment.
+        Replies to a comment as the account that published the post.
 
-        :param comment_id: Platform-native comment id. (required)
-        :type comment_id: str
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param comment_text_body: (required)
+        :type comment_text_body: CommentTextBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2044,11 +1712,10 @@ class CommentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._unlike_comment_serialize(
-            comment_id=comment_id,
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._reply_to_comment_serialize(
+            id=id,
+            comment_text_body=comment_text_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2056,12 +1723,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LikeComment200Response",
+            '201': "Comment",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2076,12 +1747,11 @@ class CommentsApi:
 
 
     @validate_call
-    async def unlike_comment_without_preload_content(
+    async def reply_to_comment_without_preload_content(
         self,
-        comment_id: Annotated[str, Field(min_length=1, strict=True, description="Platform-native comment id.")],
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        comment_text_body: CommentTextBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2095,18 +1765,16 @@ class CommentsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Unlike comment
+        """Reply to a comment
 
-        Removes the connected account's like from a comment.
+        Replies to a comment as the account that published the post.
 
-        :param comment_id: Platform-native comment id. (required)
-        :type comment_id: str
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param comment_text_body: (required)
+        :type comment_text_body: CommentTextBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2129,11 +1797,10 @@ class CommentsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._unlike_comment_serialize(
-            comment_id=comment_id,
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._reply_to_comment_serialize(
+            id=id,
+            comment_text_body=comment_text_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2141,12 +1808,16 @@ class CommentsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "LikeComment200Response",
+            '201': "Comment",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2156,12 +1827,11 @@ class CommentsApi:
         return response_data.response
 
 
-    def _unlike_comment_serialize(
+    def _reply_to_comment_serialize(
         self,
-        comment_id,
-        post,
-        account_id,
-        destination_id,
+        id,
+        comment_text_body,
+        idempotency_key,
         _request_auth,
         _content_type,
         _headers,
@@ -2183,23 +1853,651 @@ class CommentsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
-        if comment_id is not None:
-            
-            _query_params.append(('commentId', comment_id))
-            
+        # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if comment_text_body is not None:
+            _body_params = comment_text_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/comments/{id}/replies',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def send_private_reply(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        private_reply_body: PrivateReplyBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PrivateReply:
+        """Send private reply
+
+        Sends a direct message to the author of a comment. Supported on Instagram and Facebook, once per comment and within 7 days of it.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param private_reply_body: (required)
+        :type private_reply_body: PrivateReplyBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_private_reply_serialize(
+            id=id,
+            private_reply_body=private_reply_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PrivateReply",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def send_private_reply_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        private_reply_body: PrivateReplyBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PrivateReply]:
+        """Send private reply
+
+        Sends a direct message to the author of a comment. Supported on Instagram and Facebook, once per comment and within 7 days of it.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param private_reply_body: (required)
+        :type private_reply_body: PrivateReplyBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_private_reply_serialize(
+            id=id,
+            private_reply_body=private_reply_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PrivateReply",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def send_private_reply_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        private_reply_body: PrivateReplyBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Send private reply
+
+        Sends a direct message to the author of a comment. Supported on Instagram and Facebook, once per comment and within 7 days of it.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param private_reply_body: (required)
+        :type private_reply_body: PrivateReplyBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._send_private_reply_serialize(
+            id=id,
+            private_reply_body=private_reply_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PrivateReply",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _send_private_reply_serialize(
+        self,
+        id,
+        private_reply_body,
+        idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if private_reply_body is not None:
+            _body_params = private_reply_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/comments/{id}/private-reply',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def unhide_comment(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CommentVisibility:
+        """Unhide comment
+
+        Shows a hidden comment again. Supported on Instagram, Facebook and Threads.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._unhide_comment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CommentVisibility",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def unhide_comment_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CommentVisibility]:
+        """Unhide comment
+
+        Shows a hidden comment again. Supported on Instagram, Facebook and Threads.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._unhide_comment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CommentVisibility",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def unhide_comment_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Unhide comment
+
+        Shows a hidden comment again. Supported on Instagram, Facebook and Threads.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._unhide_comment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CommentVisibility",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _unhide_comment_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -2216,13 +2514,303 @@ class CommentsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/comments/like',
+            resource_path='/v1/comments/{id}/hidden',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def unlike_comment(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CommentLike:
+        """Unlike comment
+
+        Removes the account's like from a comment. Supported on Facebook.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._unlike_comment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CommentLike",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def unlike_comment_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CommentLike]:
+        """Unlike comment
+
+        Removes the account's like from a comment. Supported on Facebook.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._unlike_comment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CommentLike",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def unlike_comment_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A comment id from List Comments or a comment event. It only works in the workspace that received it.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Unlike comment
+
+        Removes the account's like from a comment. Supported on Facebook.
+
+        :param id: A comment id from List Comments or a comment event. It only works in the workspace that received it. (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._unlike_comment_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "CommentLike",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _unlike_comment_serialize(
+        self,
+        id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/v1/comments/{id}/like',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

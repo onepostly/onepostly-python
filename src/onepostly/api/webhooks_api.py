@@ -15,18 +15,19 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr, field_validator
+from datetime import datetime
+from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
-from onepostly.models.create_webhook201_response import CreateWebhook201Response
 from onepostly.models.create_webhook_body import CreateWebhookBody
-from onepostly.models.get_webhook200_response import GetWebhook200Response
-from onepostly.models.get_webhook_delivery_summary200_response import GetWebhookDeliverySummary200Response
 from onepostly.models.list_webhook_deliveries200_response import ListWebhookDeliveries200Response
 from onepostly.models.list_webhook_event_types200_response import ListWebhookEventTypes200Response
 from onepostly.models.list_webhooks200_response import ListWebhooks200Response
 from onepostly.models.test_webhook200_response import TestWebhook200Response
 from onepostly.models.update_webhook_body import UpdateWebhookBody
+from onepostly.models.webhook import Webhook
+from onepostly.models.webhook_delivery_detail import WebhookDeliveryDetail
+from onepostly.models.webhook_with_secret import WebhookWithSecret
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -50,6 +51,7 @@ class WebhooksApi:
     async def create_webhook(
         self,
         create_webhook_body: CreateWebhookBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -62,12 +64,15 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateWebhook201Response:
+    ) -> WebhookWithSecret:
         """Create webhook
 
+        Registers an endpoint for events. Each delivery is signed with the secret in the Onepostly-Signature header.
 
         :param create_webhook_body: (required)
         :type create_webhook_body: CreateWebhookBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -92,6 +97,7 @@ class WebhooksApi:
 
         _param = self._create_webhook_serialize(
             create_webhook_body=create_webhook_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -99,10 +105,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateWebhook201Response",
+            '201': "WebhookWithSecret",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -119,6 +129,7 @@ class WebhooksApi:
     async def create_webhook_with_http_info(
         self,
         create_webhook_body: CreateWebhookBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -131,12 +142,15 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateWebhook201Response]:
+    ) -> ApiResponse[WebhookWithSecret]:
         """Create webhook
 
+        Registers an endpoint for events. Each delivery is signed with the secret in the Onepostly-Signature header.
 
         :param create_webhook_body: (required)
         :type create_webhook_body: CreateWebhookBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -161,6 +175,7 @@ class WebhooksApi:
 
         _param = self._create_webhook_serialize(
             create_webhook_body=create_webhook_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -168,10 +183,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateWebhook201Response",
+            '201': "WebhookWithSecret",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -188,6 +207,7 @@ class WebhooksApi:
     async def create_webhook_without_preload_content(
         self,
         create_webhook_body: CreateWebhookBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -203,9 +223,12 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """Create webhook
 
+        Registers an endpoint for events. Each delivery is signed with the secret in the Onepostly-Signature header.
 
         :param create_webhook_body: (required)
         :type create_webhook_body: CreateWebhookBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -230,6 +253,7 @@ class WebhooksApi:
 
         _param = self._create_webhook_serialize(
             create_webhook_body=create_webhook_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -237,10 +261,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateWebhook201Response",
+            '201': "WebhookWithSecret",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -252,6 +280,7 @@ class WebhooksApi:
     def _create_webhook_serialize(
         self,
         create_webhook_body,
+        idempotency_key,
         _request_auth,
         _content_type,
         _headers,
@@ -275,6 +304,8 @@ class WebhooksApi:
         # process the path parameters
         # process the query parameters
         # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
         # process the form parameters
         # process the body parameter
         if create_webhook_body is not None:
@@ -305,7 +336,6 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -346,6 +376,7 @@ class WebhooksApi:
     ) -> None:
         """Delete webhook
 
+        Deletes a webhook and its delivery history.
 
         :param id: (required)
         :type id: str
@@ -382,8 +413,11 @@ class WebhooksApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '204': None,
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -415,6 +449,7 @@ class WebhooksApi:
     ) -> ApiResponse[None]:
         """Delete webhook
 
+        Deletes a webhook and its delivery history.
 
         :param id: (required)
         :type id: str
@@ -451,8 +486,11 @@ class WebhooksApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '204': None,
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -484,6 +522,7 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """Delete webhook
 
+        Deletes a webhook and its delivery history.
 
         :param id: (required)
         :type id: str
@@ -520,8 +559,11 @@ class WebhooksApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '204': None,
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -573,7 +615,6 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -611,7 +652,7 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> GetWebhook200Response:
+    ) -> Webhook:
         """Get webhook
 
 
@@ -648,9 +689,13 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhook200Response",
+            '200': "Webhook",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -679,7 +724,7 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[GetWebhook200Response]:
+    ) -> ApiResponse[Webhook]:
         """Get webhook
 
 
@@ -716,9 +761,13 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhook200Response",
+            '200': "Webhook",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -784,9 +833,13 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhook200Response",
+            '200': "Webhook",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -838,7 +891,6 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -861,9 +913,10 @@ class WebhooksApi:
 
 
     @validate_call
-    async def get_webhook_delivery_summary(
+    async def get_webhook_delivery(
         self,
-        range: Annotated[Optional[StrictStr], Field(description="Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        delivery_id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -876,13 +929,15 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> GetWebhookDeliverySummary200Response:
-        """Get webhook delivery summary
+    ) -> WebhookDeliveryDetail:
+        """Get delivery
 
-        Returns delivery counts for each webhook over the chosen window, as a series of time buckets plus totals.
+        Returns one delivery with the body that is sent.
 
-        :param range: Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.
-        :type range: str
+        :param id: (required)
+        :type id: str
+        :param delivery_id: (required)
+        :type delivery_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -905,8 +960,9 @@ class WebhooksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_webhook_delivery_summary_serialize(
-            range=range,
+        _param = self._get_webhook_delivery_serialize(
+            id=id,
+            delivery_id=delivery_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -914,8 +970,13 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhookDeliverySummary200Response",
+            '200': "WebhookDeliveryDetail",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -929,9 +990,10 @@ class WebhooksApi:
 
 
     @validate_call
-    async def get_webhook_delivery_summary_with_http_info(
+    async def get_webhook_delivery_with_http_info(
         self,
-        range: Annotated[Optional[StrictStr], Field(description="Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        delivery_id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -944,13 +1006,15 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[GetWebhookDeliverySummary200Response]:
-        """Get webhook delivery summary
+    ) -> ApiResponse[WebhookDeliveryDetail]:
+        """Get delivery
 
-        Returns delivery counts for each webhook over the chosen window, as a series of time buckets plus totals.
+        Returns one delivery with the body that is sent.
 
-        :param range: Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.
-        :type range: str
+        :param id: (required)
+        :type id: str
+        :param delivery_id: (required)
+        :type delivery_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -973,8 +1037,9 @@ class WebhooksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_webhook_delivery_summary_serialize(
-            range=range,
+        _param = self._get_webhook_delivery_serialize(
+            id=id,
+            delivery_id=delivery_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -982,8 +1047,13 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhookDeliverySummary200Response",
+            '200': "WebhookDeliveryDetail",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -997,9 +1067,10 @@ class WebhooksApi:
 
 
     @validate_call
-    async def get_webhook_delivery_summary_without_preload_content(
+    async def get_webhook_delivery_without_preload_content(
         self,
-        range: Annotated[Optional[StrictStr], Field(description="Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        delivery_id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1013,12 +1084,14 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get webhook delivery summary
+        """Get delivery
 
-        Returns delivery counts for each webhook over the chosen window, as a series of time buckets plus totals.
+        Returns one delivery with the body that is sent.
 
-        :param range: Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.
-        :type range: str
+        :param id: (required)
+        :type id: str
+        :param delivery_id: (required)
+        :type delivery_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1041,8 +1114,9 @@ class WebhooksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_webhook_delivery_summary_serialize(
-            range=range,
+        _param = self._get_webhook_delivery_serialize(
+            id=id,
+            delivery_id=delivery_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1050,8 +1124,13 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhookDeliverySummary200Response",
+            '200': "WebhookDeliveryDetail",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1060,9 +1139,10 @@ class WebhooksApi:
         return response_data.response
 
 
-    def _get_webhook_delivery_summary_serialize(
+    def _get_webhook_delivery_serialize(
         self,
-        range,
+        id,
+        delivery_id,
         _request_auth,
         _content_type,
         _headers,
@@ -1084,11 +1164,11 @@ class WebhooksApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if delivery_id is not None:
+            _path_params['deliveryId'] = delivery_id
         # process the query parameters
-        if range is not None:
-            
-            _query_params.append(('range', range))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1105,13 +1185,12 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/webhooks/delivery-summary',
+            resource_path='/v1/webhooks/{id}/deliveries/{deliveryId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1131,11 +1210,13 @@ class WebhooksApi:
     async def list_webhook_deliveries(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
-        range: Annotated[Optional[StrictStr], Field(description="Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Comma-separated delivery statuses to include, such as success or failed.")] = None,
-        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Returns deliveries whose event type or event id starts with this text.")] = None,
-        cursor: Optional[StrictStr] = None,
-        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Only deliveries made at or after this time. Defaults to 7 days before until. Deliveries are kept for your plan's log retention, so an earlier time starts at the oldest kept delivery.")] = None,
+        until: Annotated[Optional[datetime], Field(description="Only deliveries made before this time. Defaults to now.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses to include: pending, success, failed. Omit it for every status.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Only deliveries whose event type or event id starts with this text.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: facets, histogram.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1149,21 +1230,26 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ListWebhookDeliveries200Response:
-        """List webhook deliveries
+        """List deliveries
 
+        Lists a webhook's deliveries, newest first.
 
         :param id: (required)
         :type id: str
-        :param range: Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.
-        :type range: str
-        :param status: Comma-separated delivery statuses to include, such as success or failed.
-        :type status: str
-        :param q: Returns deliveries whose event type or event id starts with this text.
-        :type q: str
-        :param cursor:
-        :type cursor: str
-        :param limit:
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param since: Only deliveries made at or after this time. Defaults to 7 days before until. Deliveries are kept for your plan's log retention, so an earlier time starts at the oldest kept delivery.
+        :type since: datetime
+        :param until: Only deliveries made before this time. Defaults to now.
+        :type until: datetime
+        :param status: Comma-separated statuses to include: pending, success, failed. Omit it for every status.
+        :type status: str
+        :param q: Only deliveries whose event type or event id starts with this text.
+        :type q: str
+        :param include: Comma-separated extras to add to the response: facets, histogram.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1188,11 +1274,13 @@ class WebhooksApi:
 
         _param = self._list_webhook_deliveries_serialize(
             id=id,
-            range=range,
+            limit=limit,
+            cursor=cursor,
+            since=since,
+            until=until,
             status=status,
             q=q,
-            cursor=cursor,
-            limit=limit,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1201,8 +1289,13 @@ class WebhooksApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhookDeliveries200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1219,11 +1312,13 @@ class WebhooksApi:
     async def list_webhook_deliveries_with_http_info(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
-        range: Annotated[Optional[StrictStr], Field(description="Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Comma-separated delivery statuses to include, such as success or failed.")] = None,
-        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Returns deliveries whose event type or event id starts with this text.")] = None,
-        cursor: Optional[StrictStr] = None,
-        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Only deliveries made at or after this time. Defaults to 7 days before until. Deliveries are kept for your plan's log retention, so an earlier time starts at the oldest kept delivery.")] = None,
+        until: Annotated[Optional[datetime], Field(description="Only deliveries made before this time. Defaults to now.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses to include: pending, success, failed. Omit it for every status.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Only deliveries whose event type or event id starts with this text.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: facets, histogram.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1237,21 +1332,26 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ListWebhookDeliveries200Response]:
-        """List webhook deliveries
+        """List deliveries
 
+        Lists a webhook's deliveries, newest first.
 
         :param id: (required)
         :type id: str
-        :param range: Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.
-        :type range: str
-        :param status: Comma-separated delivery statuses to include, such as success or failed.
-        :type status: str
-        :param q: Returns deliveries whose event type or event id starts with this text.
-        :type q: str
-        :param cursor:
-        :type cursor: str
-        :param limit:
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param since: Only deliveries made at or after this time. Defaults to 7 days before until. Deliveries are kept for your plan's log retention, so an earlier time starts at the oldest kept delivery.
+        :type since: datetime
+        :param until: Only deliveries made before this time. Defaults to now.
+        :type until: datetime
+        :param status: Comma-separated statuses to include: pending, success, failed. Omit it for every status.
+        :type status: str
+        :param q: Only deliveries whose event type or event id starts with this text.
+        :type q: str
+        :param include: Comma-separated extras to add to the response: facets, histogram.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1276,11 +1376,13 @@ class WebhooksApi:
 
         _param = self._list_webhook_deliveries_serialize(
             id=id,
-            range=range,
+            limit=limit,
+            cursor=cursor,
+            since=since,
+            until=until,
             status=status,
             q=q,
-            cursor=cursor,
-            limit=limit,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1289,8 +1391,13 @@ class WebhooksApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhookDeliveries200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1307,11 +1414,13 @@ class WebhooksApi:
     async def list_webhook_deliveries_without_preload_content(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
-        range: Annotated[Optional[StrictStr], Field(description="Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Comma-separated delivery statuses to include, such as success or failed.")] = None,
-        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Returns deliveries whose event type or event id starts with this text.")] = None,
-        cursor: Optional[StrictStr] = None,
-        limit: Optional[Annotated[int, Field(le=50, strict=True, ge=1)]] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Only deliveries made at or after this time. Defaults to 7 days before until. Deliveries are kept for your plan's log retention, so an earlier time starts at the oldest kept delivery.")] = None,
+        until: Annotated[Optional[datetime], Field(description="Only deliveries made before this time. Defaults to now.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses to include: pending, success, failed. Omit it for every status.")] = None,
+        q: Annotated[Optional[Annotated[str, Field(strict=True, max_length=120)]], Field(description="Only deliveries whose event type or event id starts with this text.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: facets, histogram.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1325,21 +1434,26 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List webhook deliveries
+        """List deliveries
 
+        Lists a webhook's deliveries, newest first.
 
         :param id: (required)
         :type id: str
-        :param range: Number of days to cover. Defaults to 7. Your plan's log retention sets the maximum.
-        :type range: str
-        :param status: Comma-separated delivery statuses to include, such as success or failed.
-        :type status: str
-        :param q: Returns deliveries whose event type or event id starts with this text.
-        :type q: str
-        :param cursor:
-        :type cursor: str
-        :param limit:
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param since: Only deliveries made at or after this time. Defaults to 7 days before until. Deliveries are kept for your plan's log retention, so an earlier time starts at the oldest kept delivery.
+        :type since: datetime
+        :param until: Only deliveries made before this time. Defaults to now.
+        :type until: datetime
+        :param status: Comma-separated statuses to include: pending, success, failed. Omit it for every status.
+        :type status: str
+        :param q: Only deliveries whose event type or event id starts with this text.
+        :type q: str
+        :param include: Comma-separated extras to add to the response: facets, histogram.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1364,11 +1478,13 @@ class WebhooksApi:
 
         _param = self._list_webhook_deliveries_serialize(
             id=id,
-            range=range,
+            limit=limit,
+            cursor=cursor,
+            since=since,
+            until=until,
             status=status,
             q=q,
-            cursor=cursor,
-            limit=limit,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1377,8 +1493,13 @@ class WebhooksApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhookDeliveries200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1390,11 +1511,13 @@ class WebhooksApi:
     def _list_webhook_deliveries_serialize(
         self,
         id,
-        range,
+        limit,
+        cursor,
+        since,
+        until,
         status,
         q,
-        cursor,
-        limit,
+        include,
         _request_auth,
         _content_type,
         _headers,
@@ -1419,9 +1542,39 @@ class WebhooksApi:
         if id is not None:
             _path_params['id'] = id
         # process the query parameters
-        if range is not None:
+        if limit is not None:
             
-            _query_params.append(('range', range))
+            _query_params.append(('limit', limit))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
+        if since is not None:
+            if isinstance(since, datetime):
+                _query_params.append(
+                    (
+                        'since',
+                        since.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('since', since))
+            
+        if until is not None:
+            if isinstance(until, datetime):
+                _query_params.append(
+                    (
+                        'until',
+                        until.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('until', until))
             
         if status is not None:
             
@@ -1431,13 +1584,9 @@ class WebhooksApi:
             
             _query_params.append(('q', q))
             
-        if cursor is not None:
+        if include is not None:
             
-            _query_params.append(('cursor', cursor))
-            
-        if limit is not None:
-            
-            _query_params.append(('limit', limit))
+            _query_params.append(('include', include))
             
         # process the header parameters
         # process the form parameters
@@ -1455,7 +1604,6 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -1493,8 +1641,9 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ListWebhookEventTypes200Response:
-        """List webhook event types
+        """List event types
 
+        Lists every event type a webhook can subscribe to, with the group it belongs to. To receive all of them, including types added later, set events to [\"*\"].
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1528,6 +1677,10 @@ class WebhooksApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhookEventTypes200Response",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1556,8 +1709,9 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> ApiResponse[ListWebhookEventTypes200Response]:
-        """List webhook event types
+        """List event types
 
+        Lists every event type a webhook can subscribe to, with the group it belongs to. To receive all of them, including types added later, set events to [\"*\"].
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1591,6 +1745,10 @@ class WebhooksApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhookEventTypes200Response",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1619,8 +1777,9 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List webhook event types
+        """List event types
 
+        Lists every event type a webhook can subscribe to, with the group it belongs to. To receive all of them, including types added later, set events to [\"*\"].
 
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1654,6 +1813,10 @@ class WebhooksApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhookEventTypes200Response",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1702,7 +1865,6 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -1727,6 +1889,8 @@ class WebhooksApi:
     @validate_call
     async def list_webhooks(
         self,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1742,7 +1906,12 @@ class WebhooksApi:
     ) -> ListWebhooks200Response:
         """List webhooks
 
+        Lists the workspace's webhooks, newest first.
 
+        :param limit: Items per page. Defaults to 50. Maximum 100.
+        :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1766,6 +1935,8 @@ class WebhooksApi:
         """ # noqa: E501
 
         _param = self._list_webhooks_serialize(
+            limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1774,7 +1945,12 @@ class WebhooksApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhooks200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1790,6 +1966,8 @@ class WebhooksApi:
     @validate_call
     async def list_webhooks_with_http_info(
         self,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1805,7 +1983,12 @@ class WebhooksApi:
     ) -> ApiResponse[ListWebhooks200Response]:
         """List webhooks
 
+        Lists the workspace's webhooks, newest first.
 
+        :param limit: Items per page. Defaults to 50. Maximum 100.
+        :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1829,6 +2012,8 @@ class WebhooksApi:
         """ # noqa: E501
 
         _param = self._list_webhooks_serialize(
+            limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1837,7 +2022,12 @@ class WebhooksApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhooks200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1853,6 +2043,8 @@ class WebhooksApi:
     @validate_call
     async def list_webhooks_without_preload_content(
         self,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1868,7 +2060,12 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """List webhooks
 
+        Lists the workspace's webhooks, newest first.
 
+        :param limit: Items per page. Defaults to 50. Maximum 100.
+        :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1892,6 +2089,8 @@ class WebhooksApi:
         """ # noqa: E501
 
         _param = self._list_webhooks_serialize(
+            limit=limit,
+            cursor=cursor,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1900,7 +2099,12 @@ class WebhooksApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListWebhooks200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1911,6 +2115,8 @@ class WebhooksApi:
 
     def _list_webhooks_serialize(
         self,
+        limit,
+        cursor,
         _request_auth,
         _content_type,
         _headers,
@@ -1933,6 +2139,14 @@ class WebhooksApi:
 
         # process the path parameters
         # process the query parameters
+        if limit is not None:
+            
+            _query_params.append(('limit', limit))
+            
+        if cursor is not None:
+            
+            _query_params.append(('cursor', cursor))
+            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1949,7 +2163,6 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -1972,9 +2185,11 @@ class WebhooksApi:
 
 
     @validate_call
-    async def test_webhook(
+    async def retry_webhook_delivery(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
+        delivery_id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1987,12 +2202,17 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> TestWebhook200Response:
-        """Send test event
+    ) -> WebhookDeliveryDetail:
+        """Retry delivery
 
+        Sends a finished delivery again, with the same event id and body. Use the event id to recognize a repeat.
 
         :param id: (required)
         :type id: str
+        :param delivery_id: (required)
+        :type delivery_id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2015,8 +2235,10 @@ class WebhooksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._test_webhook_serialize(
+        _param = self._retry_webhook_delivery_serialize(
             id=id,
+            delivery_id=delivery_id,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2024,10 +2246,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TestWebhook200Response",
+            '200': "WebhookDeliveryDetail",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2041,9 +2267,11 @@ class WebhooksApi:
 
 
     @validate_call
-    async def test_webhook_with_http_info(
+    async def retry_webhook_delivery_with_http_info(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
+        delivery_id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2056,12 +2284,17 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[TestWebhook200Response]:
-        """Send test event
+    ) -> ApiResponse[WebhookDeliveryDetail]:
+        """Retry delivery
 
+        Sends a finished delivery again, with the same event id and body. Use the event id to recognize a repeat.
 
         :param id: (required)
         :type id: str
+        :param delivery_id: (required)
+        :type delivery_id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2084,8 +2317,10 @@ class WebhooksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._test_webhook_serialize(
+        _param = self._retry_webhook_delivery_serialize(
             id=id,
+            delivery_id=delivery_id,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2093,10 +2328,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TestWebhook200Response",
+            '200': "WebhookDeliveryDetail",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2110,9 +2349,11 @@ class WebhooksApi:
 
 
     @validate_call
-    async def test_webhook_without_preload_content(
+    async def retry_webhook_delivery_without_preload_content(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
+        delivery_id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2126,11 +2367,16 @@ class WebhooksApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Send test event
+        """Retry delivery
 
+        Sends a finished delivery again, with the same event id and body. Use the event id to recognize a repeat.
 
         :param id: (required)
         :type id: str
+        :param delivery_id: (required)
+        :type delivery_id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2153,8 +2399,10 @@ class WebhooksApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._test_webhook_serialize(
+        _param = self._retry_webhook_delivery_serialize(
             id=id,
+            delivery_id=delivery_id,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2162,10 +2410,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "TestWebhook200Response",
+            '200': "WebhookDeliveryDetail",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2174,9 +2426,310 @@ class WebhooksApi:
         return response_data.response
 
 
-    def _test_webhook_serialize(
+    def _retry_webhook_delivery_serialize(
         self,
         id,
+        delivery_id,
+        idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if delivery_id is not None:
+            _path_params['deliveryId'] = delivery_id
+        # process the query parameters
+        # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/webhooks/{id}/deliveries/{deliveryId}/retry',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def rotate_webhook_secret(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> WebhookWithSecret:
+        """Rotate signing secret
+
+        Replaces the webhook's signing secret. Deliveries are signed with the new secret right away, so update your endpoint with it.
+
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rotate_webhook_secret_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookWithSecret",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def rotate_webhook_secret_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[WebhookWithSecret]:
+        """Rotate signing secret
+
+        Replaces the webhook's signing secret. Deliveries are signed with the new secret right away, so update your endpoint with it.
+
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rotate_webhook_secret_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookWithSecret",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def rotate_webhook_secret_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Rotate signing secret
+
+        Replaces the webhook's signing secret. Deliveries are signed with the new secret right away, so update your endpoint with it.
+
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._rotate_webhook_secret_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "WebhookWithSecret",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _rotate_webhook_secret_serialize(
+        self,
+        id,
+        idempotency_key,
         _request_auth,
         _content_type,
         _headers,
@@ -2202,6 +2755,8 @@ class WebhooksApi:
             _path_params['id'] = id
         # process the query parameters
         # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
         # process the form parameters
         # process the body parameter
 
@@ -2217,7 +2772,303 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/webhooks/{id}/rotate-secret',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def test_webhook(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> TestWebhook200Response:
+        """Send test event
+
+        Sends a webhook.test event to the webhook, whatever it subscribes to. Check its result in List Deliveries.
+
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._test_webhook_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "TestWebhook200Response",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def test_webhook_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[TestWebhook200Response]:
+        """Send test event
+
+        Sends a webhook.test event to the webhook, whatever it subscribes to. Check its result in List Deliveries.
+
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._test_webhook_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "TestWebhook200Response",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def test_webhook_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Send test event
+
+        Sends a webhook.test event to the webhook, whatever it subscribes to. Check its result in List Deliveries.
+
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._test_webhook_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "TestWebhook200Response",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _test_webhook_serialize(
+        self,
+        id,
+        idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
             'Bearer'
         ]
 
@@ -2256,9 +3107,10 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> GetWebhook200Response:
+    ) -> Webhook:
         """Update webhook
 
+        Changes a webhook. Only the fields you send change.
 
         :param id: (required)
         :type id: str
@@ -2296,11 +3148,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhook200Response",
+            '200': "Webhook",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2330,9 +3185,10 @@ class WebhooksApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[GetWebhook200Response]:
+    ) -> ApiResponse[Webhook]:
         """Update webhook
 
+        Changes a webhook. Only the fields you send change.
 
         :param id: (required)
         :type id: str
@@ -2370,11 +3226,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhook200Response",
+            '200': "Webhook",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2407,6 +3266,7 @@ class WebhooksApi:
     ) -> RESTResponseType:
         """Update webhook
 
+        Changes a webhook. Only the fields you send change.
 
         :param id: (required)
         :type id: str
@@ -2444,11 +3304,14 @@ class WebhooksApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetWebhook200Response",
+            '200': "Webhook",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2516,7 +3379,6 @@ class WebhooksApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 

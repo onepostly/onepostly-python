@@ -17,8 +17,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictStr
+from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
+from onepostly.models.list_webhook_event_types200_response_data_inner import ListWebhookEventTypes200ResponseDataInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,9 +28,8 @@ class ListWebhookEventTypes200Response(BaseModel):
     """
     ListWebhookEventTypes200Response
     """ # noqa: E501
-    events: List[StrictStr]
-    groups: List[Any]
-    __properties: ClassVar[List[str]] = ["events", "groups"]
+    data: List[ListWebhookEventTypes200ResponseDataInner]
+    __properties: ClassVar[List[str]] = ["data"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -70,6 +70,12 @@ class ListWebhookEventTypes200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
+        _items = []
+        if self.data:
+            for _item_data in self.data:
+                _items.append(_item_data.to_dict() if _item_data is not None else None)
+            _dict['data'] = _items
         return _dict
 
     @classmethod
@@ -82,8 +88,7 @@ class ListWebhookEventTypes200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "events": obj.get("events"),
-            "groups": obj.get("groups")
+            "data": [ListWebhookEventTypes200ResponseDataInner.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None
         })
         return _obj
 

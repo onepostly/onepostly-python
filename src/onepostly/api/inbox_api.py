@@ -18,12 +18,12 @@ from typing_extensions import Annotated
 from pydantic import Field
 from typing import Optional
 from typing_extensions import Annotated
-from onepostly.models.create_inbox_conversation201_response import CreateInboxConversation201Response
-from onepostly.models.create_inbox_conversation_body import CreateInboxConversationBody
-from onepostly.models.list_inbox_conversations200_response import ListInboxConversations200Response
-from onepostly.models.list_inbox_messages200_response import ListInboxMessages200Response
-from onepostly.models.send_inbox_message201_response import SendInboxMessage201Response
-from onepostly.models.send_inbox_message_body import SendInboxMessageBody
+from onepostly.models.conversation import Conversation
+from onepostly.models.create_conversation_body import CreateConversationBody
+from onepostly.models.list_conversations200_response import ListConversations200Response
+from onepostly.models.list_messages200_response import ListMessages200Response
+from onepostly.models.message import Message
+from onepostly.models.send_message_body import SendMessageBody
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -44,9 +44,11 @@ class InboxApi:
 
 
     @validate_call
-    async def create_inbox_conversation(
+    async def create_conversation(
         self,
-        create_inbox_conversation_body: CreateInboxConversationBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        create_conversation_body: CreateConversationBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -59,13 +61,17 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateInboxConversation201Response:
-        """Create inbox conversation
+    ) -> Conversation:
+        """Create conversation
 
-        Starts a one-to-one conversation on Bluesky, Instagram or Facebook. Identify the recipient by their username, user id, handle or DID on that platform.
+        Starts a one-to-one conversation. On Instagram and Facebook it can be read once it has a message. Supported on Bluesky, Instagram and Facebook.
 
-        :param create_inbox_conversation_body: (required)
-        :type create_inbox_conversation_body: CreateInboxConversationBody
+        :param id: (required)
+        :type id: str
+        :param create_conversation_body: (required)
+        :type create_conversation_body: CreateConversationBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -88,8 +94,10 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._create_inbox_conversation_serialize(
-            create_inbox_conversation_body=create_inbox_conversation_body,
+        _param = self._create_conversation_serialize(
+            id=id,
+            create_conversation_body=create_conversation_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -97,12 +105,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateInboxConversation201Response",
+            '201': "Conversation",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -117,9 +129,11 @@ class InboxApi:
 
 
     @validate_call
-    async def create_inbox_conversation_with_http_info(
+    async def create_conversation_with_http_info(
         self,
-        create_inbox_conversation_body: CreateInboxConversationBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        create_conversation_body: CreateConversationBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -132,13 +146,17 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateInboxConversation201Response]:
-        """Create inbox conversation
+    ) -> ApiResponse[Conversation]:
+        """Create conversation
 
-        Starts a one-to-one conversation on Bluesky, Instagram or Facebook. Identify the recipient by their username, user id, handle or DID on that platform.
+        Starts a one-to-one conversation. On Instagram and Facebook it can be read once it has a message. Supported on Bluesky, Instagram and Facebook.
 
-        :param create_inbox_conversation_body: (required)
-        :type create_inbox_conversation_body: CreateInboxConversationBody
+        :param id: (required)
+        :type id: str
+        :param create_conversation_body: (required)
+        :type create_conversation_body: CreateConversationBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -161,8 +179,10 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._create_inbox_conversation_serialize(
-            create_inbox_conversation_body=create_inbox_conversation_body,
+        _param = self._create_conversation_serialize(
+            id=id,
+            create_conversation_body=create_conversation_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -170,12 +190,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateInboxConversation201Response",
+            '201': "Conversation",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -190,9 +214,11 @@ class InboxApi:
 
 
     @validate_call
-    async def create_inbox_conversation_without_preload_content(
+    async def create_conversation_without_preload_content(
         self,
-        create_inbox_conversation_body: CreateInboxConversationBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        create_conversation_body: CreateConversationBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -206,12 +232,16 @@ class InboxApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create inbox conversation
+        """Create conversation
 
-        Starts a one-to-one conversation on Bluesky, Instagram or Facebook. Identify the recipient by their username, user id, handle or DID on that platform.
+        Starts a one-to-one conversation. On Instagram and Facebook it can be read once it has a message. Supported on Bluesky, Instagram and Facebook.
 
-        :param create_inbox_conversation_body: (required)
-        :type create_inbox_conversation_body: CreateInboxConversationBody
+        :param id: (required)
+        :type id: str
+        :param create_conversation_body: (required)
+        :type create_conversation_body: CreateConversationBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -234,8 +264,10 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._create_inbox_conversation_serialize(
-            create_inbox_conversation_body=create_inbox_conversation_body,
+        _param = self._create_conversation_serialize(
+            id=id,
+            create_conversation_body=create_conversation_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -243,12 +275,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateInboxConversation201Response",
+            '201': "Conversation",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -258,9 +294,11 @@ class InboxApi:
         return response_data.response
 
 
-    def _create_inbox_conversation_serialize(
+    def _create_conversation_serialize(
         self,
-        create_inbox_conversation_body,
+        id,
+        create_conversation_body,
+        idempotency_key,
         _request_auth,
         _content_type,
         _headers,
@@ -282,12 +320,16 @@ class InboxApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
         # process the form parameters
         # process the body parameter
-        if create_inbox_conversation_body is not None:
-            _body_params = create_inbox_conversation_body
+        if create_conversation_body is not None:
+            _body_params = create_conversation_body
 
 
         # set the HTTP header `Accept`
@@ -314,13 +356,12 @@ class InboxApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/inbox/conversations',
+            resource_path='/v1/accounts/{id}/conversations',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -337,11 +378,10 @@ class InboxApi:
 
 
     @validate_call
-    async def list_inbox_conversations(
+    async def get_conversation(
         self,
-        account_id: Annotated[str, Field(min_length=1, strict=True, description="Connection id.")],
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Cursor from the previous response. Omit it to get the first page.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -354,17 +394,15 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ListInboxConversations200Response:
-        """List inbox conversations
+    ) -> Conversation:
+        """Get conversation
 
-        Lists inbox conversations for a connected account. Supported on Bluesky, Instagram and Facebook.
+        Supported on Bluesky, Instagram and Facebook.
 
-        :param account_id: Connection id. (required)
-        :type account_id: str
-        :param limit:
-        :type limit: int
-        :param cursor: Cursor from the previous response. Omit it to get the first page.
-        :type cursor: str
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -387,10 +425,9 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_inbox_conversations_serialize(
-            account_id=account_id,
-            limit=limit,
-            cursor=cursor,
+        _param = self._get_conversation_serialize(
+            id=id,
+            conversation_id=conversation_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -398,11 +435,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListInboxConversations200Response",
+            '200': "Conversation",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -417,11 +459,10 @@ class InboxApi:
 
 
     @validate_call
-    async def list_inbox_conversations_with_http_info(
+    async def get_conversation_with_http_info(
         self,
-        account_id: Annotated[str, Field(min_length=1, strict=True, description="Connection id.")],
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Cursor from the previous response. Omit it to get the first page.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -434,17 +475,15 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ListInboxConversations200Response]:
-        """List inbox conversations
+    ) -> ApiResponse[Conversation]:
+        """Get conversation
 
-        Lists inbox conversations for a connected account. Supported on Bluesky, Instagram and Facebook.
+        Supported on Bluesky, Instagram and Facebook.
 
-        :param account_id: Connection id. (required)
-        :type account_id: str
-        :param limit:
-        :type limit: int
-        :param cursor: Cursor from the previous response. Omit it to get the first page.
-        :type cursor: str
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -467,10 +506,9 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_inbox_conversations_serialize(
-            account_id=account_id,
-            limit=limit,
-            cursor=cursor,
+        _param = self._get_conversation_serialize(
+            id=id,
+            conversation_id=conversation_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -478,11 +516,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListInboxConversations200Response",
+            '200': "Conversation",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -497,11 +540,10 @@ class InboxApi:
 
 
     @validate_call
-    async def list_inbox_conversations_without_preload_content(
+    async def get_conversation_without_preload_content(
         self,
-        account_id: Annotated[str, Field(min_length=1, strict=True, description="Connection id.")],
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Cursor from the previous response. Omit it to get the first page.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -515,15 +557,160 @@ class InboxApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List inbox conversations
+        """Get conversation
 
-        Lists inbox conversations for a connected account. Supported on Bluesky, Instagram and Facebook.
+        Supported on Bluesky, Instagram and Facebook.
 
-        :param account_id: Connection id. (required)
-        :type account_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_conversation_serialize(
+            id=id,
+            conversation_id=conversation_id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Conversation",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_conversation_serialize(
+        self,
+        id,
+        conversation_id,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if conversation_id is not None:
+            _path_params['conversationId'] = conversation_id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/accounts/{id}/conversations/{conversationId}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def list_conversations(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ListConversations200Response:
+        """List conversations
+
+        Lists the account's direct message conversations, most recent first. Supported on Bluesky, Instagram and Facebook.
+
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param cursor: Cursor from the previous response. Omit it to get the first page.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -547,8 +734,8 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_inbox_conversations_serialize(
-            account_id=account_id,
+        _param = self._list_conversations_serialize(
+            id=id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -558,11 +745,186 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListInboxConversations200Response",
+            '200': "ListConversations200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def list_conversations_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ListConversations200Response]:
+        """List conversations
+
+        Lists the account's direct message conversations, most recent first. Supported on Bluesky, Instagram and Facebook.
+
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
+        :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_conversations_serialize(
+            id=id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListConversations200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def list_conversations_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List conversations
+
+        Lists the account's direct message conversations, most recent first. Supported on Bluesky, Instagram and Facebook.
+
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
+        :type limit: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_conversations_serialize(
+            id=id,
+            limit=limit,
+            cursor=cursor,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ListConversations200Response",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -572,9 +934,9 @@ class InboxApi:
         return response_data.response
 
 
-    def _list_inbox_conversations_serialize(
+    def _list_conversations_serialize(
         self,
-        account_id,
+        id,
         limit,
         cursor,
         _request_auth,
@@ -598,11 +960,9 @@ class InboxApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
         if limit is not None:
             
             _query_params.append(('limit', limit))
@@ -627,13 +987,12 @@ class InboxApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/inbox/conversations',
+            resource_path='/v1/accounts/{id}/conversations',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -650,12 +1009,12 @@ class InboxApi:
 
 
     @validate_call
-    async def list_inbox_messages(
+    async def list_messages(
         self,
-        convo_id: Annotated[str, Field(min_length=1, strict=True)],
-        account_id: Annotated[str, Field(min_length=1, strict=True, description="Connection id.")],
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Cursor from the previous response. Omit it to get the first page.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -668,18 +1027,18 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ListInboxMessages200Response:
-        """List inbox messages
+    ) -> ListMessages200Response:
+        """List messages
 
-        Lists the messages in one conversation, newest first. Supported on Bluesky, Instagram and Facebook.
+        Lists the messages of a conversation, newest first. Supported on Bluesky, Instagram and Facebook.
 
-        :param convo_id: (required)
-        :type convo_id: str
-        :param account_id: Connection id. (required)
-        :type account_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param cursor: Cursor from the previous response. Omit it to get the first page.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -703,9 +1062,9 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_inbox_messages_serialize(
-            convo_id=convo_id,
-            account_id=account_id,
+        _param = self._list_messages_serialize(
+            id=id,
+            conversation_id=conversation_id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -715,11 +1074,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListInboxMessages200Response",
+            '200': "ListMessages200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -734,12 +1098,12 @@ class InboxApi:
 
 
     @validate_call
-    async def list_inbox_messages_with_http_info(
+    async def list_messages_with_http_info(
         self,
-        convo_id: Annotated[str, Field(min_length=1, strict=True)],
-        account_id: Annotated[str, Field(min_length=1, strict=True, description="Connection id.")],
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Cursor from the previous response. Omit it to get the first page.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -752,18 +1116,18 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ListInboxMessages200Response]:
-        """List inbox messages
+    ) -> ApiResponse[ListMessages200Response]:
+        """List messages
 
-        Lists the messages in one conversation, newest first. Supported on Bluesky, Instagram and Facebook.
+        Lists the messages of a conversation, newest first. Supported on Bluesky, Instagram and Facebook.
 
-        :param convo_id: (required)
-        :type convo_id: str
-        :param account_id: Connection id. (required)
-        :type account_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param cursor: Cursor from the previous response. Omit it to get the first page.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -787,9 +1151,9 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_inbox_messages_serialize(
-            convo_id=convo_id,
-            account_id=account_id,
+        _param = self._list_messages_serialize(
+            id=id,
+            conversation_id=conversation_id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -799,11 +1163,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListInboxMessages200Response",
+            '200': "ListMessages200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -818,12 +1187,12 @@ class InboxApi:
 
 
     @validate_call
-    async def list_inbox_messages_without_preload_content(
+    async def list_messages_without_preload_content(
         self,
-        convo_id: Annotated[str, Field(min_length=1, strict=True)],
-        account_id: Annotated[str, Field(min_length=1, strict=True, description="Connection id.")],
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Cursor from the previous response. Omit it to get the first page.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -837,17 +1206,17 @@ class InboxApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """List inbox messages
+        """List messages
 
-        Lists the messages in one conversation, newest first. Supported on Bluesky, Instagram and Facebook.
+        Lists the messages of a conversation, newest first. Supported on Bluesky, Instagram and Facebook.
 
-        :param convo_id: (required)
-        :type convo_id: str
-        :param account_id: Connection id. (required)
-        :type account_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param cursor: Cursor from the previous response. Omit it to get the first page.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -871,9 +1240,9 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_inbox_messages_serialize(
-            convo_id=convo_id,
-            account_id=account_id,
+        _param = self._list_messages_serialize(
+            id=id,
+            conversation_id=conversation_id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -883,11 +1252,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListInboxMessages200Response",
+            '200': "ListMessages200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -897,10 +1271,10 @@ class InboxApi:
         return response_data.response
 
 
-    def _list_inbox_messages_serialize(
+    def _list_messages_serialize(
         self,
-        convo_id,
-        account_id,
+        id,
+        conversation_id,
         limit,
         cursor,
         _request_auth,
@@ -924,13 +1298,11 @@ class InboxApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
-        if convo_id is not None:
-            _path_params['convoId'] = convo_id
+        if id is not None:
+            _path_params['id'] = id
+        if conversation_id is not None:
+            _path_params['conversationId'] = conversation_id
         # process the query parameters
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
         if limit is not None:
             
             _query_params.append(('limit', limit))
@@ -955,13 +1327,12 @@ class InboxApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/inbox/conversations/{convoId}/messages',
+            resource_path='/v1/accounts/{id}/conversations/{conversationId}/messages',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -978,9 +1349,12 @@ class InboxApi:
 
 
     @validate_call
-    async def send_inbox_message(
+    async def send_message(
         self,
-        send_inbox_message_body: SendInboxMessageBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
+        send_message_body: SendMessageBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -993,13 +1367,19 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SendInboxMessage201Response:
-        """Send inbox message
+    ) -> Message:
+        """Send message
 
-        Sends a message to a conversation on Bluesky, Instagram or Facebook. Instagram and Facebook also support attachments, quick replies, buttons and carousels.
+        Sends a message in a conversation. Instagram and Facebook also take attachments, quick replies, buttons and cards, within 24 hours of the person's last message. Supported on Bluesky, Instagram and Facebook.
 
-        :param send_inbox_message_body: (required)
-        :type send_inbox_message_body: SendInboxMessageBody
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
+        :param send_message_body: (required)
+        :type send_message_body: SendMessageBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1022,8 +1402,11 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._send_inbox_message_serialize(
-            send_inbox_message_body=send_inbox_message_body,
+        _param = self._send_message_serialize(
+            id=id,
+            conversation_id=conversation_id,
+            send_message_body=send_message_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1031,13 +1414,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "SendInboxMessage201Response",
+            '201': "Message",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1052,9 +1438,12 @@ class InboxApi:
 
 
     @validate_call
-    async def send_inbox_message_with_http_info(
+    async def send_message_with_http_info(
         self,
-        send_inbox_message_body: SendInboxMessageBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
+        send_message_body: SendMessageBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1067,13 +1456,19 @@ class InboxApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SendInboxMessage201Response]:
-        """Send inbox message
+    ) -> ApiResponse[Message]:
+        """Send message
 
-        Sends a message to a conversation on Bluesky, Instagram or Facebook. Instagram and Facebook also support attachments, quick replies, buttons and carousels.
+        Sends a message in a conversation. Instagram and Facebook also take attachments, quick replies, buttons and cards, within 24 hours of the person's last message. Supported on Bluesky, Instagram and Facebook.
 
-        :param send_inbox_message_body: (required)
-        :type send_inbox_message_body: SendInboxMessageBody
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
+        :param send_message_body: (required)
+        :type send_message_body: SendMessageBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1096,8 +1491,11 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._send_inbox_message_serialize(
-            send_inbox_message_body=send_inbox_message_body,
+        _param = self._send_message_serialize(
+            id=id,
+            conversation_id=conversation_id,
+            send_message_body=send_message_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1105,13 +1503,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "SendInboxMessage201Response",
+            '201': "Message",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1126,9 +1527,12 @@ class InboxApi:
 
 
     @validate_call
-    async def send_inbox_message_without_preload_content(
+    async def send_message_without_preload_content(
         self,
-        send_inbox_message_body: SendInboxMessageBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        conversation_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it.")],
+        send_message_body: SendMessageBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1142,12 +1546,18 @@ class InboxApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Send inbox message
+        """Send message
 
-        Sends a message to a conversation on Bluesky, Instagram or Facebook. Instagram and Facebook also support attachments, quick replies, buttons and carousels.
+        Sends a message in a conversation. Instagram and Facebook also take attachments, quick replies, buttons and cards, within 24 hours of the person's last message. Supported on Bluesky, Instagram and Facebook.
 
-        :param send_inbox_message_body: (required)
-        :type send_inbox_message_body: SendInboxMessageBody
+        :param id: (required)
+        :type id: str
+        :param conversation_id: A conversation id from List Conversations, Create Conversation or an inbox webhook. It only works in the workspace that received it. (required)
+        :type conversation_id: str
+        :param send_message_body: (required)
+        :type send_message_body: SendMessageBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1170,8 +1580,11 @@ class InboxApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._send_inbox_message_serialize(
-            send_inbox_message_body=send_inbox_message_body,
+        _param = self._send_message_serialize(
+            id=id,
+            conversation_id=conversation_id,
+            send_message_body=send_message_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1179,13 +1592,16 @@ class InboxApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "SendInboxMessage201Response",
+            '201': "Message",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1195,9 +1611,12 @@ class InboxApi:
         return response_data.response
 
 
-    def _send_inbox_message_serialize(
+    def _send_message_serialize(
         self,
-        send_inbox_message_body,
+        id,
+        conversation_id,
+        send_message_body,
+        idempotency_key,
         _request_auth,
         _content_type,
         _headers,
@@ -1219,12 +1638,18 @@ class InboxApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if conversation_id is not None:
+            _path_params['conversationId'] = conversation_id
         # process the query parameters
         # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
         # process the form parameters
         # process the body parameter
-        if send_inbox_message_body is not None:
-            _body_params = send_inbox_message_body
+        if send_message_body is not None:
+            _body_params = send_message_body
 
 
         # set the HTTP header `Accept`
@@ -1251,13 +1676,12 @@ class InboxApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/inbox/messages',
+            resource_path='/v1/accounts/{id}/conversations/{conversationId}/messages',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

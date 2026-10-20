@@ -15,11 +15,13 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
+from datetime import datetime
 from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
-from onepostly.models.get_analytics200_response import GetAnalytics200Response
-from onepostly.models.get_analytics_timeline200_response import GetAnalyticsTimeline200Response
+from onepostly.models.account_analytics import AccountAnalytics
+from onepostly.models.post_analytics import PostAnalytics
+from onepostly.models.post_analytics_timeline import PostAnalyticsTimeline
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -40,18 +42,16 @@ class AnalyticsApi:
 
 
     @validate_call
-    async def get_analytics(
+    async def get_account_analytics(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names for account insights. Each platform has its own default set.")] = None,
-        period: Optional[StrictStr] = None,
-        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.")] = None,
-        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram demographics timeframe, such as this_week, this_month or last_30_days.")] = None,
-        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names. Instagram defaults to views, reach, accounts_engaged and total_interactions. Facebook defaults to page_media_view, page_total_media_view_unique, page_post_engagements, page_follows and page_daily_follows_unique.")] = None,
+        period: Annotated[Optional[StrictStr], Field(description="Aggregation period. Defaults to day.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Start of the range.")] = None,
+        until: Annotated[Optional[datetime], Field(description="End of the range.")] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram: breakdown for demographic metrics, such as age, city, country or gender.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram: timeframe for demographic metrics, such as this_month or this_week.")] = None,
+        metric_type: Annotated[Optional[StrictStr], Field(description="Instagram: total_value for one total over the period, time_series for daily values. When omitted, each metric is read the way Instagram reports it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -64,30 +64,26 @@ class AnalyticsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> GetAnalytics200Response:
-        """Get analytics
+    ) -> AccountAnalytics:
+        """Get account analytics
 
-        Returns normalized metrics for a Onepostly post or a platform-native post id. Pass only accountId to get live account insights for Instagram and Facebook.
+        Returns account-level insights, read live from the platform. Available for Instagram professional accounts and Facebook Pages.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param metrics: Comma-separated metric names for account insights. Each platform has its own default set.
+        :param id: (required)
+        :type id: str
+        :param metrics: Comma-separated metric names. Instagram defaults to views, reach, accounts_engaged and total_interactions. Facebook defaults to page_media_view, page_total_media_view_unique, page_post_engagements, page_follows and page_daily_follows_unique.
         :type metrics: str
-        :param period:
+        :param period: Aggregation period. Defaults to day.
         :type period: str
-        :param since:
-        :type since: int
-        :param until:
-        :type until: int
-        :param breakdown: Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.
+        :param since: Start of the range.
+        :type since: datetime
+        :param until: End of the range.
+        :type until: datetime
+        :param breakdown: Instagram: breakdown for demographic metrics, such as age, city, country or gender.
         :type breakdown: str
-        :param timeframe: Instagram demographics timeframe, such as this_week, this_month or last_30_days.
+        :param timeframe: Instagram: timeframe for demographic metrics, such as this_month or this_week.
         :type timeframe: str
-        :param metric_type:
+        :param metric_type: Instagram: total_value for one total over the period, time_series for daily values. When omitted, each metric is read the way Instagram reports it.
         :type metric_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -111,10 +107,8 @@ class AnalyticsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_analytics_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._get_account_analytics_serialize(
+            id=id,
             metrics=metrics,
             period=period,
             since=since,
@@ -129,10 +123,17 @@ class AnalyticsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetAnalytics200Response",
+            '200': "AccountAnalytics",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -146,18 +147,16 @@ class AnalyticsApi:
 
 
     @validate_call
-    async def get_analytics_with_http_info(
+    async def get_account_analytics_with_http_info(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names for account insights. Each platform has its own default set.")] = None,
-        period: Optional[StrictStr] = None,
-        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.")] = None,
-        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram demographics timeframe, such as this_week, this_month or last_30_days.")] = None,
-        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names. Instagram defaults to views, reach, accounts_engaged and total_interactions. Facebook defaults to page_media_view, page_total_media_view_unique, page_post_engagements, page_follows and page_daily_follows_unique.")] = None,
+        period: Annotated[Optional[StrictStr], Field(description="Aggregation period. Defaults to day.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Start of the range.")] = None,
+        until: Annotated[Optional[datetime], Field(description="End of the range.")] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram: breakdown for demographic metrics, such as age, city, country or gender.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram: timeframe for demographic metrics, such as this_month or this_week.")] = None,
+        metric_type: Annotated[Optional[StrictStr], Field(description="Instagram: total_value for one total over the period, time_series for daily values. When omitted, each metric is read the way Instagram reports it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -170,30 +169,26 @@ class AnalyticsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[GetAnalytics200Response]:
-        """Get analytics
+    ) -> ApiResponse[AccountAnalytics]:
+        """Get account analytics
 
-        Returns normalized metrics for a Onepostly post or a platform-native post id. Pass only accountId to get live account insights for Instagram and Facebook.
+        Returns account-level insights, read live from the platform. Available for Instagram professional accounts and Facebook Pages.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param metrics: Comma-separated metric names for account insights. Each platform has its own default set.
+        :param id: (required)
+        :type id: str
+        :param metrics: Comma-separated metric names. Instagram defaults to views, reach, accounts_engaged and total_interactions. Facebook defaults to page_media_view, page_total_media_view_unique, page_post_engagements, page_follows and page_daily_follows_unique.
         :type metrics: str
-        :param period:
+        :param period: Aggregation period. Defaults to day.
         :type period: str
-        :param since:
-        :type since: int
-        :param until:
-        :type until: int
-        :param breakdown: Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.
+        :param since: Start of the range.
+        :type since: datetime
+        :param until: End of the range.
+        :type until: datetime
+        :param breakdown: Instagram: breakdown for demographic metrics, such as age, city, country or gender.
         :type breakdown: str
-        :param timeframe: Instagram demographics timeframe, such as this_week, this_month or last_30_days.
+        :param timeframe: Instagram: timeframe for demographic metrics, such as this_month or this_week.
         :type timeframe: str
-        :param metric_type:
+        :param metric_type: Instagram: total_value for one total over the period, time_series for daily values. When omitted, each metric is read the way Instagram reports it.
         :type metric_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -217,10 +212,8 @@ class AnalyticsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_analytics_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._get_account_analytics_serialize(
+            id=id,
             metrics=metrics,
             period=period,
             since=since,
@@ -235,10 +228,17 @@ class AnalyticsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetAnalytics200Response",
+            '200': "AccountAnalytics",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -252,18 +252,16 @@ class AnalyticsApi:
 
 
     @validate_call
-    async def get_analytics_without_preload_content(
+    async def get_account_analytics_without_preload_content(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names for account insights. Each platform has its own default set.")] = None,
-        period: Optional[StrictStr] = None,
-        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.")] = None,
-        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram demographics timeframe, such as this_week, this_month or last_30_days.")] = None,
-        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names. Instagram defaults to views, reach, accounts_engaged and total_interactions. Facebook defaults to page_media_view, page_total_media_view_unique, page_post_engagements, page_follows and page_daily_follows_unique.")] = None,
+        period: Annotated[Optional[StrictStr], Field(description="Aggregation period. Defaults to day.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Start of the range.")] = None,
+        until: Annotated[Optional[datetime], Field(description="End of the range.")] = None,
+        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram: breakdown for demographic metrics, such as age, city, country or gender.")] = None,
+        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram: timeframe for demographic metrics, such as this_month or this_week.")] = None,
+        metric_type: Annotated[Optional[StrictStr], Field(description="Instagram: total_value for one total over the period, time_series for daily values. When omitted, each metric is read the way Instagram reports it.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -277,29 +275,25 @@ class AnalyticsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get analytics
+        """Get account analytics
 
-        Returns normalized metrics for a Onepostly post or a platform-native post id. Pass only accountId to get live account insights for Instagram and Facebook.
+        Returns account-level insights, read live from the platform. Available for Instagram professional accounts and Facebook Pages.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param metrics: Comma-separated metric names for account insights. Each platform has its own default set.
+        :param id: (required)
+        :type id: str
+        :param metrics: Comma-separated metric names. Instagram defaults to views, reach, accounts_engaged and total_interactions. Facebook defaults to page_media_view, page_total_media_view_unique, page_post_engagements, page_follows and page_daily_follows_unique.
         :type metrics: str
-        :param period:
+        :param period: Aggregation period. Defaults to day.
         :type period: str
-        :param since:
-        :type since: int
-        :param until:
-        :type until: int
-        :param breakdown: Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.
+        :param since: Start of the range.
+        :type since: datetime
+        :param until: End of the range.
+        :type until: datetime
+        :param breakdown: Instagram: breakdown for demographic metrics, such as age, city, country or gender.
         :type breakdown: str
-        :param timeframe: Instagram demographics timeframe, such as this_week, this_month or last_30_days.
+        :param timeframe: Instagram: timeframe for demographic metrics, such as this_month or this_week.
         :type timeframe: str
-        :param metric_type:
+        :param metric_type: Instagram: total_value for one total over the period, time_series for daily values. When omitted, each metric is read the way Instagram reports it.
         :type metric_type: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -323,10 +317,8 @@ class AnalyticsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_analytics_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._get_account_analytics_serialize(
+            id=id,
             metrics=metrics,
             period=period,
             since=since,
@@ -341,10 +333,17 @@ class AnalyticsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetAnalytics200Response",
+            '200': "AccountAnalytics",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -353,11 +352,9 @@ class AnalyticsApi:
         return response_data.response
 
 
-    def _get_analytics_serialize(
+    def _get_account_analytics_serialize(
         self,
-        post,
-        account_id,
-        destination_id,
+        id,
         metrics,
         period,
         since,
@@ -386,19 +383,9 @@ class AnalyticsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
         if metrics is not None:
             
             _query_params.append(('metrics', metrics))
@@ -408,12 +395,30 @@ class AnalyticsApi:
             _query_params.append(('period', period))
             
         if since is not None:
-            
-            _query_params.append(('since', since))
+            if isinstance(since, datetime):
+                _query_params.append(
+                    (
+                        'since',
+                        since.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('since', since))
             
         if until is not None:
-            
-            _query_params.append(('until', until))
+            if isinstance(until, datetime):
+                _query_params.append(
+                    (
+                        'until',
+                        until.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('until', until))
             
         if breakdown is not None:
             
@@ -443,13 +448,12 @@ class AnalyticsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/analytics',
+            resource_path='/v1/accounts/{id}/analytics',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -466,20 +470,9 @@ class AnalyticsApi:
 
 
     @validate_call
-    async def get_analytics_timeline(
+    async def get_post_analytics(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names for account insights. Each platform has its own default set.")] = None,
-        period: Optional[StrictStr] = None,
-        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.")] = None,
-        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram demographics timeframe, such as this_week, this_month or last_30_days.")] = None,
-        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
-        var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="First day to include, as YYYY-MM-DD.")] = None,
-        to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Last day to include, as YYYY-MM-DD.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -492,35 +485,13 @@ class AnalyticsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> GetAnalyticsTimeline200Response:
-        """Get daily analytics timeline
+    ) -> PostAnalytics:
+        """Get post analytics
 
-        Returns daily cumulative metrics for each post destination. Covers the last 90 days by default.
+        Returns a post's lifetime metrics. Metrics refresh about hourly for posts under 30 days old and about weekly after that. X metrics are read when you ask and charged to the wallet, at most once per post and UTC day. Later requests that day return the same reading at no charge.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param metrics: Comma-separated metric names for account insights. Each platform has its own default set.
-        :type metrics: str
-        :param period:
-        :type period: str
-        :param since:
-        :type since: int
-        :param until:
-        :type until: int
-        :param breakdown: Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.
-        :type breakdown: str
-        :param timeframe: Instagram demographics timeframe, such as this_week, this_month or last_30_days.
-        :type timeframe: str
-        :param metric_type:
-        :type metric_type: str
-        :param var_from: First day to include, as YYYY-MM-DD.
-        :type var_from: str
-        :param to: Last day to include, as YYYY-MM-DD.
-        :type to: str
+        :param id: (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -543,19 +514,8 @@ class AnalyticsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_analytics_timeline_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
-            metrics=metrics,
-            period=period,
-            since=since,
-            until=until,
-            breakdown=breakdown,
-            timeframe=timeframe,
-            metric_type=metric_type,
-            var_from=var_from,
-            to=to,
+        _param = self._get_post_analytics_serialize(
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -563,10 +523,13 @@ class AnalyticsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetAnalyticsTimeline200Response",
-            '400': "Error",
+            '200': "PostAnalytics",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -580,20 +543,9 @@ class AnalyticsApi:
 
 
     @validate_call
-    async def get_analytics_timeline_with_http_info(
+    async def get_post_analytics_with_http_info(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names for account insights. Each platform has its own default set.")] = None,
-        period: Optional[StrictStr] = None,
-        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.")] = None,
-        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram demographics timeframe, such as this_week, this_month or last_30_days.")] = None,
-        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
-        var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="First day to include, as YYYY-MM-DD.")] = None,
-        to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Last day to include, as YYYY-MM-DD.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -606,35 +558,13 @@ class AnalyticsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[GetAnalyticsTimeline200Response]:
-        """Get daily analytics timeline
+    ) -> ApiResponse[PostAnalytics]:
+        """Get post analytics
 
-        Returns daily cumulative metrics for each post destination. Covers the last 90 days by default.
+        Returns a post's lifetime metrics. Metrics refresh about hourly for posts under 30 days old and about weekly after that. X metrics are read when you ask and charged to the wallet, at most once per post and UTC day. Later requests that day return the same reading at no charge.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param metrics: Comma-separated metric names for account insights. Each platform has its own default set.
-        :type metrics: str
-        :param period:
-        :type period: str
-        :param since:
-        :type since: int
-        :param until:
-        :type until: int
-        :param breakdown: Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.
-        :type breakdown: str
-        :param timeframe: Instagram demographics timeframe, such as this_week, this_month or last_30_days.
-        :type timeframe: str
-        :param metric_type:
-        :type metric_type: str
-        :param var_from: First day to include, as YYYY-MM-DD.
-        :type var_from: str
-        :param to: Last day to include, as YYYY-MM-DD.
-        :type to: str
+        :param id: (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -657,19 +587,8 @@ class AnalyticsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_analytics_timeline_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
-            metrics=metrics,
-            period=period,
-            since=since,
-            until=until,
-            breakdown=breakdown,
-            timeframe=timeframe,
-            metric_type=metric_type,
-            var_from=var_from,
-            to=to,
+        _param = self._get_post_analytics_serialize(
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -677,10 +596,13 @@ class AnalyticsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetAnalyticsTimeline200Response",
-            '400': "Error",
+            '200': "PostAnalytics",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -694,20 +616,9 @@ class AnalyticsApi:
 
 
     @validate_call
-    async def get_analytics_timeline_without_preload_content(
+    async def get_post_analytics_without_preload_content(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        metrics: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=500)]], Field(description="Comma-separated metric names for account insights. Each platform has its own default set.")] = None,
-        period: Optional[StrictStr] = None,
-        since: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        until: Optional[Annotated[int, Field(strict=True, gt=0)]] = None,
-        breakdown: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]], Field(description="Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.")] = None,
-        timeframe: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]], Field(description="Instagram demographics timeframe, such as this_week, this_month or last_30_days.")] = None,
-        metric_type: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = None,
-        var_from: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="First day to include, as YYYY-MM-DD.")] = None,
-        to: Annotated[Optional[Annotated[str, Field(strict=True)]], Field(description="Last day to include, as YYYY-MM-DD.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -721,34 +632,12 @@ class AnalyticsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get daily analytics timeline
+        """Get post analytics
 
-        Returns daily cumulative metrics for each post destination. Covers the last 90 days by default.
+        Returns a post's lifetime metrics. Metrics refresh about hourly for posts under 30 days old and about weekly after that. X metrics are read when you ask and charged to the wallet, at most once per post and UTC day. Later requests that day return the same reading at no charge.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several. Passed on its own, it returns live account insights for Instagram and Facebook.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param metrics: Comma-separated metric names for account insights. Each platform has its own default set.
-        :type metrics: str
-        :param period:
-        :type period: str
-        :param since:
-        :type since: int
-        :param until:
-        :type until: int
-        :param breakdown: Instagram account insights breakdown, such as follower_type, media_product_type, age, city or country.
-        :type breakdown: str
-        :param timeframe: Instagram demographics timeframe, such as this_week, this_month or last_30_days.
-        :type timeframe: str
-        :param metric_type:
-        :type metric_type: str
-        :param var_from: First day to include, as YYYY-MM-DD.
-        :type var_from: str
-        :param to: Last day to include, as YYYY-MM-DD.
-        :type to: str
+        :param id: (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -771,19 +660,8 @@ class AnalyticsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_analytics_timeline_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
-            metrics=metrics,
-            period=period,
-            since=since,
-            until=until,
-            breakdown=breakdown,
-            timeframe=timeframe,
-            metric_type=metric_type,
-            var_from=var_from,
-            to=to,
+        _param = self._get_post_analytics_serialize(
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -791,10 +669,13 @@ class AnalyticsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetAnalyticsTimeline200Response",
-            '400': "Error",
+            '200': "PostAnalytics",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -803,20 +684,9 @@ class AnalyticsApi:
         return response_data.response
 
 
-    def _get_analytics_timeline_serialize(
+    def _get_post_analytics_serialize(
         self,
-        post,
-        account_id,
-        destination_id,
-        metrics,
-        period,
-        since,
-        until,
-        breakdown,
-        timeframe,
-        metric_type,
-        var_from,
-        to,
+        id,
         _request_auth,
         _content_type,
         _headers,
@@ -838,54 +708,342 @@ class AnalyticsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
-        if metrics is not None:
-            
-            _query_params.append(('metrics', metrics))
-            
-        if period is not None:
-            
-            _query_params.append(('period', period))
-            
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v1/posts/{id}/analytics',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def get_post_analytics_timeline(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        since: Annotated[Optional[datetime], Field(description="Start of the range. The first day covered is the UTC day it falls on. Defaults to 90 days before until.")] = None,
+        until: Annotated[Optional[datetime], Field(description="End of the range. The last day covered is the UTC day the range ends in. Defaults to now.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PostAnalyticsTimeline:
+        """Get post analytics timeline
+
+        Returns a post's metrics day by day, one point per UTC day. Covers the last 90 days by default, and at most 90 days. Not available for X posts.
+
+        :param id: (required)
+        :type id: str
+        :param since: Start of the range. The first day covered is the UTC day it falls on. Defaults to 90 days before until.
+        :type since: datetime
+        :param until: End of the range. The last day covered is the UTC day the range ends in. Defaults to now.
+        :type until: datetime
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_post_analytics_timeline_serialize(
+            id=id,
+            since=since,
+            until=until,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PostAnalyticsTimeline",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_post_analytics_timeline_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        since: Annotated[Optional[datetime], Field(description="Start of the range. The first day covered is the UTC day it falls on. Defaults to 90 days before until.")] = None,
+        until: Annotated[Optional[datetime], Field(description="End of the range. The last day covered is the UTC day the range ends in. Defaults to now.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PostAnalyticsTimeline]:
+        """Get post analytics timeline
+
+        Returns a post's metrics day by day, one point per UTC day. Covers the last 90 days by default, and at most 90 days. Not available for X posts.
+
+        :param id: (required)
+        :type id: str
+        :param since: Start of the range. The first day covered is the UTC day it falls on. Defaults to 90 days before until.
+        :type since: datetime
+        :param until: End of the range. The last day covered is the UTC day the range ends in. Defaults to now.
+        :type until: datetime
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_post_analytics_timeline_serialize(
+            id=id,
+            since=since,
+            until=until,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PostAnalyticsTimeline",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_post_analytics_timeline_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        since: Annotated[Optional[datetime], Field(description="Start of the range. The first day covered is the UTC day it falls on. Defaults to 90 days before until.")] = None,
+        until: Annotated[Optional[datetime], Field(description="End of the range. The last day covered is the UTC day the range ends in. Defaults to now.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get post analytics timeline
+
+        Returns a post's metrics day by day, one point per UTC day. Covers the last 90 days by default, and at most 90 days. Not available for X posts.
+
+        :param id: (required)
+        :type id: str
+        :param since: Start of the range. The first day covered is the UTC day it falls on. Defaults to 90 days before until.
+        :type since: datetime
+        :param until: End of the range. The last day covered is the UTC day the range ends in. Defaults to now.
+        :type until: datetime
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_post_analytics_timeline_serialize(
+            id=id,
+            since=since,
+            until=until,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PostAnalyticsTimeline",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_post_analytics_timeline_serialize(
+        self,
+        id,
+        since,
+        until,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
         if since is not None:
-            
-            _query_params.append(('since', since))
+            if isinstance(since, datetime):
+                _query_params.append(
+                    (
+                        'since',
+                        since.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('since', since))
             
         if until is not None:
-            
-            _query_params.append(('until', until))
-            
-        if breakdown is not None:
-            
-            _query_params.append(('breakdown', breakdown))
-            
-        if timeframe is not None:
-            
-            _query_params.append(('timeframe', timeframe))
-            
-        if metric_type is not None:
-            
-            _query_params.append(('metricType', metric_type))
-            
-        if var_from is not None:
-            
-            _query_params.append(('from', var_from))
-            
-        if to is not None:
-            
-            _query_params.append(('to', to))
+            if isinstance(until, datetime):
+                _query_params.append(
+                    (
+                        'until',
+                        until.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('until', until))
             
         # process the header parameters
         # process the form parameters
@@ -903,13 +1061,12 @@ class AnalyticsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/analytics/timeline',
+            resource_path='/v1/posts/{id}/analytics/timeline',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

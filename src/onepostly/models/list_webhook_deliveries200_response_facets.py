@@ -19,16 +19,16 @@ import json
 
 from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
-from onepostly.models.list_posts200_response_facets_status_inner import ListPosts200ResponseFacetsStatusInner
+from onepostly.models.list_webhook_deliveries200_response_facets_status_inner import ListWebhookDeliveries200ResponseFacetsStatusInner
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
 class ListWebhookDeliveries200ResponseFacets(BaseModel):
     """
-    ListWebhookDeliveries200ResponseFacets
+    Counts per status. Present when include has facets.
     """ # noqa: E501
-    status: List[ListPosts200ResponseFacetsStatusInner]
+    status: List[ListWebhookDeliveries200ResponseFacetsStatusInner]
     __properties: ClassVar[List[str]] = ["status"]
 
     model_config = ConfigDict(
@@ -88,7 +88,7 @@ class ListWebhookDeliveries200ResponseFacets(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "status": [ListPosts200ResponseFacetsStatusInner.from_dict(_item) for _item in obj["status"]] if obj.get("status") is not None else None
+            "status": [ListWebhookDeliveries200ResponseFacetsStatusInner.from_dict(_item) for _item in obj["status"]] if obj.get("status") is not None else None
         })
         return _obj
 

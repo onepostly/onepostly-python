@@ -19,6 +19,8 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.error_code import ErrorCode
+from onepostly.models.platform import Platform
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -28,11 +30,12 @@ class Error(BaseModel):
     Error
     """ # noqa: E501
     error: StrictStr = Field(description="Human-readable message for display. Do not branch on it.")
-    code: StrictStr = Field(description="Stable machine-readable error code. Branch on this value.")
+    code: ErrorCode
     param: Optional[StrictStr] = Field(default=None, description="Request field at fault, when applicable.")
     details: Optional[Dict[str, Any]] = Field(default=None, description="Additional structured context, when available.")
-    platform: Optional[StrictStr] = Field(default=None, description="Upstream platform that rejected the request, when applicable.")
-    __properties: ClassVar[List[str]] = ["error", "code", "param", "details", "platform"]
+    platform: Optional[Platform] = Field(default=None, description="Upstream platform that rejected the request, when applicable.")
+    request_id: Optional[StrictStr] = Field(default=None, description="Id of this request, also sent as the Request-Id header. Quote it when you contact support.", alias="requestId")
+    __properties: ClassVar[List[str]] = ["error", "code", "param", "details", "platform", "requestId"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -73,6 +76,12 @@ class Error(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of code
+        if self.code:
+            _dict['code'] = self.code.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of platform
+        if self.platform:
+            _dict['platform'] = self.platform.to_dict()
         return _dict
 
     @classmethod
@@ -86,10 +95,11 @@ class Error(BaseModel):
 
         _obj = cls.model_validate({
             "error": obj.get("error"),
-            "code": obj.get("code"),
+            "code": ErrorCode.from_dict(obj["code"]) if obj.get("code") is not None else None,
             "param": obj.get("param"),
             "details": obj.get("details"),
-            "platform": obj.get("platform")
+            "platform": Platform.from_dict(obj["platform"]) if obj.get("platform") is not None else None,
+            "requestId": obj.get("requestId")
         })
         return _obj
 

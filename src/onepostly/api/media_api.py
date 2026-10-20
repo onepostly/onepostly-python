@@ -15,12 +15,13 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field
+from pydantic import Field, StrictStr
 from typing import Optional
 from typing_extensions import Annotated
+from onepostly.models.create_media_body import CreateMediaBody
+from onepostly.models.created_media import CreatedMedia
 from onepostly.models.list_media200_response import ListMedia200Response
-from onepostly.models.presign_media_body import PresignMediaBody
-from onepostly.models.presigned_upload import PresignedUpload
+from onepostly.models.media_asset import MediaAsset
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -38,6 +39,319 @@ class MediaApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    async def create_media(
+        self,
+        create_media_body: CreateMediaBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> CreatedMedia:
+        """Create media
+
+        Creates a media asset and returns uploadUrl. PUT the file to uploadUrl with the declared Content-Type and exactly size bytes, then use the asset's id in a post. Files are kept for 7 days until a post uses them.
+
+        :param create_media_body: (required)
+        :type create_media_body: CreateMediaBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_media_serialize(
+            create_media_body=create_media_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreatedMedia",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def create_media_with_http_info(
+        self,
+        create_media_body: CreateMediaBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CreatedMedia]:
+        """Create media
+
+        Creates a media asset and returns uploadUrl. PUT the file to uploadUrl with the declared Content-Type and exactly size bytes, then use the asset's id in a post. Files are kept for 7 days until a post uses them.
+
+        :param create_media_body: (required)
+        :type create_media_body: CreateMediaBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_media_serialize(
+            create_media_body=create_media_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreatedMedia",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def create_media_without_preload_content(
+        self,
+        create_media_body: CreateMediaBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create media
+
+        Creates a media asset and returns uploadUrl. PUT the file to uploadUrl with the declared Content-Type and exactly size bytes, then use the asset's id in a post. Files are kept for 7 days until a post uses them.
+
+        :param create_media_body: (required)
+        :type create_media_body: CreateMediaBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_media_serialize(
+            create_media_body=create_media_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreatedMedia",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_media_serialize(
+        self,
+        create_media_body,
+        idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if create_media_body is not None:
+            _body_params = create_media_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/media',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -59,7 +373,7 @@ class MediaApi:
     ) -> None:
         """Delete media
 
-        Deletes a media asset from the workspace library.
+        Deletes a media asset and its file. Posts already published with it stay on the platform.
 
         :param id: (required)
         :type id: str
@@ -96,8 +410,11 @@ class MediaApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '204': None,
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -129,7 +446,7 @@ class MediaApi:
     ) -> ApiResponse[None]:
         """Delete media
 
-        Deletes a media asset from the workspace library.
+        Deletes a media asset and its file. Posts already published with it stay on the platform.
 
         :param id: (required)
         :type id: str
@@ -166,8 +483,11 @@ class MediaApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '204': None,
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -199,7 +519,7 @@ class MediaApi:
     ) -> RESTResponseType:
         """Delete media
 
-        Deletes a media asset from the workspace library.
+        Deletes a media asset and its file. Posts already published with it stay on the platform.
 
         :param id: (required)
         :type id: str
@@ -236,8 +556,11 @@ class MediaApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '204': None,
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -289,7 +612,6 @@ class MediaApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -312,9 +634,9 @@ class MediaApi:
 
 
     @validate_call
-    async def get_media_presigned_url(
+    async def get_media(
         self,
-        presign_media_body: PresignMediaBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -327,13 +649,13 @@ class MediaApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PresignedUpload:
-        """Get a presigned upload URL
+    ) -> MediaAsset:
+        """Get media
 
-        Returns a URL you upload a file to directly with a PUT request. Send the same Content-Type you declared, then use publicUrl in your post.
+        Returns one media asset. status turns ready once the upload has arrived.
 
-        :param presign_media_body: (required)
-        :type presign_media_body: PresignMediaBody
+        :param id: (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -356,8 +678,8 @@ class MediaApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_media_presigned_url_serialize(
-            presign_media_body=presign_media_body,
+        _param = self._get_media_serialize(
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -365,12 +687,13 @@ class MediaApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PresignedUpload",
-            '400': "Error",
+            '200': "MediaAsset",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
+            '404': "Error",
+            '429': "Error",
             '500': "Error",
-            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -384,9 +707,9 @@ class MediaApi:
 
 
     @validate_call
-    async def get_media_presigned_url_with_http_info(
+    async def get_media_with_http_info(
         self,
-        presign_media_body: PresignMediaBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -399,13 +722,13 @@ class MediaApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PresignedUpload]:
-        """Get a presigned upload URL
+    ) -> ApiResponse[MediaAsset]:
+        """Get media
 
-        Returns a URL you upload a file to directly with a PUT request. Send the same Content-Type you declared, then use publicUrl in your post.
+        Returns one media asset. status turns ready once the upload has arrived.
 
-        :param presign_media_body: (required)
-        :type presign_media_body: PresignMediaBody
+        :param id: (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -428,8 +751,8 @@ class MediaApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_media_presigned_url_serialize(
-            presign_media_body=presign_media_body,
+        _param = self._get_media_serialize(
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -437,12 +760,13 @@ class MediaApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PresignedUpload",
-            '400': "Error",
+            '200': "MediaAsset",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
+            '404': "Error",
+            '429': "Error",
             '500': "Error",
-            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -456,9 +780,9 @@ class MediaApi:
 
 
     @validate_call
-    async def get_media_presigned_url_without_preload_content(
+    async def get_media_without_preload_content(
         self,
-        presign_media_body: PresignMediaBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -472,12 +796,12 @@ class MediaApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a presigned upload URL
+        """Get media
 
-        Returns a URL you upload a file to directly with a PUT request. Send the same Content-Type you declared, then use publicUrl in your post.
+        Returns one media asset. status turns ready once the upload has arrived.
 
-        :param presign_media_body: (required)
-        :type presign_media_body: PresignMediaBody
+        :param id: (required)
+        :type id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -500,8 +824,8 @@ class MediaApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_media_presigned_url_serialize(
-            presign_media_body=presign_media_body,
+        _param = self._get_media_serialize(
+            id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -509,12 +833,13 @@ class MediaApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PresignedUpload",
-            '400': "Error",
+            '200': "MediaAsset",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
+            '404': "Error",
+            '429': "Error",
             '500': "Error",
-            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -523,9 +848,9 @@ class MediaApi:
         return response_data.response
 
 
-    def _get_media_presigned_url_serialize(
+    def _get_media_serialize(
         self,
-        presign_media_body,
+        id,
         _request_auth,
         _content_type,
         _headers,
@@ -547,12 +872,12 @@ class MediaApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if presign_media_body is not None:
-            _body_params = presign_media_body
 
 
         # set the HTTP header `Accept`
@@ -563,29 +888,15 @@ class MediaApi:
                 ]
             )
 
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/media/presign',
+            method='GET',
+            resource_path='/v1/media/{id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -604,8 +915,9 @@ class MediaApi:
     @validate_call
     async def list_media(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Number of assets per page. Defaults to 20.")] = None,
-        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: total.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -621,12 +933,14 @@ class MediaApi:
     ) -> ListMedia200Response:
         """List media
 
-        Lists the workspace's media assets, newest first. Results are paginated.
+        Lists the workspace's uploaded media, newest first.
 
-        :param limit: Number of assets per page. Defaults to 20.
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param page: Page to return, starting at 1. Defaults to 1.
-        :type page: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param include: Comma-separated extras to add to the response: total.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -651,7 +965,8 @@ class MediaApi:
 
         _param = self._list_media_serialize(
             limit=limit,
-            page=page,
+            cursor=cursor,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -660,7 +975,12 @@ class MediaApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListMedia200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -676,8 +996,9 @@ class MediaApi:
     @validate_call
     async def list_media_with_http_info(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Number of assets per page. Defaults to 20.")] = None,
-        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: total.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -693,12 +1014,14 @@ class MediaApi:
     ) -> ApiResponse[ListMedia200Response]:
         """List media
 
-        Lists the workspace's media assets, newest first. Results are paginated.
+        Lists the workspace's uploaded media, newest first.
 
-        :param limit: Number of assets per page. Defaults to 20.
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param page: Page to return, starting at 1. Defaults to 1.
-        :type page: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param include: Comma-separated extras to add to the response: total.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -723,7 +1046,8 @@ class MediaApi:
 
         _param = self._list_media_serialize(
             limit=limit,
-            page=page,
+            cursor=cursor,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -732,7 +1056,12 @@ class MediaApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListMedia200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -748,8 +1077,9 @@ class MediaApi:
     @validate_call
     async def list_media_without_preload_content(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Number of assets per page. Defaults to 20.")] = None,
-        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: total.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -765,12 +1095,14 @@ class MediaApi:
     ) -> RESTResponseType:
         """List media
 
-        Lists the workspace's media assets, newest first. Results are paginated.
+        Lists the workspace's uploaded media, newest first.
 
-        :param limit: Number of assets per page. Defaults to 20.
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param page: Page to return, starting at 1. Defaults to 1.
-        :type page: int
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param include: Comma-separated extras to add to the response: total.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -795,7 +1127,8 @@ class MediaApi:
 
         _param = self._list_media_serialize(
             limit=limit,
-            page=page,
+            cursor=cursor,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -804,7 +1137,12 @@ class MediaApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListMedia200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -816,7 +1154,8 @@ class MediaApi:
     def _list_media_serialize(
         self,
         limit,
-        page,
+        cursor,
+        include,
         _request_auth,
         _content_type,
         _headers,
@@ -843,9 +1182,13 @@ class MediaApi:
             
             _query_params.append(('limit', limit))
             
-        if page is not None:
+        if cursor is not None:
             
-            _query_params.append(('page', page))
+            _query_params.append(('cursor', cursor))
+            
+        if include is not None:
+            
+            _query_params.append(('include', include))
             
         # process the header parameters
         # process the form parameters
@@ -863,7 +1206,6 @@ class MediaApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 

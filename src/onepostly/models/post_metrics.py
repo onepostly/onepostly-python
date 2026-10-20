@@ -17,25 +17,25 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictFloat, StrictInt
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from pydantic import BaseModel, ConfigDict, StrictInt
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
 class PostMetrics(BaseModel):
     """
-    Lifetime analytics for the destination. Null until the post is published and first measured.
+    Lifetime metrics. A metric the platform does not report is null.
     """ # noqa: E501
-    impressions: Optional[Union[StrictFloat, StrictInt]]
-    reach: Optional[Union[StrictFloat, StrictInt]]
-    likes: Optional[Union[StrictFloat, StrictInt]]
-    comments: Optional[Union[StrictFloat, StrictInt]]
-    shares: Optional[Union[StrictFloat, StrictInt]]
-    saves: Optional[Union[StrictFloat, StrictInt]]
-    plays: Optional[Union[StrictFloat, StrictInt]]
-    engagement: Optional[Union[StrictFloat, StrictInt]]
-    __properties: ClassVar[List[str]] = ["impressions", "reach", "likes", "comments", "shares", "saves", "plays", "engagement"]
+    impressions: Optional[StrictInt]
+    reach: Optional[StrictInt]
+    likes: Optional[StrictInt]
+    comments: Optional[StrictInt]
+    shares: Optional[StrictInt]
+    saves: Optional[StrictInt]
+    views: Optional[StrictInt]
+    engagement: Optional[StrictInt]
+    __properties: ClassVar[List[str]] = ["impressions", "reach", "likes", "comments", "shares", "saves", "views", "engagement"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -106,10 +106,10 @@ class PostMetrics(BaseModel):
         if self.saves is None and "saves" in self.model_fields_set:
             _dict['saves'] = None
 
-        # set to None if plays (nullable) is None
+        # set to None if views (nullable) is None
         # and model_fields_set contains the field
-        if self.plays is None and "plays" in self.model_fields_set:
-            _dict['plays'] = None
+        if self.views is None and "views" in self.model_fields_set:
+            _dict['views'] = None
 
         # set to None if engagement (nullable) is None
         # and model_fields_set contains the field
@@ -134,7 +134,7 @@ class PostMetrics(BaseModel):
             "comments": obj.get("comments"),
             "shares": obj.get("shares"),
             "saves": obj.get("saves"),
-            "plays": obj.get("plays"),
+            "views": obj.get("views"),
             "engagement": obj.get("engagement")
         })
         return _obj

@@ -17,11 +17,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from onepostly.models.list_webhook_deliveries200_response_deliveries_inner import ListWebhookDeliveries200ResponseDeliveriesInner
 from onepostly.models.list_webhook_deliveries200_response_facets import ListWebhookDeliveries200ResponseFacets
 from onepostly.models.list_webhook_deliveries200_response_histogram_inner import ListWebhookDeliveries200ResponseHistogramInner
+from onepostly.models.webhook_delivery import WebhookDelivery
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,11 +30,12 @@ class ListWebhookDeliveries200Response(BaseModel):
     """
     ListWebhookDeliveries200Response
     """ # noqa: E501
-    deliveries: List[ListWebhookDeliveries200ResponseDeliveriesInner]
-    next_cursor: Optional[StrictStr] = Field(alias="nextCursor")
-    facets: ListWebhookDeliveries200ResponseFacets
-    histogram: List[ListWebhookDeliveries200ResponseHistogramInner]
-    __properties: ClassVar[List[str]] = ["deliveries", "nextCursor", "facets", "histogram"]
+    data: List[WebhookDelivery]
+    next_cursor: Optional[StrictStr] = Field(description="Cursor for the next page, or null on the last page.", alias="nextCursor")
+    has_more: StrictBool = Field(description="True when another page follows this one.", alias="hasMore")
+    facets: Optional[ListWebhookDeliveries200ResponseFacets] = None
+    histogram: Optional[List[ListWebhookDeliveries200ResponseHistogramInner]] = Field(default=None, description="Successes and failures over time. Present when include has histogram.")
+    __properties: ClassVar[List[str]] = ["data", "nextCursor", "hasMore", "facets", "histogram"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -75,12 +76,12 @@ class ListWebhookDeliveries200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in deliveries (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
         _items = []
-        if self.deliveries:
-            for _item_deliveries in self.deliveries:
-                _items.append(_item_deliveries.to_dict() if _item_deliveries is not None else None)
-            _dict['deliveries'] = _items
+        if self.data:
+            for _item_data in self.data:
+                _items.append(_item_data.to_dict() if _item_data is not None else None)
+            _dict['data'] = _items
         # override the default output from pydantic by calling `to_dict()` of facets
         if self.facets:
             _dict['facets'] = self.facets.to_dict()
@@ -107,8 +108,9 @@ class ListWebhookDeliveries200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "deliveries": [ListWebhookDeliveries200ResponseDeliveriesInner.from_dict(_item) for _item in obj["deliveries"]] if obj.get("deliveries") is not None else None,
+            "data": [WebhookDelivery.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
             "nextCursor": obj.get("nextCursor"),
+            "hasMore": obj.get("hasMore"),
             "facets": ListWebhookDeliveries200ResponseFacets.from_dict(obj["facets"]) if obj.get("facets") is not None else None,
             "histogram": [ListWebhookDeliveries200ResponseHistogramInner.from_dict(_item) for _item in obj["histogram"]] if obj.get("histogram") is not None else None
         })

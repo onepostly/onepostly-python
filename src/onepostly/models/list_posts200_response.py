@@ -17,10 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt
-from typing import Any, ClassVar, Dict, List, Union
-from onepostly.models.list_posts200_response_facets import ListPosts200ResponseFacets
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from onepostly.models.post import Post
+from onepostly.models.post_facets import PostFacets
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -29,12 +29,12 @@ class ListPosts200Response(BaseModel):
     """
     ListPosts200Response
     """ # noqa: E501
-    posts: List[Post]
-    total: Union[StrictFloat, StrictInt] = Field(description="Total posts that match the filters, across all pages.")
-    page: StrictInt = Field(description="Page number of this response, starting at 1.")
-    has_more: StrictBool = Field(description="True when more posts follow this page. Request the next page to get them.", alias="hasMore")
-    facets: ListPosts200ResponseFacets
-    __properties: ClassVar[List[str]] = ["posts", "total", "page", "hasMore", "facets"]
+    data: List[Post]
+    next_cursor: Optional[StrictStr] = Field(description="Cursor for the next page, or null on the last page.", alias="nextCursor")
+    has_more: StrictBool = Field(description="True when another page follows this one.", alias="hasMore")
+    total: Optional[StrictInt] = Field(default=None, description="Posts matching the filters. Present when include has total.")
+    facets: Optional[PostFacets] = None
+    __properties: ClassVar[List[str]] = ["data", "nextCursor", "hasMore", "total", "facets"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -75,15 +75,20 @@ class ListPosts200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in posts (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
         _items = []
-        if self.posts:
-            for _item_posts in self.posts:
-                _items.append(_item_posts.to_dict() if _item_posts is not None else None)
-            _dict['posts'] = _items
+        if self.data:
+            for _item_data in self.data:
+                _items.append(_item_data.to_dict() if _item_data is not None else None)
+            _dict['data'] = _items
         # override the default output from pydantic by calling `to_dict()` of facets
         if self.facets:
             _dict['facets'] = self.facets.to_dict()
+        # set to None if next_cursor (nullable) is None
+        # and model_fields_set contains the field
+        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
+            _dict['nextCursor'] = None
+
         return _dict
 
     @classmethod
@@ -96,11 +101,11 @@ class ListPosts200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "posts": [Post.from_dict(_item) for _item in obj["posts"]] if obj.get("posts") is not None else None,
-            "total": obj.get("total"),
-            "page": obj.get("page"),
+            "data": [Post.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
+            "nextCursor": obj.get("nextCursor"),
             "hasMore": obj.get("hasMore"),
-            "facets": ListPosts200ResponseFacets.from_dict(obj["facets"]) if obj.get("facets") is not None else None
+            "total": obj.get("total"),
+            "facets": PostFacets.from_dict(obj["facets"]) if obj.get("facets") is not None else None
         })
         return _obj
 

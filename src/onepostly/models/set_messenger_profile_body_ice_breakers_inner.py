@@ -28,8 +28,8 @@ class SetMessengerProfileBodyIceBreakersInner(BaseModel):
     """
     SetMessengerProfileBodyIceBreakersInner
     """ # noqa: E501
-    question: Annotated[str, Field(min_length=1, strict=True, max_length=80)]
-    payload: Annotated[str, Field(min_length=1, strict=True, max_length=1000)]
+    question: Annotated[str, Field(min_length=1, strict=True, max_length=80)] = Field(description="Question shown when a conversation starts, up to 80 characters.")
+    payload: Annotated[str, Field(min_length=1, strict=True, max_length=1000)] = Field(description="Value sent to the Page when the question is tapped, up to 1,000 characters.")
     __properties: ClassVar[List[str]] = ["question", "payload"]
 
     model_config = ConfigDict(

@@ -17,12 +17,12 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from onepostly.models.create_post_body_destinations_inner import CreatePostBodyDestinationsInner
-from onepostly.models.media_kind import MediaKind
-from onepostly.models.thread_item import ThreadItem
+from onepostly.models.account_target import AccountTarget
+from onepostly.models.media_ref import MediaRef
+from onepostly.models.thread_item_input import ThreadItemInput
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -31,14 +31,24 @@ class CreatePostBody(BaseModel):
     """
     CreatePostBody
     """ # noqa: E501
-    text: Optional[Annotated[str, Field(strict=True, max_length=63206)]] = ''
-    thread_items: Optional[Annotated[List[ThreadItem], Field(min_length=1, max_length=25)]] = Field(default=None, description="X, Threads and Bluesky only. Replies published under the post, in order.", alias="threadItems")
-    media_urls: Optional[Annotated[List[Annotated[str, Field(strict=True, max_length=2048)]], Field(max_length=35)]] = Field(default=None, alias="mediaUrls")
-    media_kind: MediaKind = Field(alias="mediaKind")
-    scheduled_for: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = Field(default=None, description="Local date and time to publish, such as 2027-03-15T09:00:00, without Z or an offset. Omit to publish now.", alias="scheduledFor")
-    timezone: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="IANA timezone for scheduledFor, such as America/New_York. Defaults to UTC.")
-    destinations: Annotated[List[CreatePostBodyDestinationsInner], Field(min_length=1, max_length=50)]
-    __properties: ClassVar[List[str]] = ["text", "threadItems", "mediaUrls", "mediaKind", "scheduledFor", "timezone", "destinations"]
+    text: Optional[Annotated[str, Field(strict=True, max_length=63206)]] = Field(default='', description="The post text. Each account's platform limit applies, such as 500 characters on Threads. A longer text returns VALIDATION_ERROR.")
+    media_kind: Optional[StrictStr] = Field(default=None, description="What the media is. Optional for text posts and for one image, video or document, where the file shows its kind. Required for stories and for a Facebook reel. On Instagram, video and reel both publish a reel.", alias="mediaKind")
+    media: Optional[Annotated[List[MediaRef], Field(max_length=35)]] = Field(default=None, description="Media files, in order. Each platform's own cap on the number of files applies.")
+    thread: Optional[Annotated[List[ThreadItemInput], Field(min_length=1, max_length=25)]] = Field(default=None, description="X, Threads and Bluesky. Posts published as replies under the first one, in order.")
+    scheduled_for: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=32)]] = Field(default=None, description="Local date and time to publish, such as 2027-03-15T09:00:00, without Z or an offset. Omit it to publish now.", alias="scheduledFor")
+    timezone: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=64)]] = Field(default=None, description="IANA timezone of scheduledFor, such as America/New_York. Defaults to UTC.")
+    accounts: Annotated[List[AccountTarget], Field(min_length=1, max_length=50)] = Field(description="Accounts to publish to, up to 50. Each account gets its own post.")
+    __properties: ClassVar[List[str]] = ["text", "mediaKind", "media", "thread", "scheduledFor", "timezone", "accounts"]
+
+    @field_validator('media_kind')
+    def media_kind_validate_enum(cls, value):
+        """Validates the enum"""
+        if value is None:
+            return value
+
+        if value not in set(['text', 'image', 'multi_image', 'video', 'reel', 'document', 'stories']):
+            raise ValueError("must be one of enum values ('text', 'image', 'multi_image', 'video', 'reel', 'document', 'stories')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -79,18 +89,24 @@ class CreatePostBody(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in thread_items (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in media (list)
         _items = []
-        if self.thread_items:
-            for _item_thread_items in self.thread_items:
-                _items.append(_item_thread_items.to_dict() if _item_thread_items is not None else None)
-            _dict['threadItems'] = _items
-        # override the default output from pydantic by calling `to_dict()` of each item in destinations (list)
+        if self.media:
+            for _item_media in self.media:
+                _items.append(_item_media.to_dict() if _item_media is not None else None)
+            _dict['media'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in thread (list)
         _items = []
-        if self.destinations:
-            for _item_destinations in self.destinations:
-                _items.append(_item_destinations.to_dict() if _item_destinations is not None else None)
-            _dict['destinations'] = _items
+        if self.thread:
+            for _item_thread in self.thread:
+                _items.append(_item_thread.to_dict() if _item_thread is not None else None)
+            _dict['thread'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in accounts (list)
+        _items = []
+        if self.accounts:
+            for _item_accounts in self.accounts:
+                _items.append(_item_accounts.to_dict() if _item_accounts is not None else None)
+            _dict['accounts'] = _items
         return _dict
 
     @classmethod
@@ -104,12 +120,12 @@ class CreatePostBody(BaseModel):
 
         _obj = cls.model_validate({
             "text": obj.get("text") if obj.get("text") is not None else '',
-            "threadItems": [ThreadItem.from_dict(_item) for _item in obj["threadItems"]] if obj.get("threadItems") is not None else None,
-            "mediaUrls": obj.get("mediaUrls"),
             "mediaKind": obj.get("mediaKind"),
+            "media": [MediaRef.from_dict(_item) for _item in obj["media"]] if obj.get("media") is not None else None,
+            "thread": [ThreadItemInput.from_dict(_item) for _item in obj["thread"]] if obj.get("thread") is not None else None,
             "scheduledFor": obj.get("scheduledFor"),
             "timezone": obj.get("timezone"),
-            "destinations": [CreatePostBodyDestinationsInner.from_dict(_item) for _item in obj["destinations"]] if obj.get("destinations") is not None else None
+            "accounts": [AccountTarget.from_dict(_item) for _item in obj["accounts"]] if obj.get("accounts") is not None else None
         })
         return _obj
 

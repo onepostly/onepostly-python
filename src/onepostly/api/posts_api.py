@@ -20,10 +20,12 @@ from pydantic import Field, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from onepostly.models.create_post_body import CreatePostBody
+from onepostly.models.created_posts import CreatedPosts
 from onepostly.models.list_posts200_response import ListPosts200Response
-from onepostly.models.post_response import PostResponse
-from onepostly.models.sync_external200_response import SyncExternal200Response
-from onepostly.models.sync_external_body import SyncExternalBody
+from onepostly.models.post import Post
+from onepostly.models.sync_account_posts200_response import SyncAccountPosts200Response
+from onepostly.models.sync_account_posts_body import SyncAccountPostsBody
+from onepostly.models.update_post_body import UpdatePostBody
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -44,9 +46,10 @@ class PostsApi:
 
 
     @validate_call
-    async def cancel_post(
+    async def create_post(
         self,
-        id: Annotated[str, Field(min_length=1, strict=True)],
+        create_post_body: CreatePostBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -59,13 +62,15 @@ class PostsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PostResponse:
-        """Cancel post
+    ) -> CreatedPosts:
+        """Create post
 
-        Cancels a post that has not been published yet. Posts already published stay on the platform.
+        Publishes or schedules a post on one or more accounts. Each account gets its own post, and the posts of one request share a groupId. If any account cannot take the post, nothing is created.
 
-        :param id: (required)
-        :type id: str
+        :param create_post_body: (required)
+        :type create_post_body: CreatePostBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -88,8 +93,9 @@ class PostsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._cancel_post_serialize(
-            id=id,
+        _param = self._create_post_serialize(
+            create_post_body=create_post_body,
+            idempotency_key=idempotency_key,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -97,11 +103,15 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
+            '201': "CreatedPosts",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -115,7 +125,241 @@ class PostsApi:
 
 
     @validate_call
-    async def cancel_post_with_http_info(
+    async def create_post_with_http_info(
+        self,
+        create_post_body: CreatePostBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[CreatedPosts]:
+        """Create post
+
+        Publishes or schedules a post on one or more accounts. Each account gets its own post, and the posts of one request share a groupId. If any account cannot take the post, nothing is created.
+
+        :param create_post_body: (required)
+        :type create_post_body: CreatePostBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_post_serialize(
+            create_post_body=create_post_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreatedPosts",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def create_post_without_preload_content(
+        self,
+        create_post_body: CreatePostBody,
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create post
+
+        Publishes or schedules a post on one or more accounts. Each account gets its own post, and the posts of one request share a groupId. If any account cannot take the post, nothing is created.
+
+        :param create_post_body: (required)
+        :type create_post_body: CreatePostBody
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_post_serialize(
+            create_post_body=create_post_body,
+            idempotency_key=idempotency_key,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "CreatedPosts",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_post_serialize(
+        self,
+        create_post_body,
+        idempotency_key,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if create_post_body is not None:
+            _body_params = create_post_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v1/posts',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def delete_post(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
@@ -130,10 +374,10 @@ class PostsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PostResponse]:
-        """Cancel post
+    ) -> Post:
+        """Delete post
 
-        Cancels a post that has not been published yet. Posts already published stay on the platform.
+        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
 
         :param id: (required)
         :type id: str
@@ -159,7 +403,7 @@ class PostsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._cancel_post_serialize(
+        _param = self._delete_post_serialize(
             id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -168,11 +412,94 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
+            '200': "Post",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def delete_post_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Post]:
+        """Delete post
+
+        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
+
+        :param id: (required)
+        :type id: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_post_serialize(
+            id=id,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Post",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -186,7 +513,7 @@ class PostsApi:
 
 
     @validate_call
-    async def cancel_post_without_preload_content(
+    async def delete_post_without_preload_content(
         self,
         id: Annotated[str, Field(min_length=1, strict=True)],
         _request_timeout: Union[
@@ -202,9 +529,9 @@ class PostsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Cancel post
+        """Delete post
 
-        Cancels a post that has not been published yet. Posts already published stay on the platform.
+        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
 
         :param id: (required)
         :type id: str
@@ -230,7 +557,7 @@ class PostsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._cancel_post_serialize(
+        _param = self._delete_post_serialize(
             id=id,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -239,11 +566,17 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
+            '200': "Post",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
+            '502': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -252,7 +585,7 @@ class PostsApi:
         return response_data.response
 
 
-    def _cancel_post_serialize(
+    def _delete_post_serialize(
         self,
         id,
         _request_auth,
@@ -295,592 +628,12 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='DELETE',
             resource_path='/v1/posts/{id}',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def create_post(
-        self,
-        create_post_body: CreatePostBody,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PostResponse:
-        """Create post
-
-        Creates a post for one or more connected accounts. Returns 202 when it publishes now and 201 when it is scheduled.
-
-        :param create_post_body: (required)
-        :type create_post_body: CreatePostBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_post_serialize(
-            create_post_body=create_post_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "PostResponse",
-            '202': "PostResponse",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def create_post_with_http_info(
-        self,
-        create_post_body: CreatePostBody,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PostResponse]:
-        """Create post
-
-        Creates a post for one or more connected accounts. Returns 202 when it publishes now and 201 when it is scheduled.
-
-        :param create_post_body: (required)
-        :type create_post_body: CreatePostBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_post_serialize(
-            create_post_body=create_post_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "PostResponse",
-            '202': "PostResponse",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def create_post_without_preload_content(
-        self,
-        create_post_body: CreatePostBody,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Create post
-
-        Creates a post for one or more connected accounts. Returns 202 when it publishes now and 201 when it is scheduled.
-
-        :param create_post_body: (required)
-        :type create_post_body: CreatePostBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_post_serialize(
-            create_post_body=create_post_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "PostResponse",
-            '202': "PostResponse",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _create_post_serialize(
-        self,
-        create_post_body,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if create_post_body is not None:
-            _body_params = create_post_body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKey', 
-            'Bearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/posts',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def delete_post_destination(
-        self,
-        destination_id: Annotated[str, Field(min_length=1, strict=True, description="Destination id, from the destinations of a post.")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PostResponse:
-        """Remote-delete destination
-
-        Deletes a published post from the platform and returns the updated post. If the destination published a thread, every post in the thread is deleted.
-
-        :param destination_id: Destination id, from the destinations of a post. (required)
-        :type destination_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._delete_post_destination_serialize(
-            destination_id=destination_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def delete_post_destination_with_http_info(
-        self,
-        destination_id: Annotated[str, Field(min_length=1, strict=True, description="Destination id, from the destinations of a post.")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PostResponse]:
-        """Remote-delete destination
-
-        Deletes a published post from the platform and returns the updated post. If the destination published a thread, every post in the thread is deleted.
-
-        :param destination_id: Destination id, from the destinations of a post. (required)
-        :type destination_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._delete_post_destination_serialize(
-            destination_id=destination_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def delete_post_destination_without_preload_content(
-        self,
-        destination_id: Annotated[str, Field(min_length=1, strict=True, description="Destination id, from the destinations of a post.")],
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Remote-delete destination
-
-        Deletes a published post from the platform and returns the updated post. If the destination published a thread, every post in the thread is deleted.
-
-        :param destination_id: Destination id, from the destinations of a post. (required)
-        :type destination_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._delete_post_destination_serialize(
-            destination_id=destination_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _delete_post_destination_serialize(
-        self,
-        destination_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        if destination_id is not None:
-            _path_params['destinationId'] = destination_id
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKey', 
-            'Bearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='DELETE',
-            resource_path='/v1/destinations/{destinationId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -912,7 +665,7 @@ class PostsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> PostResponse:
+    ) -> Post:
         """Get post
 
 
@@ -949,9 +702,13 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
+            '200': "Post",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -980,7 +737,7 @@ class PostsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[PostResponse]:
+    ) -> ApiResponse[Post]:
         """Get post
 
 
@@ -1017,9 +774,13 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
+            '200': "Post",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1085,9 +846,13 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "PostResponse",
+            '200': "Post",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1139,7 +904,6 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -1164,14 +928,18 @@ class PostsApi:
     @validate_call
     async def list_posts(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Number of posts per page. Defaults to 20.")] = None,
-        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Comma-separated post statuses to include, such as scheduled,published. Omit to include every status.")] = None,
-        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this platform.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this account.")] = None,
-        date_after: Annotated[Optional[datetime], Field(description="Start of the date range, as an ISO 8601 time. A post's date is its scheduled time, or its creation time when it has none.")] = None,
-        date_before: Annotated[Optional[datetime], Field(description="End of the date range, as an ISO 8601 time.")] = None,
-        sort: Annotated[Optional[StrictStr], Field(description="Sort order. Defaults to created_desc. Metric sorts rank posts by lifetime totals across destinations and return only posts with metrics.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses to include, such as scheduled,published. Any of scheduled, publishing, published, failed, cancelled, deleted.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts on this platform.")] = None,
+        account_id: Annotated[Optional[StrictStr], Field(description="Only posts of this account.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Only posts of accounts filed under the profile with this name. Letter case does not matter. Use none for accounts without a profile.")] = None,
+        group_id: Annotated[Optional[StrictStr], Field(description="Only the posts one Create Post request made.")] = None,
+        source: Annotated[Optional[StrictStr], Field(description="onepostly for posts made through Onepostly, external for posts made on the platform.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Only posts dated at or after this time. A post's date is its schedule, else its publish time, else its creation time.")] = None,
+        until: Annotated[Optional[datetime], Field(description="Only posts dated before this time.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Order of the list. Defaults to created_desc. metric:<name> ranks measured posts by a lifetime metric, highest first.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: total, facets.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1187,24 +955,32 @@ class PostsApi:
     ) -> ListPosts200Response:
         """List posts
 
-        Lists the workspace's posts, newest first by default. Results are paginated.
+        Lists the workspace's posts, newest first: posts made through Onepostly, and posts the accounts made on the platform that a sync found.
 
-        :param limit: Number of posts per page. Defaults to 20.
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param page: Page to return, starting at 1. Defaults to 1.
-        :type page: int
-        :param status: Comma-separated post statuses to include, such as scheduled,published. Omit to include every status.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param status: Comma-separated statuses to include, such as scheduled,published. Any of scheduled, publishing, published, failed, cancelled, deleted.
         :type status: str
-        :param platform: Only posts with at least one destination on this platform.
+        :param platform: Only posts on this platform.
         :type platform: str
-        :param account_id: Only posts with at least one destination on this account.
+        :param account_id: Only posts of this account.
         :type account_id: str
-        :param date_after: Start of the date range, as an ISO 8601 time. A post's date is its scheduled time, or its creation time when it has none.
-        :type date_after: datetime
-        :param date_before: End of the date range, as an ISO 8601 time.
-        :type date_before: datetime
-        :param sort: Sort order. Defaults to created_desc. Metric sorts rank posts by lifetime totals across destinations and return only posts with metrics.
+        :param profile: Only posts of accounts filed under the profile with this name. Letter case does not matter. Use none for accounts without a profile.
+        :type profile: str
+        :param group_id: Only the posts one Create Post request made.
+        :type group_id: str
+        :param source: onepostly for posts made through Onepostly, external for posts made on the platform.
+        :type source: str
+        :param since: Only posts dated at or after this time. A post's date is its schedule, else its publish time, else its creation time.
+        :type since: datetime
+        :param until: Only posts dated before this time.
+        :type until: datetime
+        :param sort: Order of the list. Defaults to created_desc. metric:<name> ranks measured posts by a lifetime metric, highest first.
         :type sort: str
+        :param include: Comma-separated extras to add to the response: total, facets.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1229,13 +1005,17 @@ class PostsApi:
 
         _param = self._list_posts_serialize(
             limit=limit,
-            page=page,
+            cursor=cursor,
             status=status,
             platform=platform,
             account_id=account_id,
-            date_after=date_after,
-            date_before=date_before,
+            profile=profile,
+            group_id=group_id,
+            source=source,
+            since=since,
+            until=until,
             sort=sort,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1244,7 +1024,12 @@ class PostsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListPosts200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1260,14 +1045,18 @@ class PostsApi:
     @validate_call
     async def list_posts_with_http_info(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Number of posts per page. Defaults to 20.")] = None,
-        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Comma-separated post statuses to include, such as scheduled,published. Omit to include every status.")] = None,
-        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this platform.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this account.")] = None,
-        date_after: Annotated[Optional[datetime], Field(description="Start of the date range, as an ISO 8601 time. A post's date is its scheduled time, or its creation time when it has none.")] = None,
-        date_before: Annotated[Optional[datetime], Field(description="End of the date range, as an ISO 8601 time.")] = None,
-        sort: Annotated[Optional[StrictStr], Field(description="Sort order. Defaults to created_desc. Metric sorts rank posts by lifetime totals across destinations and return only posts with metrics.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses to include, such as scheduled,published. Any of scheduled, publishing, published, failed, cancelled, deleted.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts on this platform.")] = None,
+        account_id: Annotated[Optional[StrictStr], Field(description="Only posts of this account.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Only posts of accounts filed under the profile with this name. Letter case does not matter. Use none for accounts without a profile.")] = None,
+        group_id: Annotated[Optional[StrictStr], Field(description="Only the posts one Create Post request made.")] = None,
+        source: Annotated[Optional[StrictStr], Field(description="onepostly for posts made through Onepostly, external for posts made on the platform.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Only posts dated at or after this time. A post's date is its schedule, else its publish time, else its creation time.")] = None,
+        until: Annotated[Optional[datetime], Field(description="Only posts dated before this time.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Order of the list. Defaults to created_desc. metric:<name> ranks measured posts by a lifetime metric, highest first.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: total, facets.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1283,24 +1072,32 @@ class PostsApi:
     ) -> ApiResponse[ListPosts200Response]:
         """List posts
 
-        Lists the workspace's posts, newest first by default. Results are paginated.
+        Lists the workspace's posts, newest first: posts made through Onepostly, and posts the accounts made on the platform that a sync found.
 
-        :param limit: Number of posts per page. Defaults to 20.
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param page: Page to return, starting at 1. Defaults to 1.
-        :type page: int
-        :param status: Comma-separated post statuses to include, such as scheduled,published. Omit to include every status.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param status: Comma-separated statuses to include, such as scheduled,published. Any of scheduled, publishing, published, failed, cancelled, deleted.
         :type status: str
-        :param platform: Only posts with at least one destination on this platform.
+        :param platform: Only posts on this platform.
         :type platform: str
-        :param account_id: Only posts with at least one destination on this account.
+        :param account_id: Only posts of this account.
         :type account_id: str
-        :param date_after: Start of the date range, as an ISO 8601 time. A post's date is its scheduled time, or its creation time when it has none.
-        :type date_after: datetime
-        :param date_before: End of the date range, as an ISO 8601 time.
-        :type date_before: datetime
-        :param sort: Sort order. Defaults to created_desc. Metric sorts rank posts by lifetime totals across destinations and return only posts with metrics.
+        :param profile: Only posts of accounts filed under the profile with this name. Letter case does not matter. Use none for accounts without a profile.
+        :type profile: str
+        :param group_id: Only the posts one Create Post request made.
+        :type group_id: str
+        :param source: onepostly for posts made through Onepostly, external for posts made on the platform.
+        :type source: str
+        :param since: Only posts dated at or after this time. A post's date is its schedule, else its publish time, else its creation time.
+        :type since: datetime
+        :param until: Only posts dated before this time.
+        :type until: datetime
+        :param sort: Order of the list. Defaults to created_desc. metric:<name> ranks measured posts by a lifetime metric, highest first.
         :type sort: str
+        :param include: Comma-separated extras to add to the response: total, facets.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1325,13 +1122,17 @@ class PostsApi:
 
         _param = self._list_posts_serialize(
             limit=limit,
-            page=page,
+            cursor=cursor,
             status=status,
             platform=platform,
             account_id=account_id,
-            date_after=date_after,
-            date_before=date_before,
+            profile=profile,
+            group_id=group_id,
+            source=source,
+            since=since,
+            until=until,
             sort=sort,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1340,7 +1141,12 @@ class PostsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListPosts200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1356,14 +1162,18 @@ class PostsApi:
     @validate_call
     async def list_posts_without_preload_content(
         self,
-        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Number of posts per page. Defaults to 20.")] = None,
-        page: Annotated[Optional[Annotated[int, Field(strict=True, ge=1)]], Field(description="Page to return, starting at 1. Defaults to 1.")] = None,
-        status: Annotated[Optional[StrictStr], Field(description="Comma-separated post statuses to include, such as scheduled,published. Omit to include every status.")] = None,
-        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this platform.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts with at least one destination on this account.")] = None,
-        date_after: Annotated[Optional[datetime], Field(description="Start of the date range, as an ISO 8601 time. A post's date is its scheduled time, or its creation time when it has none.")] = None,
-        date_before: Annotated[Optional[datetime], Field(description="End of the date range, as an ISO 8601 time.")] = None,
-        sort: Annotated[Optional[StrictStr], Field(description="Sort order. Defaults to created_desc. Metric sorts rank posts by lifetime totals across destinations and return only posts with metrics.")] = None,
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
+        status: Annotated[Optional[StrictStr], Field(description="Comma-separated statuses to include, such as scheduled,published. Any of scheduled, publishing, published, failed, cancelled, deleted.")] = None,
+        platform: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Only posts on this platform.")] = None,
+        account_id: Annotated[Optional[StrictStr], Field(description="Only posts of this account.")] = None,
+        profile: Annotated[Optional[Annotated[str, Field(strict=True, max_length=60)]], Field(description="Only posts of accounts filed under the profile with this name. Letter case does not matter. Use none for accounts without a profile.")] = None,
+        group_id: Annotated[Optional[StrictStr], Field(description="Only the posts one Create Post request made.")] = None,
+        source: Annotated[Optional[StrictStr], Field(description="onepostly for posts made through Onepostly, external for posts made on the platform.")] = None,
+        since: Annotated[Optional[datetime], Field(description="Only posts dated at or after this time. A post's date is its schedule, else its publish time, else its creation time.")] = None,
+        until: Annotated[Optional[datetime], Field(description="Only posts dated before this time.")] = None,
+        sort: Annotated[Optional[StrictStr], Field(description="Order of the list. Defaults to created_desc. metric:<name> ranks measured posts by a lifetime metric, highest first.")] = None,
+        include: Annotated[Optional[StrictStr], Field(description="Comma-separated extras to add to the response: total, facets.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1379,24 +1189,32 @@ class PostsApi:
     ) -> RESTResponseType:
         """List posts
 
-        Lists the workspace's posts, newest first by default. Results are paginated.
+        Lists the workspace's posts, newest first: posts made through Onepostly, and posts the accounts made on the platform that a sync found.
 
-        :param limit: Number of posts per page. Defaults to 20.
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param page: Page to return, starting at 1. Defaults to 1.
-        :type page: int
-        :param status: Comma-separated post statuses to include, such as scheduled,published. Omit to include every status.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
+        :type cursor: str
+        :param status: Comma-separated statuses to include, such as scheduled,published. Any of scheduled, publishing, published, failed, cancelled, deleted.
         :type status: str
-        :param platform: Only posts with at least one destination on this platform.
+        :param platform: Only posts on this platform.
         :type platform: str
-        :param account_id: Only posts with at least one destination on this account.
+        :param account_id: Only posts of this account.
         :type account_id: str
-        :param date_after: Start of the date range, as an ISO 8601 time. A post's date is its scheduled time, or its creation time when it has none.
-        :type date_after: datetime
-        :param date_before: End of the date range, as an ISO 8601 time.
-        :type date_before: datetime
-        :param sort: Sort order. Defaults to created_desc. Metric sorts rank posts by lifetime totals across destinations and return only posts with metrics.
+        :param profile: Only posts of accounts filed under the profile with this name. Letter case does not matter. Use none for accounts without a profile.
+        :type profile: str
+        :param group_id: Only the posts one Create Post request made.
+        :type group_id: str
+        :param source: onepostly for posts made through Onepostly, external for posts made on the platform.
+        :type source: str
+        :param since: Only posts dated at or after this time. A post's date is its schedule, else its publish time, else its creation time.
+        :type since: datetime
+        :param until: Only posts dated before this time.
+        :type until: datetime
+        :param sort: Order of the list. Defaults to created_desc. metric:<name> ranks measured posts by a lifetime metric, highest first.
         :type sort: str
+        :param include: Comma-separated extras to add to the response: total, facets.
+        :type include: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1421,13 +1239,17 @@ class PostsApi:
 
         _param = self._list_posts_serialize(
             limit=limit,
-            page=page,
+            cursor=cursor,
             status=status,
             platform=platform,
             account_id=account_id,
-            date_after=date_after,
-            date_before=date_before,
+            profile=profile,
+            group_id=group_id,
+            source=source,
+            since=since,
+            until=until,
             sort=sort,
+            include=include,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1436,7 +1258,12 @@ class PostsApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListPosts200Response",
+            '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '429': "Error",
+            '500': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1448,13 +1275,17 @@ class PostsApi:
     def _list_posts_serialize(
         self,
         limit,
-        page,
+        cursor,
         status,
         platform,
         account_id,
-        date_after,
-        date_before,
+        profile,
+        group_id,
+        source,
+        since,
+        until,
         sort,
+        include,
         _request_auth,
         _content_type,
         _headers,
@@ -1481,9 +1312,9 @@ class PostsApi:
             
             _query_params.append(('limit', limit))
             
-        if page is not None:
+        if cursor is not None:
             
-            _query_params.append(('page', page))
+            _query_params.append(('cursor', cursor))
             
         if status is not None:
             
@@ -1497,35 +1328,51 @@ class PostsApi:
             
             _query_params.append(('accountId', account_id))
             
-        if date_after is not None:
-            if isinstance(date_after, datetime):
-                _query_params.append(
-                    (
-                        'dateAfter',
-                        date_after.strftime(
-                            self.api_client.configuration.datetime_format
-                        )
-                    )
-                )
-            else:
-                _query_params.append(('dateAfter', date_after))
+        if profile is not None:
             
-        if date_before is not None:
-            if isinstance(date_before, datetime):
+            _query_params.append(('profile', profile))
+            
+        if group_id is not None:
+            
+            _query_params.append(('groupId', group_id))
+            
+        if source is not None:
+            
+            _query_params.append(('source', source))
+            
+        if since is not None:
+            if isinstance(since, datetime):
                 _query_params.append(
                     (
-                        'dateBefore',
-                        date_before.strftime(
+                        'since',
+                        since.strftime(
                             self.api_client.configuration.datetime_format
                         )
                     )
                 )
             else:
-                _query_params.append(('dateBefore', date_before))
+                _query_params.append(('since', since))
+            
+        if until is not None:
+            if isinstance(until, datetime):
+                _query_params.append(
+                    (
+                        'until',
+                        until.strftime(
+                            self.api_client.configuration.datetime_format
+                        )
+                    )
+                )
+            else:
+                _query_params.append(('until', until))
             
         if sort is not None:
             
             _query_params.append(('sort', sort))
+            
+        if include is not None:
+            
+            _query_params.append(('include', include))
             
         # process the header parameters
         # process the form parameters
@@ -1543,7 +1390,6 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
@@ -1566,9 +1412,11 @@ class PostsApi:
 
 
     @validate_call
-    async def sync_external(
+    async def sync_account_posts(
         self,
-        sync_external_body: SyncExternalBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        sync_account_posts_body: Optional[SyncAccountPostsBody] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1581,13 +1429,17 @@ class PostsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SyncExternal200Response:
-        """Sync external posts
+    ) -> SyncAccountPosts200Response:
+        """Sync account posts
 
-        Fetches posts that an account published directly on the platform, outside Onepostly. Pass url or postId to find one post, or omit both to refresh the account's recent posts.
+        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts.
 
-        :param sync_external_body: (required)
-        :type sync_external_body: SyncExternalBody
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param sync_account_posts_body:
+        :type sync_account_posts_body: SyncAccountPostsBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1610,8 +1462,10 @@ class PostsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._sync_external_serialize(
-            sync_external_body=sync_external_body,
+        _param = self._sync_account_posts_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            sync_account_posts_body=sync_account_posts_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1619,11 +1473,16 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SyncExternal200Response",
+            '200': "SyncAccountPosts200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1638,9 +1497,11 @@ class PostsApi:
 
 
     @validate_call
-    async def sync_external_with_http_info(
+    async def sync_account_posts_with_http_info(
         self,
-        sync_external_body: SyncExternalBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        sync_account_posts_body: Optional[SyncAccountPostsBody] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1653,13 +1514,17 @@ class PostsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SyncExternal200Response]:
-        """Sync external posts
+    ) -> ApiResponse[SyncAccountPosts200Response]:
+        """Sync account posts
 
-        Fetches posts that an account published directly on the platform, outside Onepostly. Pass url or postId to find one post, or omit both to refresh the account's recent posts.
+        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts.
 
-        :param sync_external_body: (required)
-        :type sync_external_body: SyncExternalBody
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param sync_account_posts_body:
+        :type sync_account_posts_body: SyncAccountPostsBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1682,8 +1547,10 @@ class PostsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._sync_external_serialize(
-            sync_external_body=sync_external_body,
+        _param = self._sync_account_posts_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            sync_account_posts_body=sync_account_posts_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1691,11 +1558,16 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SyncExternal200Response",
+            '200': "SyncAccountPosts200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1710,9 +1582,11 @@ class PostsApi:
 
 
     @validate_call
-    async def sync_external_without_preload_content(
+    async def sync_account_posts_without_preload_content(
         self,
-        sync_external_body: SyncExternalBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]], Field(description="A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.")] = None,
+        sync_account_posts_body: Optional[SyncAccountPostsBody] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1726,12 +1600,16 @@ class PostsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Sync external posts
+        """Sync account posts
 
-        Fetches posts that an account published directly on the platform, outside Onepostly. Pass url or postId to find one post, or omit both to refresh the account's recent posts.
+        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts.
 
-        :param sync_external_body: (required)
-        :type sync_external_body: SyncExternalBody
+        :param id: (required)
+        :type id: str
+        :param idempotency_key: A unique key, such as a UUID, that makes retrying this request safe. A repeat with the same key and body within 24 hours returns the first response instead of acting again. A 429 or 5xx response is not kept, so a retry with the same key runs again.
+        :type idempotency_key: str
+        :param sync_account_posts_body:
+        :type sync_account_posts_body: SyncAccountPostsBody
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1754,8 +1632,10 @@ class PostsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._sync_external_serialize(
-            sync_external_body=sync_external_body,
+        _param = self._sync_account_posts_serialize(
+            id=id,
+            idempotency_key=idempotency_key,
+            sync_account_posts_body=sync_account_posts_body,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1763,11 +1643,16 @@ class PostsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SyncExternal200Response",
+            '200': "SyncAccountPosts200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1777,9 +1662,11 @@ class PostsApi:
         return response_data.response
 
 
-    def _sync_external_serialize(
+    def _sync_account_posts_serialize(
         self,
-        sync_external_body,
+        id,
+        idempotency_key,
+        sync_account_posts_body,
         _request_auth,
         _content_type,
         _headers,
@@ -1801,12 +1688,16 @@ class PostsApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
         # process the header parameters
+        if idempotency_key is not None:
+            _header_params['Idempotency-Key'] = idempotency_key
         # process the form parameters
         # process the body parameter
-        if sync_external_body is not None:
-            _body_params = sync_external_body
+        if sync_account_posts_body is not None:
+            _body_params = sync_account_posts_body
 
 
         # set the HTTP header `Accept`
@@ -1833,13 +1724,325 @@ class PostsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
-            resource_path='/v1/posts/sync-external',
+            resource_path='/v1/accounts/{id}/sync',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def update_post(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        update_post_body: UpdatePostBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Post:
+        """Update post
+
+        Edits a scheduled post. Only the fields you send change, and the result is checked like a new post. Editing a post that shares its group with posts on other accounts gives it a groupId of its own.
+
+        :param id: (required)
+        :type id: str
+        :param update_post_body: (required)
+        :type update_post_body: UpdatePostBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_post_serialize(
+            id=id,
+            update_post_body=update_post_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Post",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def update_post_with_http_info(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        update_post_body: UpdatePostBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Post]:
+        """Update post
+
+        Edits a scheduled post. Only the fields you send change, and the result is checked like a new post. Editing a post that shares its group with posts on other accounts gives it a groupId of its own.
+
+        :param id: (required)
+        :type id: str
+        :param update_post_body: (required)
+        :type update_post_body: UpdatePostBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_post_serialize(
+            id=id,
+            update_post_body=update_post_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Post",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def update_post_without_preload_content(
+        self,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        update_post_body: UpdatePostBody,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Update post
+
+        Edits a scheduled post. Only the fields you send change, and the result is checked like a new post. Editing a post that shares its group with posts on other accounts gives it a groupId of its own.
+
+        :param id: (required)
+        :type id: str
+        :param update_post_body: (required)
+        :type update_post_body: UpdatePostBody
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_post_serialize(
+            id=id,
+            update_post_body=update_post_body,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Post",
+            '400': "Error",
+            '401': "Error",
+            '402': "Error",
+            '403': "Error",
+            '404': "Error",
+            '409': "Error",
+            '429': "Error",
+            '500': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _update_post_serialize(
+        self,
+        id,
+        update_post_body,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if update_post_body is not None:
+            _body_params = update_post_body
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'Bearer'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PATCH',
+            resource_path='/v1/posts/{id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

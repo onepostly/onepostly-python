@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, StrictBool
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -27,8 +27,8 @@ class TestWebhook200Response(BaseModel):
     """
     TestWebhook200Response
     """ # noqa: E501
-    ok: StrictBool
-    __properties: ClassVar[List[str]] = ["ok"]
+    sent: StrictBool = Field(description="false when the event could not be queued.")
+    __properties: ClassVar[List[str]] = ["sent"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -81,7 +81,7 @@ class TestWebhook200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "ok": obj.get("ok")
+            "sent": obj.get("sent")
         })
         return _obj
 

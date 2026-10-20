@@ -28,10 +28,10 @@ class SetMessengerProfileBodyPersistentMenuInner(BaseModel):
     """
     SetMessengerProfileBodyPersistentMenuInner
     """ # noqa: E501
-    type: StrictStr
-    title: Annotated[str, Field(min_length=1, strict=True, max_length=20)]
-    url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = None
-    payload: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=1000)]] = None
+    type: StrictStr = Field(description="web_url opens url. postback sends payload to the Page.")
+    title: Annotated[str, Field(min_length=1, strict=True, max_length=20)] = Field(description="Text shown on the menu item, up to 20 characters.")
+    url: Optional[Annotated[str, Field(strict=True, max_length=2048)]] = Field(default=None, description="Link a web_url item opens. Required for web_url.")
+    payload: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=1000)]] = Field(default=None, description="Value a postback item sends, up to 1,000 characters. Required for postback.")
     __properties: ClassVar[List[str]] = ["type", "title", "url", "payload"]
 
     @field_validator('type')

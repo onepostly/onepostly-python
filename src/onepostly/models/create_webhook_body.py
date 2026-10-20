@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -29,11 +29,19 @@ class CreateWebhookBody(BaseModel):
     CreateWebhookBody
     """ # noqa: E501
     name: Annotated[str, Field(min_length=1, strict=True, max_length=120)]
-    url: Annotated[str, Field(strict=True, max_length=2048)]
-    secret: Optional[Annotated[str, Field(min_length=16, strict=True, max_length=128)]] = None
-    events: Annotated[List[StrictStr], Field(min_length=1, max_length=31)]
-    enabled: Optional[StrictBool] = True
+    url: Annotated[str, Field(strict=True, max_length=2048)] = Field(description="HTTPS URL that receives the events.")
+    secret: Optional[Annotated[str, Field(min_length=16, strict=True, max_length=128)]] = Field(default=None, description="Signing secret to use. One is generated when you leave it out.")
+    events: Annotated[List[StrictStr], Field(min_length=1, max_length=30)] = Field(description="Event types to receive, from List Event Types. [\"*\"] receives every event type, including ones added later. \"*\" must be the only item, or the request returns VALIDATION_ERROR.")
+    enabled: Optional[StrictBool] = Field(default=True, description="false creates the webhook paused.")
     __properties: ClassVar[List[str]] = ["name", "url", "secret", "events", "enabled"]
+
+    @field_validator('events')
+    def events_validate_enum(cls, value):
+        """Validates the enum"""
+        for i in value:
+            if i not in set(['*', 'post.scheduled', 'post.published', 'post.failed', 'post.cancelled', 'post.deleted', 'post.updated', 'post.created', 'comment.created', 'comment.deleted', 'comment.received', 'message.received', 'message.sent', 'message.delivered', 'message.read', 'message.deleted', 'message.reaction', 'message.postback', 'review.received', 'engagement.liked', 'engagement.unliked', 'engagement.bookmarked', 'engagement.unbookmarked', 'engagement.reposted', 'engagement.unreposted', 'account.connected', 'account.disconnected', 'account.expiring', 'account.expired', 'account.revoked', 'webhook.test']):
+                raise ValueError("each list item must be one of ('*', 'post.scheduled', 'post.published', 'post.failed', 'post.cancelled', 'post.deleted', 'post.updated', 'post.created', 'comment.created', 'comment.deleted', 'comment.received', 'message.received', 'message.sent', 'message.delivered', 'message.read', 'message.deleted', 'message.reaction', 'message.postback', 'review.received', 'engagement.liked', 'engagement.unliked', 'engagement.bookmarked', 'engagement.unbookmarked', 'engagement.reposted', 'engagement.unreposted', 'account.connected', 'account.disconnected', 'account.expiring', 'account.expired', 'account.revoked', 'webhook.test')")
+        return value
 
     model_config = ConfigDict(
         validate_by_name=True,

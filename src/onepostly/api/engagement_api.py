@@ -15,20 +15,13 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictStr
+from pydantic import Field
 from typing import Optional
 from typing_extensions import Annotated
-from onepostly.models.create_automation201_response import CreateAutomation201Response
-from onepostly.models.create_automation_body import CreateAutomationBody
-from onepostly.models.delete_automations200_response import DeleteAutomations200Response
-from onepostly.models.engagement_target_body import EngagementTargetBody
-from onepostly.models.like201_response import Like201Response
-from onepostly.models.list_automations200_response import ListAutomations200Response
-from onepostly.models.list_retweeters200_response import ListRetweeters200Response
-from onepostly.models.quote201_response import Quote201Response
-from onepostly.models.quote_body import QuoteBody
-from onepostly.models.retweet201_response import Retweet201Response
-from onepostly.models.undo_retweet200_response import UndoRetweet200Response
+from onepostly.models.bookmark import Bookmark
+from onepostly.models.like import Like
+from onepostly.models.list_reposters200_response import ListReposters200Response
+from onepostly.models.repost import Repost
 
 from onepostly.api_client import ApiClient, RequestSerialized
 from onepostly.api_response import ApiResponse
@@ -49,9 +42,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def bookmark(
+    async def bookmark_post(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -64,13 +58,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Like201Response:
-        """Bookmark
+    ) -> Bookmark:
+        """Bookmark a post
 
-        Bookmarks one published destination or platform-native post.
+        Bookmarks a post as the account. Supported on X and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -93,8 +89,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._bookmark_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._bookmark_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -102,14 +99,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Like201Response",
+            '200': "Bookmark",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -124,9 +123,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def bookmark_with_http_info(
+    async def bookmark_post_with_http_info(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -139,13 +139,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Like201Response]:
-        """Bookmark
+    ) -> ApiResponse[Bookmark]:
+        """Bookmark a post
 
-        Bookmarks one published destination or platform-native post.
+        Bookmarks a post as the account. Supported on X and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -168,8 +170,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._bookmark_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._bookmark_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -177,14 +180,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Like201Response",
+            '200': "Bookmark",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -199,9 +204,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def bookmark_without_preload_content(
+    async def bookmark_post_without_preload_content(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -215,12 +221,14 @@ class EngagementApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Bookmark
+        """Bookmark a post
 
-        Bookmarks one published destination or platform-native post.
+        Bookmarks a post as the account. Supported on X and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -243,8 +251,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._bookmark_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._bookmark_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -252,14 +261,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Like201Response",
+            '200': "Bookmark",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -269,9 +280,10 @@ class EngagementApi:
         return response_data.response
 
 
-    def _bookmark_serialize(
+    def _bookmark_post_serialize(
         self,
-        engagement_target_body,
+        id,
+        post_id,
         _request_auth,
         _content_type,
         _headers,
@@ -293,602 +305,11 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if post_id is not None:
+            _path_params['postId'] = post_id
         # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if engagement_target_body is not None:
-            _body_params = engagement_target_body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKey', 
-            'Bearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/bookmarks',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def create_automation(
-        self,
-        create_automation_body: CreateAutomationBody,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateAutomation201Response:
-        """Create inbox automation
-
-        Creates a keyword auto-reply rule for an Instagram or Facebook connection.
-
-        :param create_automation_body: (required)
-        :type create_automation_body: CreateAutomationBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_automation_serialize(
-            create_automation_body=create_automation_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateAutomation201Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def create_automation_with_http_info(
-        self,
-        create_automation_body: CreateAutomationBody,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateAutomation201Response]:
-        """Create inbox automation
-
-        Creates a keyword auto-reply rule for an Instagram or Facebook connection.
-
-        :param create_automation_body: (required)
-        :type create_automation_body: CreateAutomationBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_automation_serialize(
-            create_automation_body=create_automation_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateAutomation201Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def create_automation_without_preload_content(
-        self,
-        create_automation_body: CreateAutomationBody,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Create inbox automation
-
-        Creates a keyword auto-reply rule for an Instagram or Facebook connection.
-
-        :param create_automation_body: (required)
-        :type create_automation_body: CreateAutomationBody
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._create_automation_serialize(
-            create_automation_body=create_automation_body,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateAutomation201Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _create_automation_serialize(
-        self,
-        create_automation_body,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if create_automation_body is not None:
-            _body_params = create_automation_body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKey', 
-            'Bearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/automations',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def delete_automations(
-        self,
-        account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None,
-        name: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Deletes rules whose name contains this text. Matching ignores case.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> DeleteAutomations200Response:
-        """Delete inbox automations
-
-        Deletes the rules that match accountId, name or both. You must pass at least one of them.
-
-        :param account_id:
-        :type account_id: str
-        :param name: Deletes rules whose name contains this text. Matching ignores case.
-        :type name: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._delete_automations_serialize(
-            account_id=account_id,
-            name=name,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DeleteAutomations200Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def delete_automations_with_http_info(
-        self,
-        account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None,
-        name: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Deletes rules whose name contains this text. Matching ignores case.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[DeleteAutomations200Response]:
-        """Delete inbox automations
-
-        Deletes the rules that match accountId, name or both. You must pass at least one of them.
-
-        :param account_id:
-        :type account_id: str
-        :param name: Deletes rules whose name contains this text. Matching ignores case.
-        :type name: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._delete_automations_serialize(
-            account_id=account_id,
-            name=name,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DeleteAutomations200Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def delete_automations_without_preload_content(
-        self,
-        account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None,
-        name: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Deletes rules whose name contains this text. Matching ignores case.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Delete inbox automations
-
-        Deletes the rules that match accountId, name or both. You must pass at least one of them.
-
-        :param account_id:
-        :type account_id: str
-        :param name: Deletes rules whose name contains this text. Matching ignores case.
-        :type name: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._delete_automations_serialize(
-            account_id=account_id,
-            name=name,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "DeleteAutomations200Response",
-            '400': "Error",
-            '401': "Error",
-            '403': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _delete_automations_serialize(
-        self,
-        account_id,
-        name,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if name is not None:
-            
-            _query_params.append(('name', name))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -905,13 +326,12 @@ class EngagementApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
-            method='DELETE',
-            resource_path='/v1/automations',
+            method='PUT',
+            resource_path='/v1/accounts/{id}/bookmarks/{postId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -928,9 +348,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def like(
+    async def like_post(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -943,13 +364,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Like201Response:
-        """Like
+    ) -> Like:
+        """Like a post
 
-        Likes one published destination or platform-native post.
+        Likes a post as the account. Supported on X, Facebook, YouTube and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -972,8 +395,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._like_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._like_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -981,14 +405,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Like201Response",
+            '200': "Like",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1003,9 +429,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def like_with_http_info(
+    async def like_post_with_http_info(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1018,13 +445,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Like201Response]:
-        """Like
+    ) -> ApiResponse[Like]:
+        """Like a post
 
-        Likes one published destination or platform-native post.
+        Likes a post as the account. Supported on X, Facebook, YouTube and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1047,8 +476,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._like_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._like_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1056,14 +486,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Like201Response",
+            '200': "Like",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1078,9 +510,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def like_without_preload_content(
+    async def like_post_without_preload_content(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1094,12 +527,14 @@ class EngagementApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Like
+        """Like a post
 
-        Likes one published destination or platform-native post.
+        Likes a post as the account. Supported on X, Facebook, YouTube and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1122,8 +557,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._like_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._like_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1131,14 +567,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Like201Response",
+            '200': "Like",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1148,9 +586,10 @@ class EngagementApi:
         return response_data.response
 
 
-    def _like_serialize(
+    def _like_post_serialize(
         self,
-        engagement_target_body,
+        id,
+        post_id,
         _request_auth,
         _content_type,
         _headers,
@@ -1172,312 +611,11 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if post_id is not None:
+            _path_params['postId'] = post_id
         # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if engagement_target_body is not None:
-            _body_params = engagement_target_body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKey', 
-            'Bearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/likes',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def list_automations(
-        self,
-        account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None,
-        name: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Returns rules whose name contains this text. Matching ignores case.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ListAutomations200Response:
-        """List inbox automations
-
-        Lists keyword auto-reply rules for Instagram and Facebook connections. Omit accountId to list rules for every connection.
-
-        :param account_id:
-        :type account_id: str
-        :param name: Returns rules whose name contains this text. Matching ignores case.
-        :type name: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._list_automations_serialize(
-            account_id=account_id,
-            name=name,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListAutomations200Response",
-            '400': "Error",
-            '401': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def list_automations_with_http_info(
-        self,
-        account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None,
-        name: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Returns rules whose name contains this text. Matching ignores case.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ListAutomations200Response]:
-        """List inbox automations
-
-        Lists keyword auto-reply rules for Instagram and Facebook connections. Omit accountId to list rules for every connection.
-
-        :param account_id:
-        :type account_id: str
-        :param name: Returns rules whose name contains this text. Matching ignores case.
-        :type name: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._list_automations_serialize(
-            account_id=account_id,
-            name=name,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListAutomations200Response",
-            '400': "Error",
-            '401': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def list_automations_without_preload_content(
-        self,
-        account_id: Optional[Annotated[str, Field(min_length=1, strict=True)]] = None,
-        name: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Returns rules whose name contains this text. Matching ignores case.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """List inbox automations
-
-        Lists keyword auto-reply rules for Instagram and Facebook connections. Omit accountId to list rules for every connection.
-
-        :param account_id:
-        :type account_id: str
-        :param name: Returns rules whose name contains this text. Matching ignores case.
-        :type name: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._list_automations_serialize(
-            account_id=account_id,
-            name=name,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListAutomations200Response",
-            '400': "Error",
-            '401': "Error",
-            '404': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _list_automations_serialize(
-        self,
-        account_id,
-        name,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if name is not None:
-            
-            _query_params.append(('name', name))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -1494,13 +632,12 @@ class EngagementApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
-            method='GET',
-            resource_path='/v1/automations',
+            method='PUT',
+            resource_path='/v1/accounts/{id}/likes/{postId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1517,13 +654,11 @@ class EngagementApi:
 
 
     @validate_call
-    async def list_retweeters(
+    async def list_reposters(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Cursor from the previous response. Works only when the request points to a single destination.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1536,20 +671,16 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ListRetweeters200Response:
+    ) -> ListReposters200Response:
         """List reposters
 
-        Lists accounts that reposted a post, grouped by destination.
+        Lists the accounts that reposted a post. Supported on X and Bluesky.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param cursor: Cursor from the previous response. Works only when the request points to a single destination.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1573,10 +704,8 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_retweeters_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._list_reposters_serialize(
+            id=id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1586,10 +715,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListRetweeters200Response",
+            '200': "ListReposters200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1604,13 +739,11 @@ class EngagementApi:
 
 
     @validate_call
-    async def list_retweeters_with_http_info(
+    async def list_reposters_with_http_info(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Cursor from the previous response. Works only when the request points to a single destination.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1623,20 +756,16 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[ListRetweeters200Response]:
+    ) -> ApiResponse[ListReposters200Response]:
         """List reposters
 
-        Lists accounts that reposted a post, grouped by destination.
+        Lists the accounts that reposted a post. Supported on X and Bluesky.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param cursor: Cursor from the previous response. Works only when the request points to a single destination.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1660,10 +789,8 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_retweeters_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._list_reposters_serialize(
+            id=id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1673,10 +800,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListRetweeters200Response",
+            '200': "ListReposters200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1691,13 +824,11 @@ class EngagementApi:
 
 
     @validate_call
-    async def list_retweeters_without_preload_content(
+    async def list_reposters_without_preload_content(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        limit: Optional[Annotated[int, Field(le=100, strict=True, ge=1)]] = None,
-        cursor: Annotated[Optional[StrictStr], Field(description="Cursor from the previous response. Works only when the request points to a single destination.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        limit: Annotated[Optional[Annotated[int, Field(le=100, strict=True, ge=1)]], Field(description="Items per page. Defaults to 50. Maximum 100.")] = None,
+        cursor: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="The nextCursor of the previous page. Omit it for the first page.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1713,17 +844,13 @@ class EngagementApi:
     ) -> RESTResponseType:
         """List reposters
 
-        Lists accounts that reposted a post, grouped by destination.
+        Lists the accounts that reposted a post. Supported on X and Bluesky.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param limit:
+        :param id: (required)
+        :type id: str
+        :param limit: Items per page. Defaults to 50. Maximum 100.
         :type limit: int
-        :param cursor: Cursor from the previous response. Works only when the request points to a single destination.
+        :param cursor: The nextCursor of the previous page. Omit it for the first page.
         :type cursor: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1747,10 +874,8 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._list_retweeters_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._list_reposters_serialize(
+            id=id,
             limit=limit,
             cursor=cursor,
             _request_auth=_request_auth,
@@ -1760,10 +885,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "ListRetweeters200Response",
+            '200': "ListReposters200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1773,11 +904,9 @@ class EngagementApi:
         return response_data.response
 
 
-    def _list_retweeters_serialize(
+    def _list_reposters_serialize(
         self,
-        post,
-        account_id,
-        destination_id,
+        id,
         limit,
         cursor,
         _request_auth,
@@ -1801,19 +930,9 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
         if limit is not None:
             
             _query_params.append(('limit', limit))
@@ -1838,13 +957,12 @@ class EngagementApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
-            resource_path='/v1/retweets',
+            resource_path='/v1/posts/{id}/reposts',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -1861,9 +979,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def quote(
+    async def repost_post(
         self,
-        quote_body: QuoteBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1876,13 +995,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Quote201Response:
-        """Quote post
+    ) -> Repost:
+        """Repost a post
 
-        Quotes one published destination or platform-native post with your own text.
+        Reposts a post as the account. Supported on X, Threads and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param quote_body: (required)
-        :type quote_body: QuoteBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1905,8 +1026,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._quote_serialize(
-            quote_body=quote_body,
+        _param = self._repost_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1914,14 +1036,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Quote201Response",
+            '200': "Repost",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -1936,9 +1060,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def quote_with_http_info(
+    async def repost_post_with_http_info(
         self,
-        quote_body: QuoteBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1951,13 +1076,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Quote201Response]:
-        """Quote post
+    ) -> ApiResponse[Repost]:
+        """Repost a post
 
-        Quotes one published destination or platform-native post with your own text.
+        Reposts a post as the account. Supported on X, Threads and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param quote_body: (required)
-        :type quote_body: QuoteBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1980,8 +1107,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._quote_serialize(
-            quote_body=quote_body,
+        _param = self._repost_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1989,14 +1117,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Quote201Response",
+            '200': "Repost",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2011,9 +1141,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def quote_without_preload_content(
+    async def repost_post_without_preload_content(
         self,
-        quote_body: QuoteBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2027,12 +1158,14 @@ class EngagementApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Quote post
+        """Repost a post
 
-        Quotes one published destination or platform-native post with your own text.
+        Reposts a post as the account. Supported on X, Threads and Bluesky. On X every request is charged to the wallet, a repeat included.
 
-        :param quote_body: (required)
-        :type quote_body: QuoteBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2055,8 +1188,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._quote_serialize(
-            quote_body=quote_body,
+        _param = self._repost_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2064,14 +1198,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Quote201Response",
+            '200': "Repost",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2081,9 +1217,10 @@ class EngagementApi:
         return response_data.response
 
 
-    def _quote_serialize(
+    def _repost_post_serialize(
         self,
-        quote_body,
+        id,
+        post_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2105,12 +1242,14 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if post_id is not None:
+            _path_params['postId'] = post_id
         # process the query parameters
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if quote_body is not None:
-            _body_params = quote_body
 
 
         # set the HTTP header `Accept`
@@ -2121,29 +1260,15 @@ class EngagementApi:
                 ]
             )
 
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/quotes',
+            method='PUT',
+            resource_path='/v1/accounts/{id}/reposts/{postId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2160,11 +1285,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def remove_bookmark(
+    async def unbookmark_post(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2177,17 +1301,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Like201Response:
-        """Remove bookmark
+    ) -> Bookmark:
+        """Remove a bookmark
 
-        Removes the connected account's bookmark from a post.
+        Remove a bookmark the account made. Name the post as you did to bookmark it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2210,10 +1332,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._remove_bookmark_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._unbookmark_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2221,14 +1342,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Like201Response",
+            '200': "Bookmark",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2243,11 +1366,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def remove_bookmark_with_http_info(
+    async def unbookmark_post_with_http_info(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2260,17 +1382,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Like201Response]:
-        """Remove bookmark
+    ) -> ApiResponse[Bookmark]:
+        """Remove a bookmark
 
-        Removes the connected account's bookmark from a post.
+        Remove a bookmark the account made. Name the post as you did to bookmark it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2293,10 +1413,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._remove_bookmark_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._unbookmark_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2304,14 +1423,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Like201Response",
+            '200': "Bookmark",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2326,11 +1447,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def remove_bookmark_without_preload_content(
+    async def unbookmark_post_without_preload_content(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2344,16 +1464,14 @@ class EngagementApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Remove bookmark
+        """Remove a bookmark
 
-        Removes the connected account's bookmark from a post.
+        Remove a bookmark the account made. Name the post as you did to bookmark it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2376,10 +1494,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._remove_bookmark_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._unbookmark_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2387,14 +1504,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Like201Response",
+            '200': "Bookmark",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2404,11 +1523,10 @@ class EngagementApi:
         return response_data.response
 
 
-    def _remove_bookmark_serialize(
+    def _unbookmark_post_serialize(
         self,
-        post,
-        account_id,
-        destination_id,
+        id,
+        post_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2430,19 +1548,11 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if post_id is not None:
+            _path_params['postId'] = post_id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -2459,13 +1569,12 @@ class EngagementApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/bookmarks',
+            resource_path='/v1/accounts/{id}/bookmarks/{postId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2482,9 +1591,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def retweet(
+    async def unlike_post(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2497,13 +1607,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Retweet201Response:
-        """Repost
+    ) -> Like:
+        """Remove a like
 
-        Reposts one published destination or platform-native post.
+        Remove a like the account made. Name the post as you did to like it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2526,8 +1638,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._retweet_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._unlike_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2535,14 +1648,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Retweet201Response",
+            '200': "Like",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2557,9 +1672,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def retweet_with_http_info(
+    async def unlike_post_with_http_info(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2572,13 +1688,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Retweet201Response]:
-        """Repost
+    ) -> ApiResponse[Like]:
+        """Remove a like
 
-        Reposts one published destination or platform-native post.
+        Remove a like the account made. Name the post as you did to like it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2601,8 +1719,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._retweet_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._unlike_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2610,14 +1729,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Retweet201Response",
+            '200': "Like",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2632,9 +1753,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def retweet_without_preload_content(
+    async def unlike_post_without_preload_content(
         self,
-        engagement_target_body: EngagementTargetBody,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2648,12 +1770,14 @@ class EngagementApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Repost
+        """Remove a like
 
-        Reposts one published destination or platform-native post.
+        Remove a like the account made. Name the post as you did to like it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param engagement_target_body: (required)
-        :type engagement_target_body: EngagementTargetBody
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2676,8 +1800,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._retweet_serialize(
-            engagement_target_body=engagement_target_body,
+        _param = self._unlike_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2685,14 +1810,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "Retweet201Response",
+            '200': "Like",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -2702,9 +1829,10 @@ class EngagementApi:
         return response_data.response
 
 
-    def _retweet_serialize(
+    def _unlike_post_serialize(
         self,
-        engagement_target_body,
+        id,
+        post_id,
         _request_auth,
         _content_type,
         _headers,
@@ -2726,344 +1854,11 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if post_id is not None:
+            _path_params['postId'] = post_id
         # process the query parameters
-        # process the header parameters
-        # process the form parameters
-        # process the body parameter
-        if engagement_target_body is not None:
-            _body_params = engagement_target_body
-
-
-        # set the HTTP header `Accept`
-        if 'Accept' not in _header_params:
-            _header_params['Accept'] = self.api_client.select_header_accept(
-                [
-                    'application/json'
-                ]
-            )
-
-        # set the HTTP header `Content-Type`
-        if _content_type:
-            _header_params['Content-Type'] = _content_type
-        else:
-            _default_content_type = (
-                self.api_client.select_header_content_type(
-                    [
-                        'application/json'
-                    ]
-                )
-            )
-            if _default_content_type is not None:
-                _header_params['Content-Type'] = _default_content_type
-
-        # authentication setting
-        _auth_settings: List[str] = [
-            'ApiKey', 
-            'Bearer'
-        ]
-
-        return self.api_client.param_serialize(
-            method='POST',
-            resource_path='/v1/retweets',
-            path_params=_path_params,
-            query_params=_query_params,
-            header_params=_header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            auth_settings=_auth_settings,
-            collection_formats=_collection_formats,
-            _host=_host,
-            _request_auth=_request_auth
-        )
-
-
-
-
-    @validate_call
-    async def undo_retweet(
-        self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> UndoRetweet200Response:
-        """Undo repost
-
-        Removes a repost made by the connected account.
-
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._undo_retweet_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UndoRetweet200Response",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '429': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        ).data
-
-
-    @validate_call
-    async def undo_retweet_with_http_info(
-        self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[UndoRetweet200Response]:
-        """Undo repost
-
-        Removes a repost made by the connected account.
-
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._undo_retweet_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UndoRetweet200Response",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '429': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        await response_data.read()
-        return self.api_client.response_deserialize(
-            response_data=response_data,
-            response_types_map=_response_types_map,
-        )
-
-
-    @validate_call
-    async def undo_retweet_without_preload_content(
-        self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
-        _request_timeout: Union[
-            None,
-            Annotated[StrictFloat, Field(gt=0)],
-            Tuple[
-                Annotated[StrictFloat, Field(gt=0)],
-                Annotated[StrictFloat, Field(gt=0)]
-            ]
-        ] = None,
-        _request_auth: Optional[Dict[StrictStr, Any]] = None,
-        _content_type: Optional[StrictStr] = None,
-        _headers: Optional[Dict[StrictStr, Any]] = None,
-        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> RESTResponseType:
-        """Undo repost
-
-        Removes a repost made by the connected account.
-
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :type _request_timeout: int, tuple(int, int), optional
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the
-                              authentication in the spec for a single request.
-        :type _request_auth: dict, optional
-        :param _content_type: force content-type for the request.
-        :type _content_type: str, Optional
-        :param _headers: set to override the headers for a single
-                         request; this effectively ignores the headers
-                         in the spec for a single request.
-        :type _headers: dict, optional
-        :param _host_index: set to override the host_index for a single
-                            request; this effectively ignores the host_index
-                            in the spec for a single request.
-        :type _host_index: int, optional
-        :return: Returns the result object.
-        """ # noqa: E501
-
-        _param = self._undo_retweet_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
-            _request_auth=_request_auth,
-            _content_type=_content_type,
-            _headers=_headers,
-            _host_index=_host_index
-        )
-
-        _response_types_map: Dict[str, Optional[str]] = {
-            '200': "UndoRetweet200Response",
-            '400': "Error",
-            '401': "Error",
-            '402': "Error",
-            '403': "Error",
-            '404': "Error",
-            '409': "Error",
-            '429': "Error",
-            '502': "Error",
-        }
-        response_data = await self.api_client.call_api(
-            *_param,
-            _request_timeout=_request_timeout
-        )
-        return response_data.response
-
-
-    def _undo_retweet_serialize(
-        self,
-        post,
-        account_id,
-        destination_id,
-        _request_auth,
-        _content_type,
-        _headers,
-        _host_index,
-    ) -> RequestSerialized:
-
-        _host = None
-
-        _collection_formats: Dict[str, str] = {
-        }
-
-        _path_params: Dict[str, str] = {}
-        _query_params: List[Tuple[str, str]] = []
-        _header_params: Dict[str, Optional[str]] = _headers or {}
-        _form_params: List[Tuple[str, str]] = []
-        _files: Dict[
-            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
-        ] = {}
-        _body_params: Optional[bytes] = None
-
-        # process the path parameters
-        # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -3080,13 +1875,12 @@ class EngagementApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/retweets',
+            resource_path='/v1/accounts/{id}/likes/{postId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -3103,11 +1897,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def unlike(
+    async def unrepost_post(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3120,17 +1913,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> Like201Response:
-        """Unlike
+    ) -> Repost:
+        """Undo a repost
 
-        Removes the connected account's like from a post.
+        Undo a repost the account made. Name the post as you did to repost it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3153,10 +1944,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._unlike_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._unrepost_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3164,14 +1954,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Like201Response",
+            '200': "Repost",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -3186,11 +1978,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def unlike_with_http_info(
+    async def unrepost_post_with_http_info(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3203,17 +1994,15 @@ class EngagementApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[Like201Response]:
-        """Unlike
+    ) -> ApiResponse[Repost]:
+        """Undo a repost
 
-        Removes the connected account's like from a post.
+        Undo a repost the account made. Name the post as you did to repost it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3236,10 +2025,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._unlike_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._unrepost_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3247,14 +2035,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Like201Response",
+            '200': "Repost",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -3269,11 +2059,10 @@ class EngagementApi:
 
 
     @validate_call
-    async def unlike_without_preload_content(
+    async def unrepost_post_without_preload_content(
         self,
-        post: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.")] = None,
-        account_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.")] = None,
-        destination_id: Annotated[Optional[Annotated[str, Field(min_length=1, strict=True)]], Field(description="Destination id. It identifies one destination on its own, so post and accountId become optional.")] = None,
+        id: Annotated[str, Field(min_length=1, strict=True)],
+        post_id: Annotated[str, Field(min_length=1, strict=True, max_length=512, description="The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F…")],
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3287,16 +2076,14 @@ class EngagementApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Unlike
+        """Undo a repost
 
-        Removes the connected account's like from a post.
+        Undo a repost the account made. Name the post as you did to repost it, or by the postId the response returned. On X every request is charged to the wallet, a repeat included.
 
-        :param post: Onepostly post id or platform-native post id. Native ids also need accountId. You can omit it when you pass destinationId.
-        :type post: str
-        :param account_id: Connection id. Required with a platform-native post id, and picks the destination when a Onepostly post has several.
-        :type account_id: str
-        :param destination_id: Destination id. It identifies one destination on its own, so post and accountId become optional.
-        :type destination_id: str
+        :param id: (required)
+        :type id: str
+        :param post_id: The post. Send the pst_ id of one of this account's posts, or the platform's own id of any post on the account's platform. Percent-encode it in the URL, as the SDKs do, so a Bluesky at:// URI is sent as at%3A%2F%2F… (required)
+        :type post_id: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3319,10 +2106,9 @@ class EngagementApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._unlike_serialize(
-            post=post,
-            account_id=account_id,
-            destination_id=destination_id,
+        _param = self._unrepost_post_serialize(
+            id=id,
+            post_id=post_id,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3330,14 +2116,16 @@ class EngagementApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "Like201Response",
+            '200': "Repost",
             '400': "Error",
             '401': "Error",
             '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
+            '422': "Error",
             '429': "Error",
+            '500': "Error",
             '502': "Error",
         }
         response_data = await self.api_client.call_api(
@@ -3347,11 +2135,10 @@ class EngagementApi:
         return response_data.response
 
 
-    def _unlike_serialize(
+    def _unrepost_post_serialize(
         self,
-        post,
-        account_id,
-        destination_id,
+        id,
+        post_id,
         _request_auth,
         _content_type,
         _headers,
@@ -3373,19 +2160,11 @@ class EngagementApi:
         _body_params: Optional[bytes] = None
 
         # process the path parameters
+        if id is not None:
+            _path_params['id'] = id
+        if post_id is not None:
+            _path_params['postId'] = post_id
         # process the query parameters
-        if post is not None:
-            
-            _query_params.append(('post', post))
-            
-        if account_id is not None:
-            
-            _query_params.append(('accountId', account_id))
-            
-        if destination_id is not None:
-            
-            _query_params.append(('destinationId', destination_id))
-            
         # process the header parameters
         # process the form parameters
         # process the body parameter
@@ -3402,13 +2181,12 @@ class EngagementApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'ApiKey', 
             'Bearer'
         ]
 
         return self.api_client.param_serialize(
             method='DELETE',
-            resource_path='/v1/likes',
+            resource_path='/v1/accounts/{id}/reposts/{postId}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

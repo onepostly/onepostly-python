@@ -17,8 +17,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from onepostly.models.webhook import Webhook
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,8 +28,10 @@ class ListWebhooks200Response(BaseModel):
     """
     ListWebhooks200Response
     """ # noqa: E501
-    webhooks: List[Webhook]
-    __properties: ClassVar[List[str]] = ["webhooks"]
+    data: List[Webhook]
+    next_cursor: Optional[StrictStr] = Field(description="Cursor for the next page, or null on the last page.", alias="nextCursor")
+    has_more: StrictBool = Field(description="True when another page follows this one.", alias="hasMore")
+    __properties: ClassVar[List[str]] = ["data", "nextCursor", "hasMore"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -70,12 +72,17 @@ class ListWebhooks200Response(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in webhooks (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in data (list)
         _items = []
-        if self.webhooks:
-            for _item_webhooks in self.webhooks:
-                _items.append(_item_webhooks.to_dict() if _item_webhooks is not None else None)
-            _dict['webhooks'] = _items
+        if self.data:
+            for _item_data in self.data:
+                _items.append(_item_data.to_dict() if _item_data is not None else None)
+            _dict['data'] = _items
+        # set to None if next_cursor (nullable) is None
+        # and model_fields_set contains the field
+        if self.next_cursor is None and "next_cursor" in self.model_fields_set:
+            _dict['nextCursor'] = None
+
         return _dict
 
     @classmethod
@@ -88,7 +95,9 @@ class ListWebhooks200Response(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "webhooks": [Webhook.from_dict(_item) for _item in obj["webhooks"]] if obj.get("webhooks") is not None else None
+            "data": [Webhook.from_dict(_item) for _item in obj["data"]] if obj.get("data") is not None else None,
+            "nextCursor": obj.get("nextCursor"),
+            "hasMore": obj.get("hasMore")
         })
         return _obj
 

@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
@@ -28,13 +28,14 @@ class CreateAutomationBody(BaseModel):
     """
     CreateAutomationBody
     """ # noqa: E501
-    account_id: Annotated[str, Field(min_length=1, strict=True)] = Field(alias="accountId")
-    kind: StrictStr
+    account_id: StrictStr = Field(description="An Instagram or Facebook account from List Accounts.", alias="accountId")
+    kind: StrictStr = Field(description="comment_to_dm answers a comment with a direct message. story_reply answers a reply to a story. welcome_dm answers a message.")
     name: Annotated[str, Field(min_length=1, strict=True, max_length=120)] = Field(description="Label for the rule.")
     keywords: Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=200)]], Field(min_length=1, max_length=20)] = Field(description="The rule runs when a comment or message contains any of these words. Matching ignores case.")
     exclude_keywords: Optional[Annotated[List[Annotated[str, Field(min_length=1, strict=True, max_length=200)]], Field(max_length=20)]] = Field(default=None, description="The rule is skipped when a comment or message contains any of these words.", alias="excludeKeywords")
-    dm_message: Annotated[str, Field(min_length=1, strict=True, max_length=1000)] = Field(alias="dmMessage")
-    __properties: ClassVar[List[str]] = ["accountId", "kind", "name", "keywords", "excludeKeywords", "dmMessage"]
+    message: Annotated[str, Field(min_length=1, strict=True, max_length=1000)] = Field(description="The direct message the rule sends.")
+    enabled: Optional[StrictBool] = Field(default=None, description="Defaults to true.")
+    __properties: ClassVar[List[str]] = ["accountId", "kind", "name", "keywords", "excludeKeywords", "message", "enabled"]
 
     @field_validator('kind')
     def kind_validate_enum(cls, value):
@@ -99,7 +100,8 @@ class CreateAutomationBody(BaseModel):
             "name": obj.get("name"),
             "keywords": obj.get("keywords"),
             "excludeKeywords": obj.get("excludeKeywords"),
-            "dmMessage": obj.get("dmMessage")
+            "message": obj.get("message"),
+            "enabled": obj.get("enabled")
         })
         return _obj
 

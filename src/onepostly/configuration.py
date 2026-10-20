@@ -110,7 +110,6 @@ HTTPSignatureAuthSetting = TypedDict(
 AuthSettings = TypedDict(
     "AuthSettings",
     {
-        "ApiKey": APIKeyAuthSetting,
         "Bearer": BearerFormatAuthSetting,
     },
     total=False,
@@ -177,25 +176,6 @@ class Configuration:
     :param date_format: Date format string for serialization.
 
     :Example:
-
-    API Key Authentication Example.
-    Given the following security scheme in the OpenAPI specification:
-      components:
-        securitySchemes:
-          cookieAuth:         # name for the security scheme
-            type: apiKey
-            in: cookie
-            name: JSESSIONID  # cookie name
-
-    You can programmatically set the cookie:
-
-conf = onepostly.Configuration(
-    api_key={'cookieAuth': 'abc123'}
-    api_key_prefix={'cookieAuth': 'JSESSIONID'}
-)
-
-    The following cookie will be added to the HTTP request:
-       Cookie: JSESSIONID abc123
     """
 
     _default: ClassVar[Optional[Self]] = None
@@ -534,15 +514,6 @@ conf = onepostly.Configuration(
         :return: The Auth Settings information dict.
         """
         auth: AuthSettings = {}
-        if 'ApiKey' in self.api_key:
-            auth['ApiKey'] = {
-                'type': 'api_key',
-                'in': 'header',
-                'key': 'x-api-key',
-                'value': self.get_api_key_with_prefix(
-                    'ApiKey',
-                ),
-            }
         if self.access_token is not None:
             auth['Bearer'] = {
                 'type': 'bearer',
@@ -562,7 +533,7 @@ conf = onepostly.Configuration(
                "OS: {env}\n"\
                "Python Version: {pyversion}\n"\
                "Version of the API: 1.0.0\n"\
-               "SDK Package Version: 0.2.20".\
+               "SDK Package Version: 0.2.21".\
                format(env=sys.platform, pyversion=sys.version)
 
     def get_host_settings(self) -> List[HostSetting]:

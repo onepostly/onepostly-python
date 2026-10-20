@@ -17,8 +17,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional, Union
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+from onepostly.models.media_asset_status import MediaAssetStatus
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -27,11 +29,14 @@ class MediaAsset(BaseModel):
     """
     MediaAsset
     """ # noqa: E501
-    id: StrictStr
-    url: StrictStr
-    content_type: StrictStr = Field(alias="contentType")
-    size_bytes: Optional[Union[StrictFloat, StrictInt]] = Field(default=None, alias="sizeBytes")
-    __properties: ClassVar[List[str]] = ["id", "url", "contentType", "sizeBytes"]
+    id: StrictStr = Field(description="Pass it in a post's media as { id }.")
+    url: StrictStr = Field(description="Public URL of the file. It never changes, and serves the file once status is ready.")
+    content_type: StrictStr = Field(description="MIME type of the file.", alias="contentType")
+    size_bytes: Optional[StrictInt] = Field(description="File size in bytes. Null until status is ready.", alias="sizeBytes")
+    filename: Optional[StrictStr] = Field(description="The filename sent to Create Media. Null for a file added without one.")
+    status: MediaAssetStatus
+    created_at: datetime = Field(alias="createdAt")
+    __properties: ClassVar[List[str]] = ["id", "url", "contentType", "sizeBytes", "filename", "status", "createdAt"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -72,6 +77,19 @@ class MediaAsset(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of status
+        if self.status:
+            _dict['status'] = self.status.to_dict()
+        # set to None if size_bytes (nullable) is None
+        # and model_fields_set contains the field
+        if self.size_bytes is None and "size_bytes" in self.model_fields_set:
+            _dict['sizeBytes'] = None
+
+        # set to None if filename (nullable) is None
+        # and model_fields_set contains the field
+        if self.filename is None and "filename" in self.model_fields_set:
+            _dict['filename'] = None
+
         return _dict
 
     @classmethod
@@ -87,7 +105,10 @@ class MediaAsset(BaseModel):
             "id": obj.get("id"),
             "url": obj.get("url"),
             "contentType": obj.get("contentType"),
-            "sizeBytes": obj.get("sizeBytes")
+            "sizeBytes": obj.get("sizeBytes"),
+            "filename": obj.get("filename"),
+            "status": MediaAssetStatus.from_dict(obj["status"]) if obj.get("status") is not None else None,
+            "createdAt": obj.get("createdAt")
         })
         return _obj
 
