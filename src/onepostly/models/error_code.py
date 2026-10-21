@@ -27,7 +27,7 @@ ERRORCODE_ANY_OF_SCHEMAS = ["str"]
 
 class ErrorCode(BaseModel):
     """
-    Stable machine-readable error code. Branch on this value. New codes can be added, so handle a code you do not know by its HTTP status. Every code is listed at https://onepostly.com/docs/error-handling#error-codes.
+    Stable machine-readable error code. Branch on this value. New codes can be added, so handle a code you do not know by its HTTP status. See https://onepostly.com/docs/error-handling#error-codes for every code.
     """
 
     # data type: str
