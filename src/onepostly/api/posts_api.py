@@ -377,7 +377,7 @@ class PostsApi:
     ) -> Post:
         """Delete post
 
-        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
+        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. A post made outside Onepostly is deleted from the platform the same way. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
 
         :param id: (required)
         :type id: str
@@ -454,7 +454,7 @@ class PostsApi:
     ) -> ApiResponse[Post]:
         """Delete post
 
-        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
+        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. A post made outside Onepostly is deleted from the platform the same way. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
 
         :param id: (required)
         :type id: str
@@ -531,7 +531,7 @@ class PostsApi:
     ) -> RESTResponseType:
         """Delete post
 
-        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
+        Cancels a post that has not been published yet, or deletes a published post from the platform, all posts of its thread included. A post made outside Onepostly is deleted from the platform the same way. The post stays in Onepostly with status cancelled or deleted. Deleting an X post is charged to the wallet.
 
         :param id: (required)
         :type id: str
@@ -1432,7 +1432,7 @@ class PostsApi:
     ) -> SyncAccountPosts200Response:
         """Sync account posts
 
-        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts.
+        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts. A post published through Onepostly comes back as itself.
 
         :param id: (required)
         :type id: str
@@ -1517,7 +1517,7 @@ class PostsApi:
     ) -> ApiResponse[SyncAccountPosts200Response]:
         """Sync account posts
 
-        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts.
+        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts. A post published through Onepostly comes back as itself.
 
         :param id: (required)
         :type id: str
@@ -1602,7 +1602,7 @@ class PostsApi:
     ) -> RESTResponseType:
         """Sync account posts
 
-        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts.
+        Finds posts the account published on the platform, outside Onepostly, and adds them to your posts with source external. Send url or platformPostId to find one post, or neither to sync the account's 20 most recent posts. A post published through Onepostly comes back as itself.
 
         :param id: (required)
         :type id: str

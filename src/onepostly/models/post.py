@@ -42,7 +42,7 @@ class Post(BaseModel):
     platform: Platform
     source: StrictStr = Field(description="external for a post the account published outside Onepostly.")
     status: PostStatus
-    text: Optional[StrictStr] = Field(description="The post's text. Null for posts published outside Onepostly.")
+    text: Optional[StrictStr] = Field(description="The post's text. On a post made outside Onepostly it is the text the platform reports, or null when there is none.")
     media_kind: MediaKind = Field(description="What the post is. An Instagram video post reads reel, because Instagram publishes it as a reel.", alias="mediaKind")
     media: List[MediaFile] = Field(description="The post's media files, in order.")
     thread: List[PostThreadInner] = Field(description="Replies published under the first post, in order.")

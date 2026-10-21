@@ -28,7 +28,7 @@ class SyncAccountPosts200Response(BaseModel):
     """
     SyncAccountPosts200Response
     """ # noqa: E501
-    data: List[Post] = Field(description="The account's recent posts, or the one post that was found. Empty when a url or platformPostId matched nothing among the 20 most recent posts.")
+    data: List[Post] = Field(description="The account's recent posts, or the one post that was found. Empty when the url or platformPostId names no post of this account. An Instagram or Threads link, or a Facebook pfbid link, is only found among the 20 most recent posts.")
     skipped: StrictBool = Field(description="true when the account was synced in the last 15 seconds, so only posts Onepostly already knows are returned.")
     __properties: ClassVar[List[str]] = ["data", "skipped"]
 
